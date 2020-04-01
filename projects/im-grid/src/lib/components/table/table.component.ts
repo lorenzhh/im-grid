@@ -15,9 +15,9 @@ import {
 import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
 import { NzModalRef, NzModalService, NzTableComponent, NzMessageService } from 'ng-zorro-antd';
 import {
-  ColumnType,
-  Column, FieldType,
-  FilterType,
+  ImColumnType,
+  ImColumn, ImFieldType,
+  ImFilterType,
   DynamicComponentConfig,
   EditMode,
   SelectionMode,
@@ -57,7 +57,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('modalFooter') modalFooter: TemplateRef<any>;
   @ViewChild('virtualTable') table: NzTableComponent;
 
-  @Input() columns: Column[];
+  @Input() columns: ImColumn[];
   @Input() editMode = EditMode.direct;
   @Input() selection = SelectionMode.checkbox;
   @Input() dataSource$: Observable<any[]>;
@@ -69,11 +69,11 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   @Output() created = new EventEmitter<ChangeEvent>();
   @Output() updated = new EventEmitter<ChangeEvent>();
 
-  public childColumns: Column[];
+  public childColumns: ImColumn[];
   public rows: any[] = [];
-  public FilterType = FilterType;
-  public ColumnType = ColumnType;
-  public FieldType = FieldType;
+  public ImFilterType = ImFilterType;
+  public ImColumnType = ImColumnType;
+  public ImFieldType = ImFieldType;
   public EditMode = EditMode;
   public SelectionMode = SelectionMode;
   public translations = translations;
@@ -92,7 +92,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   public deletedRowsLength = 0;
   public newRowsLength = 0;
   public filterForm: FormGroup;
-  public notIncludedColumns: Column[] = [];
+  public notIncludedColumns: ImColumn[] = [];
   public uniqueKey: string;
   public allowSearch: boolean;
   private modal: NzModalRef;
@@ -271,7 +271,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
 
   private setUniqueValues() {
     this.columns.forEach(column => {
-      if (column.filter && column.filter.type === FilterType.Select) {
+      if (column.filter && column.filter.type === ImFilterType.Select) {
         column.filter.selectValues = this.getUniqueSelectFilterValues(
           column.key
         );
@@ -353,7 +353,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
 
   private initForm(row?: any) {
     const form = this.formBuilder.group({});
-    this.columns.forEach((column: Column) => {
+    this.columns.forEach((column: ImColumn) => {
       const newControl = new FormControl(
         row
           ? { value: row[column.key], disabled: column.notEditable }
@@ -362,7 +362,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
       );
       form.addControl(column.key, newControl);
 
-      if (column.columnType === ColumnType.Date) {
+      if (column.columnType === ImColumnType.Date) {
         const formControl = form.get(column.key);
         formControl.valueChanges.subscribe((value: Date) => {
           if (value) {
@@ -387,10 +387,10 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
       }
       if (column.width === undefined) {
         switch (column.columnType) {
-          case ColumnType.Boolean:
+          case ImColumnType.Boolean:
             column.width = 130;
             break;
-          case ColumnType.Date:
+          case ImColumnType.Date:
             column.width = 260;
             break;
           default:
@@ -420,41 +420,41 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
       }
       if (column.filter.type === undefined) {
         switch (column.columnType) {
-          case ColumnType.Boolean:
-            column.filter.type = FilterType.Boolean;
+          case ImColumnType.Boolean:
+            column.filter.type = ImFilterType.Boolean;
             break;
-          case ColumnType.Date:
-            column.filter.type = FilterType.RangeDate;
+          case ImColumnType.Date:
+            column.filter.type = ImFilterType.RangeDate;
             break;
-          case ColumnType.Decimal:
-          case ColumnType.Int:
-            column.filter.type = FilterType.RangeNumber;
+          case ImColumnType.Decimal:
+          case ImColumnType.Int:
+            column.filter.type = ImFilterType.RangeNumber;
             break;
           default:
-            column.filter.type = FilterType.FreeText;
+            column.filter.type = ImFilterType.FreeText;
         }
       }
       if (column.fieldType === undefined) {
         switch (column.columnType) {
-          case ColumnType.Boolean:
-            column.fieldType = FieldType.Checkbox;
+          case ImColumnType.Boolean:
+            column.fieldType = ImFieldType.Checkbox;
             break;
-          case ColumnType.Date:
-            column.fieldType = FieldType.Date;
+          case ImColumnType.Date:
+            column.fieldType = ImFieldType.Date;
             break;
-          case ColumnType.Decimal:
-          case ColumnType.Int:
-            column.fieldType = FieldType.Number;
+          case ImColumnType.Decimal:
+          case ImColumnType.Int:
+            column.fieldType = ImFieldType.Number;
             break;
-          case ColumnType.Xml:
-            column.fieldType = FieldType.Textarea;
+          case ImColumnType.Xml:
+            column.fieldType = ImFieldType.Textarea;
             break;
           default:
-            column.fieldType = FieldType.Text;
+            column.fieldType = ImFieldType.Text;
         }
       }
 
-      if (column.fieldType === FieldType.Select && column.filter.selectValues === undefined) {
+      if (column.fieldType === ImFieldType.Select && column.filter.selectValues === undefined) {
         column.filter.selectValues = [];
       }
 
@@ -463,7 +463,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
         this.childColumns = column.childrenConfig.columns;
         this.childrenKey = column.key;
         this.childrenTitle = column.title;
-        column.fieldType = FieldType.None;
+        column.fieldType = ImFieldType.None;
         this.childColumns.forEach(childColumn => {
           if (childColumn.title === undefined) {
             childColumn.title = childColumn.key;
@@ -537,7 +537,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   }
 
 
-  public showValueInModal(row: any, column: Column): void {
+  public showValueInModal(row: any, column: ImColumn): void {
     const content: string = this.formatService.format(row[column.key], column.columnType, true);
     const viewMode = String(content).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -743,8 +743,8 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
 
   public dragEndEvent(
     event: CdkDragDrop<string[]>,
-    columns: Column[],
-    columnsToGetKeyFrom: Column[]
+    columns: ImColumn[],
+    columnsToGetKeyFrom: ImColumn[]
   ): any[] {
     return this.orderElementsInArrayUsingKeys(
       columns,
@@ -768,7 +768,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  filterRows(exludedColumns?: Column[]) {
+  filterRows(exludedColumns?: ImColumn[]) {
     if (exludedColumns) {
       this.notIncludedColumns = exludedColumns;
     }
@@ -829,7 +829,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     this.filterRows();
   }
 
-  private getColumnsWithFilter(columns: Column[]): Column[] {
+  private getColumnsWithFilter(columns: ImColumn[]): ImColumn[] {
     columns.forEach(column => {
       const values = column.filter.values;
       if (values.length > 0 && values.every((value: Date | string | number) => value == null || value === '')) {
@@ -890,7 +890,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     this.drawerVisible = false;
   }
 
-  handleClick(column: Column, row: any, index: number, event: MouseEvent) {
+  handleClick(column: ImColumn, row: any, index: number, event: MouseEvent) {
     this.updateFocusedCell(index, column.key);
 
     if (column.showModalOnClick) {

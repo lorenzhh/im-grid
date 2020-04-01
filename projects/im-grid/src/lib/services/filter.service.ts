@@ -1,24 +1,24 @@
 import { Injectable } from '@angular/core';
-import { Column, FilterType } from '../models/column.model';
+import { ImColumn, ImFilterType } from '../models/column.model';
 
 @Injectable({
     providedIn: 'root'
 })
 export class FilterService {
-    public rowShouldBeFiltered(row: any[], column: Column): boolean {
-        if (column.filter.type === FilterType.RangeNumber
+    public rowShouldBeFiltered(row: any[], column: ImColumn): boolean {
+        if (column.filter.type === ImFilterType.RangeNumber
         ) {
             return this.isInRange(row[column.key], column.filter.values);
         }
 
-        if (column.filter.type === FilterType.RangeDate
+        if (column.filter.type === ImFilterType.RangeDate
         ) {
             return this.isInDateRange(row[column.key], column.filter.values);
         }
         if (row[column.key] == null) {
             return false;
         }
-        if (column.filter.type === FilterType.Select
+        if (column.filter.type === ImFilterType.Select
         ) {
             return column.filter.values.find((value: any) => row[column.key].toString().includes(value));
         }

@@ -2,7 +2,7 @@ import { ValidatorFn } from '@angular/forms';
 import { Type } from '@angular/core';
 import { Subject } from 'rxjs';
 
-export enum FieldType {
+export enum ImFieldType {
     None = 'None',
     Date = 'Date',
     Currency = 'Currency',
@@ -13,7 +13,7 @@ export enum FieldType {
     Select = 'Select',
 }
 
-export enum ColumnType {
+export enum ImColumnType {
     Date = 'Date',
     Int = 'Int',
     Currency = 'Currency',
@@ -22,7 +22,7 @@ export enum ColumnType {
     Xml = 'Xml',
 }
 
-export enum FilterType {
+export enum ImFilterType {
     Boolean,
     Select,
     RangeDate,
@@ -30,32 +30,32 @@ export enum FilterType {
     RangeNumber
 }
 
-export interface Column {
+export interface ImColumn {
     title: string;
     isUnique?: true;
     childrenConfig?: {
-        columns: Column[];
+        columns: ImColumn[];
         componentConfig: DynamicComponentConfig
     };
     key: string;
     showModalOnClick?: boolean;
     defaultValue?: number | string | boolean;
     validators?: ValidatorFn[];
-    fieldType?: FieldType;
+    fieldType?: ImFieldType;
     selectValues?: string[] | number[] | boolean[];
-    columnType?: ColumnType;
+    columnType?: ImColumnType;
     notEditable?: boolean;
     notCreateable?: boolean;
     width?: number;
     visible?: boolean;
-    filter?: Filter;
+    filter?: ImFilter;
 }
 
-export interface Filter {
+export interface ImFilter {
     values?: any[];
     selectValues?: string[] | number[];
     multiSelect?: boolean;
-    type?: FilterType;
+    type?: ImFilterType;
 }
 
 export interface DynamicComponentConfig {

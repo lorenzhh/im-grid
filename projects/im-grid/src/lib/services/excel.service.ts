@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { utils, WorkBook, WorkSheet, write } from 'xlsx';
 import { DOCUMENT } from '@angular/common';
-import { Column, ColumnType } from '../models/column.model';
+import { ImColumn, ImColumnType } from '../models/column.model';
 import { FormatService } from './format.service';
 const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
 
@@ -12,7 +12,7 @@ export class ExcelService {
         @Inject(DOCUMENT) private document: any
     ) { }
 
-    public exportAsExcelFile(rows: any[], excelFileName: string, columns: Column[]): void {
+    public exportAsExcelFile(rows: any[], excelFileName: string, columns: ImColumn[]): void {
         const rowsToExport = this.formatedRows(rows, columns);
         const worksheet: WorkSheet = utils.json_to_sheet(rowsToExport);
 
@@ -34,7 +34,7 @@ export class ExcelService {
         this.document.body.removeChild(link);
     }
 
-    private formatedRows(rows: any[], columns: Column[]): any[] {
+    private formatedRows(rows: any[], columns: ImColumn[]): any[] {
         const formatedRows: any[] = [];
         const clonedRows = JSON.parse(JSON.stringify(rows));
 
@@ -55,29 +55,29 @@ export class ExcelService {
         return formatedRows;
     }
 
-    private formatValue(column: Column, value: any) {
+    private formatValue(column: ImColumn, value: any) {
         if (!value) {
             return '';
         }
         switch (column.columnType) {
-            case ColumnType.Boolean:
+            case ImColumnType.Boolean:
                 return this.formatService.format(value, column.columnType);
-            case ColumnType.Xml:
+            case ImColumnType.Xml:
                 return this.formatService.format(value, column.columnType);
             default: return value;
         }
     }
 
-    private getType(column: Column, value: any) {
+    private getType(column: ImColumn, value: any) {
         if (!value) {
             return 's';
         }
 
         switch (column.columnType) {
-            case ColumnType.Int:
-            case ColumnType.Decimal: return 'n';
-            case ColumnType.Date: return 'd';
-            case ColumnType.Boolean: return 'b';
+            case ImColumnType.Int:
+            case ImColumnType.Decimal: return 'n';
+            case ImColumnType.Date: return 'd';
+            case ImColumnType.Boolean: return 'b';
             default: return 's';
         }
     }

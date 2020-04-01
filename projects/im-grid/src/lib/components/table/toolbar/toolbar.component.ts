@@ -6,7 +6,7 @@ export type Size = 'small' | 'middle' | 'default';
   templateUrl: './toolbar.component.html',
   styleUrls: ['./toolbar.component.css']
 })
-export class ToolbarComponent {
+export class ImToolbarComponent {
   @Input() numberOfChecked: number;
   @Input() loading: boolean;
   @Input() size: Size;

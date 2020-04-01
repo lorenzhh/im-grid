@@ -1,6 +1,6 @@
-import { Column, ColumnType } from 'im-grid';
+import { ImColumn, ImColumnType } from 'im-grid';
 
-export const columns: Column[] = [
+export const columns: ImColumn[] = [
     {
         key: 'mandatorId',
         title: 'Mandator Id',
@@ -13,16 +13,16 @@ export const columns: Column[] = [
     {
         key: 'no',
         title: 'No',
-        columnType: ColumnType.Int
+        columnType: ImColumnType.Int
     },
     {
         key: 'exportedAt',
         title: 'Static Date Long Title exported At',
-        columnType: ColumnType.Date,
+        columnType: ImColumnType.Date,
     },
     {
         key: 'created',
         title: 'Created at',
-        columnType: ColumnType.Date,
+        columnType: ImColumnType.Date,
     },
 ];

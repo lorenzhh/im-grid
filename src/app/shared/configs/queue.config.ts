@@ -1,6 +1,6 @@
-import { Column, ColumnType, FieldType } from 'im-grid';
+import { ImColumn, ImColumnType, ImFieldType } from 'im-grid';
 
-export const columns: Column[] = [
+export const columns: ImColumn[] = [
     {
         key: 'id',
         title: 'ID',
@@ -9,7 +9,7 @@ export const columns: Column[] = [
     {
         key: 'isTest',
         title: 'Is Test',
-        columnType: ColumnType.Boolean
+        columnType: ImColumnType.Boolean
     },
     {
         key: 'source',
@@ -19,7 +19,7 @@ export const columns: Column[] = [
         key: 'value',
         title: 'Value',
         showModalOnClick: true,
-        columnType: ColumnType.Xml
+        columnType: ImColumnType.Xml
     },
     {
         key: 'datatype',
@@ -28,27 +28,27 @@ export const columns: Column[] = [
     {
         key: 'created',
         title: 'Created at',
-        columnType: ColumnType.Date,
+        columnType: ImColumnType.Date,
     },
     {
         key: 'processed',
         title: 'Processed',
-        columnType: ColumnType.Boolean,
+        columnType: ImColumnType.Boolean,
     },
     {
         key: 'processingCode',
         title: 'Processing Code',
-        columnType: ColumnType.Int,
+        columnType: ImColumnType.Int,
     },
     {
         key: 'processingMessage',
         title: 'Processing Message',
-        fieldType: FieldType.Textarea,
+        fieldType: ImFieldType.Textarea,
         showModalOnClick: true
     },
     {
         key: 'retries',
         title: 'Retries',
-        columnType: ColumnType.Int,
+        columnType: ImColumnType.Int,
     },
 ];

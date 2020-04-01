@@ -1,6 +1,6 @@
 <ng-container [ngSwitch]="column.filter.type">
   <nz-select
-    *ngSwitchCase="FilterType.Boolean"
+    *ngSwitchCase="ImFilterType.Boolean"
     [style.width.%]="100"
     nzAllowClear
     nzShowSearch
@@ -19,7 +19,7 @@
     ></nz-option>
   </nz-select>
   <nz-select
-    *ngSwitchCase="FilterType.Select"
+    *ngSwitchCase="ImFilterType.Select"
     [style.width.%]="100"
     [nzMode]="'multiple'"
     [nzMaxTagCount]="0"
@@ -43,7 +43,7 @@
     {{ selectedList.length }}
   </ng-template>
   <nz-input-group
-    *ngSwitchCase="FilterType.RangeNumber"
+    *ngSwitchCase="ImFilterType.RangeNumber"
     nzCompact
     nzSize="small"
   >
@@ -72,7 +72,7 @@
     >
   </nz-input-group>
   <input
-    *ngSwitchCase="FilterType.FreeText"
+    *ngSwitchCase="ImFilterType.FreeText"
     nz-input
     [(ngModel)]="column.filter.values[0]"
     (ngModelChange)="filterRows.emit()"
@@ -80,7 +80,7 @@
     nzSize="small"
   >
   <nz-range-picker
-    *ngSwitchCase="FilterType.RangeDate"
+    *ngSwitchCase="ImFilterType.RangeDate"
     [style.width.%]="100"
     [nzStyle]="{width: '100%'}"
     nzSize="small"

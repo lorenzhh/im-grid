@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FilterCellComponent } from './filter-cell.component';
+import { ImFilterCellComponent } from './filter-cell.component';
 
-describe('FilterCellComponent', () => {
-  let component: FilterCellComponent;
-  let fixture: ComponentFixture<FilterCellComponent>;
+describe('ImFilterCellComponent', () => {
+  let component: ImFilterCellComponent;
+  let fixture: ComponentFixture<ImFilterCellComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ FilterCellComponent ]
+      declarations: [ ImFilterCellComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(FilterCellComponent);
+    fixture = TestBed.createComponent(ImFilterCellComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

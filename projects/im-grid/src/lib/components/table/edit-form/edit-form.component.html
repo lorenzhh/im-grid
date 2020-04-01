@@ -3,7 +3,7 @@
   [formGroup]="form"
 >
   <nz-form-item *ngFor="let column of columns">
-    <ng-container *ngIf="column.fieldType !== FieldType.None">
+    <ng-container *ngIf="column.fieldType !== ImFieldType.None">
       <nz-form-label [nzSpan]="7">{{ column.title }}</nz-form-label>
       <nz-form-control
         [ngSwitch]="column.fieldType"
@@ -11,7 +11,7 @@
         nzErrorTip="Please write something here!"
       >
         <nz-select
-          *ngSwitchCase="FieldType.Select"
+          *ngSwitchCase="ImFieldType.Select"
           [formControlName]="column.key"
           [nzPlaceHolder]="column.title + '...'"
         >
@@ -22,20 +22,20 @@
           ></nz-option>
         </nz-select>
         <nz-input-number
-          *ngSwitchCase="FieldType.Number"
+          *ngSwitchCase="ImFieldType.Number"
           [style.width.%]="100"
           [formControlName]="column.key"
           [nzStep]="1"
           [nzPlaceHolder]="column.title + '...'"
         ></nz-input-number>
         <label
-          *ngSwitchCase="FieldType.Checkbox"
+          *ngSwitchCase="ImFieldType.Checkbox"
           nz-checkbox
           [formControlName]="column.key"
         >
         </label>
         <nz-date-picker
-          *ngSwitchCase="FieldType.Date"
+          *ngSwitchCase="ImFieldType.Date"
           [style.width.%]="100"
           [nzStyle]="{width: '100%'}"
           [nzFormat]="TimeFormats[settingsService.locale]"
@@ -44,7 +44,7 @@
           [nzPlaceHolder]="column.title + '...'"
         ></nz-date-picker>
         <textarea
-          *ngSwitchCase="FieldType.Textarea"
+          *ngSwitchCase="ImFieldType.Textarea"
           [formControlName]="column.key"
           width="700"
           height="500"

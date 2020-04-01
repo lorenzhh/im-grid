@@ -12,7 +12,7 @@ import { DynamicComponentConfig } from '../../../models/column.model';
   templateUrl: './drawer.component.html',
   styleUrls: ['./drawer.component.scss']
 })
-export class DrawerComponent implements OnChanges {
+export class ImDrawerComponent implements OnChanges {
   @Input() public componentConfig: DynamicComponentConfig;
   @Input() visible: boolean;
   @Input() title: string;

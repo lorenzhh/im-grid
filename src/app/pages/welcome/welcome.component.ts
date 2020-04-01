@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { columns as mandatorColumns } from 'src/app/shared/configs/mandator.config';
 import { columns as queueColumns } from 'src/app/shared/configs/queue.config';
 import { columns as invoiceColumns } from 'src/app/shared/configs/invoice.config';
-import { Column, ChangeEvent, EditMode } from 'im-grid';
+import { ImColumn, ChangeEvent, EditMode } from 'im-grid';
 import { ActivatedRoute } from '@angular/router';
 import { ReplaySubject, BehaviorSubject, of } from 'rxjs';
 import { DataService } from 'src/app/shared/services/data.service';
@@ -22,7 +22,7 @@ export enum Entries {
 })
 export class WelcomeComponent implements OnInit {
   @ViewChild('table') table: ImGridComponent;
-  public columns: Column[];
+  public columns: ImColumn[];
   public dataSource$: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
   private section = new BehaviorSubject('');
   EditMode = EditMode;

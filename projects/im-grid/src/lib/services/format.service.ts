@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { DatePipe, DecimalPipe, CurrencyPipe } from '@angular/common';
-import { ColumnType } from '../models/column.model';
+import { ImColumnType } from '../models/column.model';
 import { SettingsService } from './settings.service';
 import { translations } from '../components/table/translations/default-translations';
 import { TimeFormats } from '../models/settings.model';
@@ -19,27 +19,27 @@ export class FormatService {
     private settingsService: SettingsService
   ) { }
 
-  format(value: any, type: ColumnType, optional = false) {
+  format(value: any, type: ImColumnType, optional = false) {
     if (value == null) {
       return '';
     }
     switch (type) {
-      case ColumnType.Xml:
+      case ImColumnType.Xml:
         return optional ? this.formattedXml(value) : value;
-      case ColumnType.Date:
+      case ImColumnType.Date:
         return ((typeof value === 'string') && value.match(this.ISO8601_DATE_REGEX))
           ? this.datePipe.transform(
             value,
             this.getTimeFormat()
           )
           : value;
-      case ColumnType.Boolean: {
+      case ImColumnType.Boolean: {
         return this.translateLanguage(value);
       }
-      case ColumnType.Currency: {
+      case ImColumnType.Currency: {
         return this.currencyPipe.transform(value, 'EUR', 'symbol-narrow');
       }
-      case ColumnType.Decimal: {
+      case ImColumnType.Decimal: {
         return this.decimalPipe.transform(value, '1.2-2', this.settingsService.locale);
       }
       default:

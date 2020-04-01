@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { Column, ColumnType, FieldType } from '../../../models/column.model';
+import { ImColumn, ImColumnType, ImFieldType } from '../../../models/column.model';
 import { TimeFormats } from '../../../models/settings.model';
 import { SettingsService } from '../../../services/settings.service';
 
@@ -11,9 +11,9 @@ import { SettingsService } from '../../../services/settings.service';
 })
 export class EditFormComponent {
   @Input() form: FormGroup;
-  @Input() columns: Column[];
-  ColumnType = ColumnType;
-  FieldType = FieldType;
+  @Input() columns: ImColumn[];
+  ImColumnType = ImColumnType;
+  ImFieldType = ImFieldType;
   TimeFormats = TimeFormats;
 
   constructor(public settingsService: SettingsService) { }

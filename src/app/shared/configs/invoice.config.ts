@@ -1,6 +1,6 @@
-import { ChildTableComponent, ColumnType, Column } from 'im-grid';
+import { ChildTableComponent, ImColumnType, ImColumn } from 'im-grid';
 
-export const columns: Column[] = [
+export const columns: ImColumn[] = [
     {
         key: 'id',
         title: 'Id',
@@ -9,32 +9,32 @@ export const columns: Column[] = [
     {
         key: 'bookingYear',
         title: 'Booking Year',
-        columnType: ColumnType.Int
+        columnType: ImColumnType.Int
     },
     {
         key: 'invoiceDate',
         title: 'Invoice Date',
-        columnType: ColumnType.Date,
+        columnType: ImColumnType.Date,
     },
     {
         key: 'performanceDate',
         title: 'Performance Date',
-        columnType: ColumnType.Date,
+        columnType: ImColumnType.Date,
     },
     {
         key: 'mandator',
         title: 'Mandator',
-        columnType: ColumnType.Int
+        columnType: ImColumnType.Int
     },
     {
         key: 'formularNo',
         title: 'Formular No',
-        columnType: ColumnType.Int
+        columnType: ImColumnType.Int
     },
     {
         key: 'imoNo',
         title: 'Imo No',
-        columnType: ColumnType.Int
+        columnType: ImColumnType.Int
     },
     {
         key: 'vesselName',
@@ -47,7 +47,7 @@ export const columns: Column[] = [
     {
         key: 'paymentDate',
         title: 'Payment Date',
-        columnType: ColumnType.Date,
+        columnType: ImColumnType.Date,
     },
     {
         key: 'isoCode',
@@ -56,22 +56,22 @@ export const columns: Column[] = [
     {
         key: 'tcoHire',
         title: 'Tco Hire',
-        columnType: ColumnType.Decimal
+        columnType: ImColumnType.Decimal
     },
     {
         key: 'freight',
         title: 'Freight',
-        columnType: ColumnType.Decimal
+        columnType: ImColumnType.Decimal
     },
     {
         key: 'startdate',
         title: 'Start date',
-        columnType: ColumnType.Date,
+        columnType: ImColumnType.Date,
     },
     {
         key: 'enddate',
         title: 'End date',
-        columnType: ColumnType.Date,
+        columnType: ImColumnType.Date,
     },
     {
         key: 'voyageNo',
@@ -96,7 +96,7 @@ export const columns: Column[] = [
     {
         key: 'demurrage',
         title: 'Demurrage',
-        columnType: ColumnType.Decimal
+        columnType: ImColumnType.Decimal
     },
     {
         key: 'voyageCode',
@@ -105,32 +105,32 @@ export const columns: Column[] = [
     {
         key: 'tcoDays',
         title: 'Tco Days',
-        columnType: ColumnType.Decimal
+        columnType: ImColumnType.Decimal
     },
     {
         key: 'tcoHirePerDay',
         title: 'Tco Hire Per Day',
-        columnType: ColumnType.Decimal
+        columnType: ImColumnType.Decimal
     },
     {
         key: 'tcoOffhireDays',
         title: 'Tco Off hire Days',
-        columnType: ColumnType.Decimal
+        columnType: ImColumnType.Decimal
     },
     {
         key: 'tcoOffhire',
         title: 'Tco Off hire',
-        columnType: ColumnType.Decimal
+        columnType: ImColumnType.Decimal
     },
     {
         key: 'tcoOffhireComm',
         title: 'Tco Off hire Comm',
-        columnType: ColumnType.Decimal
+        columnType: ImColumnType.Decimal
     },
     {
         key: 'quantity',
         title: 'Quantity',
-        columnType: ColumnType.Decimal
+        columnType: ImColumnType.Decimal
     },
     {
         key: 'unit',
@@ -143,17 +143,17 @@ export const columns: Column[] = [
     {
         key: 'lumpsum',
         title: 'Lump sum',
-        columnType: ColumnType.Decimal
+        columnType: ImColumnType.Decimal
     },
     {
         key: 'exchangeRate',
         title: 'Exchange Rate',
-        columnType: ColumnType.Decimal
+        columnType: ImColumnType.Decimal
     },
     {
         key: 'brokerRate',
         title: 'Broker Rate',
-        columnType: ColumnType.Decimal
+        columnType: ImColumnType.Decimal
     },
     {
         key: 'chartererId',

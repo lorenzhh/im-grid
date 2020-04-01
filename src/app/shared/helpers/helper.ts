@@ -1,6 +1,6 @@
-import { Column, ColumnType } from 'im-grid';
+import { ImColumn, ImColumnType } from 'im-grid';
 
-export const generate = (times: number, columns: Column[]) => {
+export const generate = (times: number, columns: ImColumn[]) => {
     const array: any[] = [];
 
     for (let index = 0; index < times; index++) {
@@ -15,17 +15,17 @@ export const generate = (times: number, columns: Column[]) => {
                 ];
             } else {
                 switch (column.columnType) {
-                    case ColumnType.Boolean:
+                    case ImColumnType.Boolean:
                         generatedRow[column.key] = randomBoolean();
                         break;
-                    case ColumnType.Date:
+                    case ImColumnType.Date:
                         generatedRow[column.key] = randomDate(new Date(0), new Date()).toISOString();
                         break;
-                    case ColumnType.Decimal:
-                    case ColumnType.Int:
+                    case ImColumnType.Decimal:
+                    case ImColumnType.Int:
                         generatedRow[column.key] = randomNumber(123, 8432);
                         break;
-                    case ColumnType.Xml:
+                    case ImColumnType.Xml:
                         generatedRow[column.key] = randomXml(randomNumber(10, 30));
                         break;
                     default:

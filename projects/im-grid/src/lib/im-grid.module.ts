@@ -7,11 +7,11 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgZorroAntdModule } from 'ng-zorro-antd';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ImGridComponent } from './components/table/table.component';
-import { ToolbarComponent } from './components/table/toolbar/toolbar.component';
-import { FooterComponent } from './components/table/footer/footer.component';
+import { ImToolbarComponent } from './components/table/toolbar/toolbar.component';
+import { ImFooterComponent } from './components/table/footer/footer.component';
 import { EditFormComponent } from './components/table/edit-form/edit-form.component';
-import { DrawerComponent } from './components/table/drawer/drawer.component';
-import { FilterCellComponent } from './components/table/filter-cell/filter-cell.component';
+import { ImDrawerComponent } from './components/table/drawer/drawer.component';
+import { ImFilterCellComponent } from './components/table/filter-cell/filter-cell.component';
 import { ChildTableComponent } from './components/child-table/child-table.component';
 
 
@@ -19,14 +19,14 @@ import { ChildTableComponent } from './components/child-table/child-table.compon
   declarations: [
     ImGridComponent,
     ChildTableComponent,
-    ToolbarComponent,
-    FooterComponent,
+    ImToolbarComponent,
+    ImFooterComponent,
     FormatPipe,
     FilterPipe,
     TranslatePipe,
     EditFormComponent,
-    DrawerComponent,
-    FilterCellComponent,
+    ImDrawerComponent,
+    ImFilterCellComponent,
     FilterPipe,
     FormatPipe,
     TranslatePipe,
