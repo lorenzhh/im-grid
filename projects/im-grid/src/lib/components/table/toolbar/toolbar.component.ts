@@ -1,4 +1,4 @@
-import { Component, Input, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { translations } from '../translations/default-translations';
 export type Size = 'small' | 'middle' | 'default';
 @Component({

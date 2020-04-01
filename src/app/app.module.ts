@@ -1,17 +1,17 @@
-import { NgModule, ErrorHandler } from '@angular/core';
-
+import { CurrencyPipe, DatePipe, DecimalPipe, registerLocaleData } from '@angular/common';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import de from '@angular/common/locales/de';
+import en from '@angular/common/locales/en';
+import { ErrorHandler, NgModule } from '@angular/core';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { en_US, NZ_I18N } from 'ng-zorro-antd';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { NZ_I18N, en_US } from 'ng-zorro-antd';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { registerLocaleData, DatePipe, CurrencyPipe, DecimalPipe } from '@angular/common';
-import en from '@angular/common/locales/en';
-import de from '@angular/common/locales/de';
-import { SharedModule } from './shared/shared.module';
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { DefaultInterceptor } from './shared/interceptors/default-interceptor';
-import { GlobalErrorHandler } from './shared/handlers/error.handler';
 import { UnsavedChangesGuard } from './shared/guards/unsaved-changes.guard';
+import { GlobalErrorHandler } from './shared/handlers/error.handler';
+import { DefaultInterceptor } from './shared/interceptors/default-interceptor';
+import { SharedModule } from './shared/shared.module';
+
 
 registerLocaleData(en);
 registerLocaleData(de);

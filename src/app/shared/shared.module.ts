@@ -1,11 +1,10 @@
-import { NgModule, ModuleWithProviders } from '@angular/core';
-import { NgZorroAntdModule } from 'ng-zorro-antd';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-// import { TableModule } from './components/table/table.module';
+import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
+import { ModuleWithProviders, NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ImGridModule } from 'im-grid';
+import { NgZorroAntdModule } from 'ng-zorro-antd';
 
 @NgModule({
     imports: [
@@ -25,7 +24,6 @@ import { ImGridModule } from 'im-grid';
         FormsModule,
         DragDropModule,
         ImGridModule,
-        // TableModule,
     ],
 })
 export class SharedModule {

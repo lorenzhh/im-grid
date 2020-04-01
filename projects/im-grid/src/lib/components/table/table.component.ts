@@ -1,40 +1,18 @@
-import {
-  Component,
-  OnInit,
-  TemplateRef,
-  ViewChild,
-  Input,
-  OnChanges,
-  SimpleChanges,
-  OnDestroy,
-  Output,
-  EventEmitter,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-} from '@angular/core';
-import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
-import { NzModalRef, NzModalService, NzTableComponent, NzMessageService } from 'ng-zorro-antd';
-import {
-  ImColumnType,
-  ImColumn, ImFieldType,
-  ImFilterType,
-  DynamicComponentConfig,
-  EditMode,
-  SelectionMode,
-  ChangeEvent,
-  ChangesEvent,
-  CellCordinates
-} from '../../models/column.model';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
-import { Observable, ReplaySubject, fromEvent, of, Subject, BehaviorSubject } from 'rxjs';
-import { takeUntil, debounceTime, distinctUntilChanged, take } from 'rxjs/operators';
-import { FormatService } from '../../services/format.service';
+// tslint:disable:max-line-length
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, TemplateRef, ViewChild } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { NzMessageService, NzModalRef, NzModalService, NzTableComponent } from 'ng-zorro-antd';
+import { BehaviorSubject, fromEvent, Observable, of, ReplaySubject, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, take, takeUntil } from 'rxjs/operators';
+import { CellCordinates, ChangeEvent, ChangesEvent, DynamicComponentConfig, EditMode, ImColumn, ImColumnType, ImFieldType, ImFilterType, SelectionMode } from '../../models/column.model';
+import { Translation } from '../../models/settings.model';
 import { ExcelService } from '../../services/excel.service';
 import { FilterService } from '../../services/filter.service';
+import { FormatService } from '../../services/format.service';
+import { SettingsService } from '../../services/settings.service';
 import { translations } from './translations/default-translations';
 import { dynamicTranslations } from './translations/dynamic-translations';
-import { SettingsService } from '../../services/settings.service';
-import { Translation } from '../../models/settings.model';
 
 export interface Edit {
   [key: number]: {

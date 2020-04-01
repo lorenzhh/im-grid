@@ -1,14 +1,13 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { ChangeEvent, EditMode, ImColumn, ImGridComponent } from 'im-grid';
+import { BehaviorSubject, ReplaySubject } from 'rxjs';
+import { filter, tap } from 'rxjs/operators';
+import { columns as invoiceColumns } from 'src/app/shared/configs/invoice.config';
 import { columns as mandatorColumns } from 'src/app/shared/configs/mandator.config';
 import { columns as queueColumns } from 'src/app/shared/configs/queue.config';
-import { columns as invoiceColumns } from 'src/app/shared/configs/invoice.config';
-import { ImColumn, ChangeEvent, EditMode } from 'im-grid';
-import { ActivatedRoute } from '@angular/router';
-import { ReplaySubject, BehaviorSubject, of } from 'rxjs';
-import { DataService } from 'src/app/shared/services/data.service';
 import { generate } from 'src/app/shared/helpers/helper';
-import { switchMap, tap, filter, catchError } from 'rxjs/operators';
-import { ImGridComponent } from 'im-grid';
+import { DataService } from 'src/app/shared/services/data.service';
 
 export enum Entries {
   'mandator' = 'mandator',

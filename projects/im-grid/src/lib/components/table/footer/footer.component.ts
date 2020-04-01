@@ -1,6 +1,6 @@
-import { Component, Input, EventEmitter, Output } from '@angular/core';
-import { ImColumn } from '../../../models/column.model';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { ImColumn } from '../../../models/column.model';
 import { translations } from '../translations/default-translations';
 
 @Component({

@@ -1,18 +1,18 @@
-import { NgModule, ModuleWithProviders } from '@angular/core';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { CommonModule, CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
+import { ModuleWithProviders, NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgZorroAntdModule } from 'ng-zorro-antd';
+import { ChildTableComponent } from './components/child-table/child-table.component';
+import { ImDrawerComponent } from './components/table/drawer/drawer.component';
+import { EditFormComponent } from './components/table/edit-form/edit-form.component';
+import { ImFilterCellComponent } from './components/table/filter-cell/filter-cell.component';
+import { ImFooterComponent } from './components/table/footer/footer.component';
+import { ImGridComponent } from './components/table/table.component';
+import { ImToolbarComponent } from './components/table/toolbar/toolbar.component';
 import { FilterPipe } from './pipes/filter.pipe';
 import { FormatPipe } from './pipes/format.pipe';
 import { TranslatePipe } from './pipes/translate.pipe';
-import { DecimalPipe, CurrencyPipe, CommonModule, DatePipe } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgZorroAntdModule } from 'ng-zorro-antd';
-import { DragDropModule } from '@angular/cdk/drag-drop';
-import { ImGridComponent } from './components/table/table.component';
-import { ImToolbarComponent } from './components/table/toolbar/toolbar.component';
-import { ImFooterComponent } from './components/table/footer/footer.component';
-import { EditFormComponent } from './components/table/edit-form/edit-form.component';
-import { ImDrawerComponent } from './components/table/drawer/drawer.component';
-import { ImFilterCellComponent } from './components/table/filter-cell/filter-cell.component';
-import { ChildTableComponent } from './components/child-table/child-table.component';
 
 
 @NgModule({

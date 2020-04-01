@@ -1,10 +1,5 @@
-import {
-  Component, Input, Output, EventEmitter, ViewChild,
-  ViewContainerRef, ComponentRef,
-  ComponentFactoryResolver,
-  OnChanges,
-  SimpleChanges
-} from '@angular/core';
+// tslint:disable:max-line-length
+import { Component, ComponentFactoryResolver, ComponentRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { DynamicComponentConfig } from '../../../models/column.model';
 
 @Component({
