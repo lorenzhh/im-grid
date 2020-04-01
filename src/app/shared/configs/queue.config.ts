@@ -32,7 +32,7 @@ export const columns: Column[] = [
     },
     {
         key: 'processed',
-        title: 'Processed at',
+        title: 'Processed',
         columnType: ColumnType.Boolean,
     },
     {

@@ -52,7 +52,7 @@ export interface Column {
 }
 
 export interface Filter {
-    values?: any;
+    values?: any[];
     selectValues?: string[] | number[];
     multiSelect?: boolean;
     type?: FilterType;
