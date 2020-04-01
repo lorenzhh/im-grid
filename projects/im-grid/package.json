@@ -9,5 +9,13 @@
     "@angular/common": "^9.0.5",
     "@angular/core": "^9.0.5",
     "tslib": "^1.10.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lorenzhh/im-grid.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lorenzhh/im-grid/issues"
+  },
+  "homepage": "https://github.com/lorenzhh/im-grid#readme"
 }
