@@ -1,6 +1,6 @@
 export const translations = {
     addedNewRow: {
-        en: ' Added new row successfully',
+        en: 'Added new row successfully',
         de: 'Neue Zeile erfolgreich hinzugefügt'
     },
     areYouSure: {
@@ -79,25 +79,9 @@ export const translations = {
         en: 'No',
         de: 'Nein'
     },
-    noData: {
-        en: 'No data available',
-        de: 'Keine Daten verfügbar'
-    },
-    of: {
-        en: 'of',
-        de: 'von'
-    },
-    page: {
-        en: 'page',
-        de: ''
-    },
     records: {
         en: 'Records',
         de: 'Datensätze'
-    },
-    refresh: {
-        en: 'Refresh',
-        de: 'Aktualisieren'
     },
     reset: {
         en: 'Reset',
@@ -130,10 +114,6 @@ export const translations = {
     until: {
         en: 'Until',
         de: 'Bis'
-    },
-    view: {
-        en: 'View',
-        de: 'Ansicht'
     },
     yes: {
         en: 'Yes',
