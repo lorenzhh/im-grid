@@ -1,0 +1,96 @@
+<div>
+  <button
+    *ngIf="numberOfChecked > 0 && !directMode"
+    nz-button
+    (click)="deleteRows.emit(numberOfChecked > 1000)"
+  >
+    <i
+      nz-icon
+      nzType="delete"
+    ></i>
+    <ng-container *ngIf="numberOfChecked > 1000;else deleteTemplate">Delete first 1000</ng-container>
+    <ng-template #deleteTemplate>Delete</ng-template>
+  </button>
+</div>
+<div class="toolbar-buttons">
+  <button
+    nz-button
+    (click)="exportAsExcel.emit()"
+  >
+    <i
+      nz-icon
+      nzType="file-excel"
+    ></i>
+    {{ translations.excel | translate }}
+  </button>
+  <nz-divider nzType="vertical"></nz-divider>
+  <nz-radio-group
+    [(ngModel)]="size"
+    name="size"
+    (ngModelChange)="changeSize.emit($event)"
+  >
+    <label
+      nz-radio-button
+      nzValue="default"
+    >
+      {{ translations.large | translate }}
+    </label>
+    <label
+      nz-radio-button
+      nzValue="middle"
+    >
+      {{ translations.medium | translate }}
+    </label>
+    <label
+      nz-radio-button
+      nzValue="small"
+    >
+      {{ translations.small | translate }}
+    </label>
+  </nz-radio-group>
+  <nz-divider
+    *ngIf="!directMode"
+    nzType="vertical"
+  ></nz-divider>
+  <button
+    *ngIf="!directMode"
+    nz-button
+    [disabled]="unsavedRowsLength + deletedRowsLength + newRowsLength === 0"
+    (click)="resetRows.emit()"
+  >
+    <i
+      nz-icon
+      nzType="rollback"
+    ></i>
+    {{ translations.discardChanges | translate }}
+  </button>
+  <nz-divider nzType="vertical"></nz-divider>
+  <button
+    nz-button
+    (click)="addRow.emit()"
+  >
+    <i
+      nz-icon
+      nzType="plus-circle"
+    ></i>
+    {{ translations.createNew | translate }}
+  </button>
+  <nz-divider
+    *ngIf="!directMode"
+    nzType="vertical"
+  ></nz-divider>
+  <button
+    *ngIf="!directMode"
+    nz-button
+    [class.saveButton]="!loading && (unsavedRowsLength + deletedRowsLength + newRowsLength !== 0)"
+    [disabled]="loading || (unsavedRowsLength + deletedRowsLength + newRowsLength) === 0"
+    [title]="'New rows: ' + newRowsLength + ' - Updated rows: ' + unsavedRowsLength + ' - Deleted rows: ' + deletedRowsLength"
+    (click)="saveRows.emit()"
+  >
+    <i
+      nz-icon
+      nzType="save"
+    ></i>
+    {{ translations.save | translate }}
+  </button>
+</div>

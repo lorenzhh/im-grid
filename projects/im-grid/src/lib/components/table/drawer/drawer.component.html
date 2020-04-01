@@ -1,0 +1,12 @@
+<nz-drawer
+  [nzVisible]="visible"
+  [nzPlacement]="'right'"
+  [nzWidth]="width"
+  [nzTitle]="title"
+  [nzBodyStyle]="{height: 'calc(100% - 55px)'}"
+  (nzOnClose)="closed.emit()"
+>
+  <div class="drawer-body">
+    <div #content></div>
+  </div>
+</nz-drawer>

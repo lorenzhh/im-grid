@@ -1,0 +1,36 @@
+:host {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.toolbar-buttons {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+nz-radio-group {
+  display: flex
+}
+
+.saveButton {
+  -webkit-animation: glowing 1500ms infinite;
+  -moz-animation: glowing 1500ms infinite;
+  -o-animation: glowing 1500ms infinite;
+  animation: glowing 1500ms infinite;
+}
+
+@keyframes glowing {
+  0% {
+    box-shadow: 0 0 3px #595959;
+  }
+
+  50% {
+    box-shadow: 0 0 40px #808080;
+  }
+
+  100% {
+    box-shadow: 0 0 3px #595959;
+  }
+}

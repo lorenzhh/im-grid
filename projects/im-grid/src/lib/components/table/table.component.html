@@ -1,0 +1,313 @@
+<ng-template #toolbarTemplate>
+  <im-toolbar
+    [size]="size"
+    [numberOfChecked]="numberOfChecked"
+    [directMode]="editMode === EditMode.direct"
+    [unsavedRowsLength]="unsavedRowsLength"
+    [deletedRowsLength]="deletedRowsLength"
+    [newRowsLength]="newRowsLength"
+    (deleteRows)="deleteRows($event)"
+    (exportAsExcel)="exportAsExcel()"
+    (changeSize)="updateRowHeight($event)"
+    (addRow)="openCreateOrEditModal()"
+    (resetRows)="resetRows()"
+    (saveRows)="saveRows()"
+  ></im-toolbar>
+</ng-template>
+<nz-table
+  #virtualTable
+  nzBordered
+  [nzData]="rows"
+  nzVirtualScroll
+  [nzSize]="size"
+  [nzVirtualItemSize]="height"
+  [nzVirtualForTrackBy]="trackById"
+  [nzLoading]="loading"
+  [nzTitle]="toolbarTemplate"
+  [nzFooter]="footerTemplate"
+  [nzFrontPagination]="false"
+  [nzShowPagination]="false"
+  [nzFrontPagination]="false"
+  [nzScroll]="{ x: '100%', y: '100%' }"
+>
+  <thead>
+    <tr
+      class="inherit"
+      cdkDropList
+      cdkDropListOrientation="horizontal"
+      (cdkDropListDropped)="drop($event)"
+    >
+      <th
+        *ngIf="childrenKey"
+        nzLeft="0px"
+        [style.minWidth.px]="35"
+        [style.width.px]="35"
+        [style.maxWidth.px]="35"
+      >
+      </th>
+      <th
+        nzShowCheckbox
+        [nzLeft]="childrenKey ? '35px' : '0px'"
+        [style.minWidth.px]="35"
+        [style.width.px]="35"
+        [style.maxWidth.px]="35"
+        [(nzChecked)]="isAllDisplayDataChecked"
+        [nzIndeterminate]="isIndeterminate"
+        (nzCheckedChange)="checkAll($event)"
+      >
+      </th>
+      <th
+        [nzLeft]="childrenKey ? '70px' : '35px'"
+        [style.minWidth.px]="70"
+        [style.width.px]="70"
+        [style.maxWidth.px]="70"
+        [innerHtml]="numberOfChecked ? numberOfChecked: '#'"
+      >
+      </th>
+      <th
+        *ngFor="let column of columns | filter: { visible: true }"
+        nzShowSort
+        cdkDrag
+        class="cell"
+        [title]="column.title"
+        [style.minWidth.px]="column.width"
+        [style.width.px]="column.width"
+        [(nzSort)]="mapOfSort[column.key]"
+        (nzSortChange)="sort(column.key, $event)"
+      >
+        {{ column.title }}
+      </th>
+      <th
+        nzRight="0px"
+        [style.minWidth.px]="60"
+        [style.width.px]="60"
+        [style.maxWidth.px]="60"
+      >
+        <nz-switch
+          [(ngModel)]="allowSearch"
+          [nzCheckedChildren]="checkedTemplate"
+          [nzUnCheckedChildren]="checkedTemplate"
+        ></nz-switch>
+        <ng-template #checkedTemplate>
+          <i
+            nz-icon
+            nzType="search"
+          ></i>
+        </ng-template>
+      </th>
+    </tr>
+    <tr
+      [hidden]="!allowSearch"
+      class="inherit"
+    >
+      <th
+        *ngIf="childrenKey"
+        nzLeft="0px"
+        class="filter-cell"
+        [style.minWidth.px]="35"
+        [style.width.px]="35"
+        [style.maxWidth.px]="35"
+      >
+      </th>
+      <th
+        nzLeft="35px"
+        [nzLeft]="childrenKey ? '35px' : '0px'"
+        class="filter-cell"
+        [style.minWidth.px]="35"
+        [style.width.px]="35"
+        [style.maxWidth.px]="35"
+      >
+      </th>
+      <th
+        [nzLeft]="childrenKey ? '70px' : '35px'"
+        class="filter-cell"
+        [style.minWidth.px]="70"
+        [style.width.px]="70"
+        [style.maxWidth.px]="70"
+      >
+      </th>
+      <th
+        *ngFor="let column of columns | filter: { visible: true }"
+        [style.minWidth.px]="column.width"
+        class="filter-cell"
+        [style.width.px]="column.width"
+        [style.maxWidth.px]="column.width"
+      >
+        <im-filter-cell
+          [column]="column"
+          (filterRows)="filterRows()"
+        ></im-filter-cell>
+      </th>
+      <th
+        class="filter-cell"
+        nzRight="0px"
+        [style.minWidth.px]="60"
+        [style.width.px]="60"
+        [style.maxWidth.px]="60"
+        [style.padding.px]="8"
+        [title]="translations.clearFilters | translate"
+      >
+        <a (click)="clearFilters()">
+          <i
+            nz-icon
+            nzType="close"
+          ></i>
+          {{ translations.clear | translate }}
+        </a>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <ng-template
+      nz-virtual-scroll
+      let-row
+      let-index="index"
+      let-even
+    >
+      <tr
+        [class.even]="index % 2 === 0"
+        [class.odd]="index % 2 === 1"
+        [class.highlighted]="index === (focusedCellSubject | async).rowIndex"
+      >
+        <td
+          *ngIf="childrenKey"
+          nzLeft="0px"
+          [style.minWidth.px]="35"
+          [style.width.px]="35"
+          [style.maxWidth.px]="35"
+        >
+          <a (click)="openDrawer(row)">
+            <i
+              nz-icon
+              nzType="right"
+            ></i>
+          </a>
+        </td>
+        <td
+          nzShowCheckbox
+          [nzLeft]="childrenKey ? '35px' : '0px'"
+          [style.minWidth.px]="35"
+          [style.width.px]="35"
+          [style.maxWidth.px]="35"
+          [(nzChecked)]="mapOfCheckedId[row[uniqueKey]]"
+          [nzDisabled]="row.disabled"
+          (nzCheckedChange)="refreshStatus()"
+        ></td>
+        <td
+          [nzLeft]="childrenKey ? '70px' : '35px'"
+          [style.minWidth.px]="70"
+          [style.width.px]="70"
+          [style.maxWidth.px]="70"
+        >
+          {{ index + 1 }}
+        </td>
+        <td
+          *ngFor="let column of columns | filter: { visible: true }"
+          class="cell"
+          [class.focused]="column.key === (focusedCellSubject | async).key
+          && index === (focusedCellSubject | async).rowIndex"
+          [style.minWidth.px]="column.width"
+          [style.width.px]="column.width"
+          [style.maxWidth.px]="column.width"
+          [title]="row[column.key] | format: column.columnType: (settingsService.settings | async)"
+          (click)="handleClick(column, row, index, $event)"
+        >
+          {{ row[column.key] | format: column.columnType: (settingsService.settings | async) }}
+        </td>
+        <td
+          nzRight="0px"
+          [style.padding.px]="5"
+          [style.minWidth.px]="60"
+          [style.width.px]="60"
+          [style.maxWidth.px]="60"
+        >
+          <div [style.marginLeft.px]="3">
+            <a (click)="openCreateOrEditModal(row)">
+              <i
+                nz-icon
+                nzType="edit"
+              ></i>
+            </a>
+            <nz-divider nzType="vertical"></nz-divider>
+            <a
+              nz-popconfirm
+              [nzTitle]="translations.areYouSure | translate"
+              [nzOkText]="translations.delete | translate"
+              (nzOnConfirm)="deleteRow(row)"
+            >
+              <i
+                nz-icon
+                nzType="delete"
+              ></i>
+            </a>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </tbody>
+</nz-table>
+<ng-template #modalFooter>
+  <div
+    *ngIf="form"
+    class="modal-footer-buttons"
+  >
+    <div>
+      <button
+        nz-button
+        *ngIf="!form.get('isNew') && editMode !== EditMode.direct"
+        (click)="resetRow()"
+      >
+        {{ translations.discardChanges | translate }}
+      </button>
+    </div>
+    <div>
+      <button
+        nz-button
+        nzType="primary"
+        [disabled]="!form.dirty"
+        (click)="saveRow($event, form.getRawValue())"
+      >
+        {{ translations.submit | translate }}
+      </button>
+      <nz-divider nzType="vertical"></nz-divider>
+      <button
+        nz-button
+        (click)="resetForm($event)"
+      >
+        {{ translations.reset | translate }}
+      </button>
+      <nz-divider nzType="vertical"></nz-divider>
+      <button
+        nz-button
+        (click)="closeModal()"
+      >
+        {{ translations.cancel | translate }}
+      </button>
+    </div>
+  </div>
+</ng-template>
+<ng-template #createEditModal>
+  <im-edit-form
+    *ngIf="form"
+    [form]="form"
+    [columns]="columns"
+  ></im-edit-form>
+</ng-template>
+<ng-template #footerTemplate>
+  <im-footer
+    [notIncludedColumns]="notIncludedColumns"
+    [columns]="columns"
+    [filterForm]="filterForm"
+    [rowsLength]="rows.length"
+    (filterRows)="filterRows($event)"
+  >
+  </im-footer>
+</ng-template>
+<im-drawer
+  *ngIf="childrenKey"
+  [componentConfig]="componentConfig"
+  [visible]="drawerVisible"
+  [title]="childrenTitle"
+  (closed)="closeDrawer()"
+>
+</im-drawer>

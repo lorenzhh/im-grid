@@ -1,0 +1,9 @@
+<im-grid
+  #table
+  [columns]="columns"
+  [dataSource$]="dataSource$"
+  [loading]="dataService.loading$ | async"
+  (created)="created($event)"
+  (updated)="updated($event)"
+  (deleted)="deleted($event)"
+></im-grid>

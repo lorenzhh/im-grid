@@ -1,0 +1,13 @@
+{
+  "name": "@lorenzhh/im-grid",
+  "version": "0.0.1",
+  "description": "Usage of a grid",
+  "keywords": ["grid", "im-grid"],
+  "author": "Lawrence Nseir",
+  "license": "MIT",
+  "peerDependencies": {
+    "@angular/common": "^9.0.5",
+    "@angular/core": "^9.0.5",
+    "tslib": "^1.10.0"
+  }
+}

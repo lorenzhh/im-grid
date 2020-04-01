@@ -1,0 +1,900 @@
+import {
+  Component,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+  Input,
+  OnChanges,
+  SimpleChanges,
+  OnDestroy,
+  Output,
+  EventEmitter,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+} from '@angular/core';
+import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
+import { NzModalRef, NzModalService, NzTableComponent, NzMessageService } from 'ng-zorro-antd';
+import {
+  ColumnType,
+  Column, FieldType,
+  FilterType,
+  DynamicComponentConfig,
+  EditMode,
+  SelectionMode,
+  ChangeEvent,
+  ChangesEvent,
+  CellCordinates
+} from '../../models/column.model';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { Observable, ReplaySubject, fromEvent, of, Subject, BehaviorSubject } from 'rxjs';
+import { takeUntil, debounceTime, distinctUntilChanged, take } from 'rxjs/operators';
+import { FormatService } from '../../services/format.service';
+import { ExcelService } from '../../services/excel.service';
+import { FilterService } from '../../services/filter.service';
+import { translations } from './translations/default-translations';
+import { dynamicTranslations } from './translations/dynamic-translations';
+import { SettingsService } from '../../services/settings.service';
+import { Translation } from '../../models/settings.model';
+
+export interface Edit {
+  [key: number]: {
+    edit: boolean,
+    row?: any,
+    changed?: boolean,
+    deleted?: boolean,
+    new?: boolean
+  };
+}
+
+@Component({
+  selector: 'im-grid',
+  templateUrl: './table.component.html',
+  styleUrls: ['./table.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
+  @ViewChild('createEditModal') createEditModal: TemplateRef<any>;
+  @ViewChild('modalFooter') modalFooter: TemplateRef<any>;
+  @ViewChild('virtualTable') table: NzTableComponent;
+
+  @Input() columns: Column[];
+  @Input() editMode = EditMode.direct;
+  @Input() selection = SelectionMode.checkbox;
+  @Input() dataSource$: Observable<any[]>;
+  @Input() loading = false;
+
+  @Output() selectedIds = new EventEmitter();
+  @Output() save = new EventEmitter<ChangesEvent>();
+  @Output() deleted = new EventEmitter<ChangeEvent>();
+  @Output() created = new EventEmitter<ChangeEvent>();
+  @Output() updated = new EventEmitter<ChangeEvent>();
+
+  public childColumns: Column[];
+  public rows: any[] = [];
+  public FilterType = FilterType;
+  public ColumnType = ColumnType;
+  public FieldType = FieldType;
+  public EditMode = EditMode;
+  public SelectionMode = SelectionMode;
+  public translations = translations;
+  public originalRows: any[] = [];
+  public currentRows: any[] = [];
+  public form: FormGroup;
+  public size = 'default';
+  public height = 54;
+  public editCache: Edit = {};
+  public isAllDisplayDataChecked = false;
+  public isIndeterminate = false;
+  public mapOfCheckedId: { [key: string]: boolean } = {};
+  public mapOfSort: { [key: string]: boolean } = {};
+  public numberOfChecked = 0;
+  public unsavedRowsLength = 0;
+  public deletedRowsLength = 0;
+  public newRowsLength = 0;
+  public filterForm: FormGroup;
+  public notIncludedColumns: Column[] = [];
+  public uniqueKey: string;
+  public allowSearch: boolean;
+  private modal: NzModalRef;
+  private componentDestroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
+  public objectKeys = Object.keys;
+  public childrenKey: string;
+  public childrenTitle: string;
+  public componentConfig: DynamicComponentConfig;
+  public drawerVisible = false;
+
+  private successedSubject: Subject<boolean | any> = new Subject<boolean | any>();
+  public focusedCellSubject: BehaviorSubject<CellCordinates> = new BehaviorSubject<CellCordinates>({
+    rowIndex: -1,
+    key: null
+  });
+
+  constructor(
+    private formBuilder: FormBuilder,
+    private modalService: NzModalService,
+    private formatService: FormatService,
+    private excelService: ExcelService,
+    private messageService: NzMessageService,
+    private filterService: FilterService,
+    private cd: ChangeDetectorRef,
+    public settingsService: SettingsService
+  ) {
+
+    fromEvent(window, 'resize')
+      .pipe(
+        debounceTime(500),
+        takeUntil(this.componentDestroyed$)
+      ).subscribe(() => {
+        this.table.cdkVirtualScrollViewport.checkViewportSize();
+      });
+
+    this.filterForm = this.formBuilder.group({
+      search: null
+    });
+
+    this.filterForm.get('search').valueChanges
+      .pipe(
+        takeUntil(this.componentDestroyed$),
+        debounceTime(400),
+        distinctUntilChanged(),
+      ).subscribe(() => {
+        this.filterRows();
+      });
+  }
+
+  updateFocusedCell(rowIndex: number, key: string) {
+    this.focusedCellSubject.next({ rowIndex, key });
+  }
+
+  scrollToIndex(index: number): void {
+    this.table.cdkVirtualScrollViewport.scrollToIndex(+index);
+  }
+
+  ngOnInit() {
+    this.normalizeConfig();
+    this.mapOfSort = {};
+    this.dataSource$.pipe(
+      takeUntil(this.componentDestroyed$)
+    )
+      .subscribe(data => {
+        this.originalRows = [...data];
+        this.currentRows = [...data];
+        this.reset();
+      });
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.columns && !changes.columns.isFirstChange()) {
+      this.form = null;
+      if (this.modal) {
+        this.closeModal();
+      }
+      if (this.drawerVisible) {
+        this.closeDrawer();
+      }
+      this.normalizeConfig();
+      this.mapOfSort = {};
+      this.notIncludedColumns = [];
+    }
+  }
+
+  ngOnDestroy() {
+    this.componentDestroyed$.next(true);
+    this.componentDestroyed$.complete();
+  }
+
+  public resetRows() {
+    this.currentRows = [...this.originalRows];
+    this.resetEditCache();
+    this.filterRows();
+    this.updateCounters();
+    this.createMessage('success', translations.discardedAllChanges);
+  }
+
+  public resetRow() {
+    const foundIndex = this.currentRows.findIndex(row => row[this.uniqueKey] === this.form.getRawValue()[this.uniqueKey]);
+    const originalRow = this.originalRows.find(row => row[this.uniqueKey] === this.form.getRawValue()[this.uniqueKey]);
+
+    if (foundIndex > -1 && originalRow) {
+      this.currentRows[foundIndex] = { ...originalRow };
+
+      this.editCache[originalRow[this.uniqueKey]] = {
+        row: { ...originalRow },
+        edit: false,
+        changed: false
+      };
+
+      this.updateCounters();
+      this.closeModal();
+      this.createMessage('success', translations.discardedRow);
+      this.filterRows();
+    }
+  }
+
+  public drop(event: CdkDragDrop<string[]>): void {
+    this.columns = [...this.dragEndEvent(event,
+      this.columns,
+      this.columns.filter(column => column.visible)
+    )];
+  }
+
+  public saveRows() {
+    this.successedSubject.pipe(
+      takeUntil(this.componentDestroyed$),
+      take(1)
+    ).subscribe(successed => {
+      if (successed !== false) {
+        this.originalRows = [...successed];
+        this.currentRows = [...successed];
+        this.reset();
+      } else {
+        this.showError();
+      }
+    });
+
+    this.save.emit({
+      saved: this.getUnsavedRows(),
+      deletedIds: this.getDeletedRowsId(),
+      new: this.getNewRows(),
+      currentState: this.currentRows,
+      track: this.successedSubject
+    });
+  }
+
+  private getUnsavedRows() {
+    return Object.keys(this.editCache)
+      .filter(uniqueKey => this.editCache[uniqueKey].changed
+        && !this.editCache[uniqueKey].deleted
+        && !this.editCache[uniqueKey].new)
+      .map(uniqueKey => this.editCache[uniqueKey].row);
+  }
+
+  private getDeletedRowsId() {
+    return Object.keys(this.editCache)
+      .filter(uniqueKey => this.editCache[uniqueKey].deleted);
+  }
+
+  private getNewRows() {
+    return Object.keys(this.editCache)
+      .filter(id => this.editCache[id].new && !this.editCache[id].deleted)
+      .map(id => this.editCache[id].row);
+  }
+
+  private reset() {
+    this.resetEditCache();
+    this.mapOfCheckedId = {};
+    this.filterForm.get('search').setValue('');
+    this.filterRows();
+    this.updateCounters();
+    this.setUniqueValues();
+  }
+
+  private setUniqueValues() {
+    this.columns.forEach(column => {
+      if (column.filter && column.filter.type === FilterType.Select) {
+        column.filter.selectValues = this.getUniqueSelectFilterValues(
+          column.key
+        );
+      }
+    });
+  }
+
+  private getUniqueSelectFilterValues(key: string): any[] {
+    return this.currentRows.map(row => row[key])
+      .filter((value, index, self) => value != null && self.indexOf(value) === index);
+  }
+
+  public checkAll(value: boolean): void {
+    this.rows.filter(item => !item.disabled).forEach(item => (this.mapOfCheckedId[item[this.uniqueKey]] = value));
+    this.refreshStatus();
+  }
+
+  public refreshStatus(): void {
+    this.isAllDisplayDataChecked = this.rows.length !== 0
+      && this.rows
+        .filter(item => !item.disabled)
+        .every(item => this.mapOfCheckedId[item[this.uniqueKey]]);
+    this.isIndeterminate = this.rows
+      .filter(item => !item.disabled)
+      .some(item => this.mapOfCheckedId[item[this.uniqueKey]]) && !this.isAllDisplayDataChecked;
+
+    this.numberOfChecked = this.rows.filter(item => this.mapOfCheckedId[item[this.uniqueKey]]).length;
+    this.selectedIds.emit(this.mapOfCheckedId);
+  }
+
+  public saveRow(event: any, value: any) {
+    event.preventDefault();
+    this.validateAllFormFields(this.form);
+    if (!this.form.valid) {
+      return;
+    }
+
+    if (this.editMode === EditMode.direct) {
+      this.successedSubject.pipe(
+        takeUntil(this.componentDestroyed$),
+        take(1)
+      ).subscribe(successed => {
+        if (successed !== false) {
+          value.isNew
+            ? this.addRow(successed)
+            : this.saveEdit(successed);
+          this.closeModal();
+        } else {
+          this.showError();
+        }
+      });
+
+      value.isNew
+        ? this.created.emit({ row: value, track: this.successedSubject })
+        : this.updated.emit({ row: value, track: this.successedSubject });
+    } else {
+      value.isNew
+        ? this.addRow(value)
+        : this.saveEdit(value);
+      this.closeModal();
+    }
+  }
+
+  private showError() {
+    this.createMessage('error', translations.errorOccured);
+  }
+
+  public resetForm(event: MouseEvent): void {
+    event.preventDefault();
+    this.resetAllFormFields(this.form);
+  }
+
+  private updateCounters() {
+    this.updateUnsavedRowsLength();
+    this.updateDeletedRowsLength();
+    this.updateNewRowsLength();
+    this.refreshStatus();
+  }
+
+  private initForm(row?: any) {
+    const form = this.formBuilder.group({});
+    this.columns.forEach((column: Column) => {
+      const newControl = new FormControl(
+        row
+          ? { value: row[column.key], disabled: column.notEditable }
+          : { value: column.defaultValue, disabled: column.notCreateable },
+        column.validators,
+      );
+      form.addControl(column.key, newControl);
+
+      if (column.columnType === ColumnType.Date) {
+        const formControl = form.get(column.key);
+        formControl.valueChanges.subscribe((value: Date) => {
+          if (value) {
+            formControl.setValue(value.toISOString(), { emitEvent: false });
+          }
+        });
+      }
+    });
+
+    if (!row) {
+      const isNewControl = new FormControl(true);
+      form.addControl('isNew', isNewControl);
+    }
+    this.form = form;
+  }
+
+  private normalizeConfig() {
+    this.columns.forEach(column => {
+      if (column.isUnique === true) {
+        column.notEditable = true;
+        column.notCreateable = true;
+      }
+      if (column.width === undefined) {
+        switch (column.columnType) {
+          case ColumnType.Boolean:
+            column.width = 130;
+            break;
+          case ColumnType.Date:
+            column.width = 260;
+            break;
+          default:
+            column.width = 200;
+        }
+      }
+
+      if (column.title === undefined) {
+        column.title = column.key;
+      }
+      if (column.visible === undefined) {
+        column.visible = true;
+      }
+      if (column.notEditable === undefined) {
+        column.notEditable = false;
+      }
+      if (column.notCreateable === undefined) {
+        column.notCreateable = false;
+      }
+      if (column.filter === undefined) {
+        column.filter = {
+          values: []
+        };
+      }
+      if (column.filter.values === undefined) {
+        column.filter.values = [];
+      }
+      if (column.filter.type === undefined) {
+        switch (column.columnType) {
+          case ColumnType.Boolean:
+            column.filter.type = FilterType.Boolean;
+            break;
+          case ColumnType.Date:
+            column.filter.type = FilterType.RangeDate;
+            break;
+          case ColumnType.Decimal:
+          case ColumnType.Int:
+            column.filter.type = FilterType.RangeNumber;
+            break;
+          default:
+            column.filter.type = FilterType.FreeText;
+        }
+      }
+      if (column.fieldType === undefined) {
+        switch (column.columnType) {
+          case ColumnType.Boolean:
+            column.fieldType = FieldType.Checkbox;
+            break;
+          case ColumnType.Date:
+            column.fieldType = FieldType.Date;
+            break;
+          case ColumnType.Decimal:
+          case ColumnType.Int:
+            column.fieldType = FieldType.Number;
+            break;
+          case ColumnType.Xml:
+            column.fieldType = FieldType.Textarea;
+            break;
+          default:
+            column.fieldType = FieldType.Text;
+        }
+      }
+
+      if (column.fieldType === FieldType.Select && column.filter.selectValues === undefined) {
+        column.filter.selectValues = [];
+      }
+
+      if (column.childrenConfig !== undefined) {
+        column.visible = false;
+        this.childColumns = column.childrenConfig.columns;
+        this.childrenKey = column.key;
+        this.childrenTitle = column.title;
+        column.fieldType = FieldType.None;
+        this.childColumns.forEach(childColumn => {
+          if (childColumn.title === undefined) {
+            childColumn.title = childColumn.key;
+          }
+          if (childColumn.visible === undefined) {
+            childColumn.visible = true;
+          }
+        });
+      }
+    });
+
+    const uniqueColumn = this.columns.find(column => column.isUnique);
+    const childrenColumn = this.columns.find(column => column.childrenConfig);
+    if (uniqueColumn) {
+      this.uniqueKey = uniqueColumn.key;
+    } else {
+      console.error('Please consider adding a unique column or set isUnique property to true to an existing column');
+      console.error('Table will not work properly if unique column is missing.');
+    }
+    if (!childrenColumn) {
+      this.childrenKey = null;
+      this.childrenTitle = null;
+    }
+  }
+
+  public sort(sortKey: string, event: string) {
+    const isSortAscending = event === 'ascend';
+    if (event) {
+      this.rows = [...this.rows.sort((a, b) => {
+        const firstValue = a[sortKey];
+        const secondValue = b[sortKey];
+
+        if (firstValue === secondValue) {
+          return 0;
+        }
+        if (
+          firstValue === null
+          || firstValue === ''
+          || firstValue === undefined
+        ) {
+          return isSortAscending ? -1 : 1;
+        } else if (
+          secondValue === null
+          || secondValue === ''
+          || secondValue === undefined
+        ) {
+          return isSortAscending ? 1 : -1;
+        } else if (
+          typeof firstValue === 'string'
+          && typeof secondValue === 'string'
+        ) {
+          return isSortAscending
+            ? firstValue.localeCompare(secondValue)
+            : secondValue.localeCompare(firstValue);
+        } else if (
+          typeof firstValue === 'number'
+          || typeof firstValue === 'boolean'
+        ) {
+          if (firstValue < secondValue) {
+            return isSortAscending ? -1 : 1;
+          }
+          if (firstValue > secondValue) {
+            return isSortAscending ? 1 : -1;
+          }
+        }
+        return 0;
+      })];
+    } else {
+      this.filterRows();
+    }
+  }
+
+
+  public showValueInModal(row: any, column: Column): void {
+    const content: string = this.formatService.format(row[column.key], column.columnType, true);
+    const viewMode = String(content).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+    this.modal = this.modalService.create({
+      nzTitle: column.title,
+      nzWidth: 1000,
+      nzStyle: { 'max-width': '100%' },
+      nzContent: `<pre>${viewMode}</pre>`,
+      nzFooter: null,
+      nzBodyStyle: { overflow: 'auto' },
+    });
+  }
+
+  public openCreateOrEditModal(row?: any): void {
+    this.initForm(row);
+    this.modal = this.modalService.create({
+      nzTitle: !row
+        ? translations.createNew[this.settingsService.language]
+        : translations.edit[this.settingsService.language],
+      nzWidth: 1000,
+      nzStyle: { 'max-width': '100%' },
+      nzContent: this.createEditModal,
+      nzFooter: this.modalFooter
+    });
+  }
+
+  public closeModal(): void {
+    this.modal.destroy();
+  }
+
+  public deleteRows(onlyFirst1000?: boolean) {
+    const deletedRowIds = Object.keys(this.mapOfCheckedId)
+      .filter((key, index) => this.mapOfCheckedId[key]
+        && (onlyFirst1000
+          ? index < 1000
+          : true
+        )
+      );
+
+    this.currentRows = this.currentRows
+      .filter(row => deletedRowIds.indexOf(row[this.uniqueKey].toString()) === -1);
+
+    deletedRowIds.forEach(deletedRowId => {
+      delete this.mapOfCheckedId[deletedRowId];
+
+      this.editCache[deletedRowId] = {
+        edit: false,
+        changed: true,
+        deleted: true
+      };
+    });
+
+    this.updateCounters();
+    this.createMessage(
+      'success',
+      this.settingsService.dynamicTranslate(
+        dynamicTranslations.deletedSuccessfuly,
+        { '{count}': deletedRowIds.length })
+    );
+    this.filterRows();
+  }
+
+  public deleteRow(value: any): void {
+    if (this.editMode === EditMode.direct) {
+      this.successedSubject.pipe(
+        takeUntil(this.componentDestroyed$),
+        take(1)
+      ).subscribe(successed => {
+        if (successed !== false) {
+          this.saveDelete(successed);
+        } else {
+          this.showError();
+        }
+      });
+      this.deleted.emit({ row: value, track: this.successedSubject });
+    } else {
+      this.saveDelete(value);
+    }
+  }
+
+  private addRow(newObject: any): void {
+
+    if (newObject[this.uniqueKey] == null) {
+      newObject[this.uniqueKey] = this.currentRows.length * 2 + 10;
+    }
+
+    this.currentRows = [...this.currentRows, newObject];
+    this.editCache[newObject[this.uniqueKey]] = {
+      edit: false,
+      row: { ...newObject },
+      new: true
+    };
+
+    this.updateCounters();
+    this.filterRows();
+    this.createMessage('success', translations.addedNewRow);
+  }
+
+
+  private saveDelete(deletedRow: any): void {
+    this.currentRows = this.currentRows.filter(row => row[this.uniqueKey] !== deletedRow[this.uniqueKey]);
+    this.editCache[deletedRow[this.uniqueKey]] = {
+      edit: false,
+      changed: true,
+      deleted: true
+    };
+
+    this.updateCounters();
+    this.filterRows();
+    this.createMessage(
+      'success',
+      this.settingsService.dynamicTranslate(dynamicTranslations.deletedSuccessfuly, { '{count}': 1 })
+    );
+  }
+
+  private saveEdit(editedRow: any): void {
+    const foundCurrentRowIndex = this.currentRows.findIndex(row => row[this.uniqueKey] === editedRow[this.uniqueKey]);
+
+    this.currentRows[foundCurrentRowIndex] = editedRow;
+
+    this.editCache[editedRow[this.uniqueKey]] = {
+      row: { ...editedRow },
+      edit: false,
+      changed: true
+    };
+
+    this.updateUnsavedRowsLength();
+    this.createMessage('success', translations.savedRow);
+    this.filterRows();
+  }
+
+  private updateUnsavedRowsLength() {
+    this.unsavedRowsLength = this.getUnsavedRows().length;
+  }
+
+  private updateDeletedRowsLength() {
+    this.deletedRowsLength = this.getDeletedRowsId().length;
+  }
+
+  private updateNewRowsLength() {
+    this.newRowsLength = this.getNewRows().length;
+  }
+
+  private resetEditCache(): void {
+    this.editCache = {};
+    this.currentRows.forEach(row => {
+      this.editCache[row[this.uniqueKey]] = {
+        edit: false,
+      };
+    });
+  }
+
+  private validateAllFormFields = (formGroup: FormGroup, opts: { onlySelf?: boolean, emitEvent?: boolean } = {}): void => {
+    for (const control in formGroup.controls) {
+      if (formGroup.controls.hasOwnProperty(control)) {
+        const formControl = formGroup.controls[control];
+        if (!formControl.valid) {
+          formControl.markAsDirty(opts);
+          formControl.markAsTouched(opts);
+          formControl.updateValueAndValidity(opts);
+        }
+      }
+    }
+  }
+
+  private resetAllFormFields = (formGroup: FormGroup, opts: { onlySelf?: boolean, emitEvent?: boolean } = {}): void => {
+    for (const control in formGroup.controls) {
+      if (formGroup.controls.hasOwnProperty(control)) {
+        const formControl = formGroup.controls[control];
+        const foundColumn = this.columns.find(column => column.key === control);
+        const resetValue = foundColumn.isUnique ? formGroup.get(control).value : foundColumn.defaultValue;
+        formControl.reset(resetValue);
+        formControl.markAsPristine(opts);
+        formControl.updateValueAndValidity(opts);
+      }
+    }
+  }
+
+  public trackById = (_: number, item: any): number => {
+    return item[this.uniqueKey];
+  }
+
+  private orderElementsInArrayUsingKeys(array: any[], previousKey: string, newKey: string): any[] {
+    const prevIndex = array.findIndex(element => element.key === previousKey);
+    const newIndex = array.findIndex(element => element.key === newKey);
+
+    if (newIndex > prevIndex) {
+      const movedColumn = array[prevIndex];
+      for (let i = prevIndex; i < newIndex; i++) {
+        array[i] = array[i + 1];
+      }
+      array[newIndex] = movedColumn;
+    } else if (newIndex < prevIndex) {
+      const movedColumn = array[prevIndex];
+      for (let i = prevIndex; i > newIndex; i--) {
+        array[i] = array[i - 1];
+      }
+      array[newIndex] = movedColumn;
+    }
+
+    return array;
+  }
+
+  public dragEndEvent(
+    event: CdkDragDrop<string[]>,
+    columns: Column[],
+    columnsToGetKeyFrom: Column[]
+  ): any[] {
+    return this.orderElementsInArrayUsingKeys(
+      columns,
+      columnsToGetKeyFrom[event.previousIndex].key,
+      columnsToGetKeyFrom[event.currentIndex].key,
+    );
+  }
+
+  public updateRowHeight(size: string) {
+    this.size = size;
+    switch (size) {
+      case 'small':
+        this.height = 40;
+        break;
+      case 'middle':
+        this.height = 40;
+        break;
+      default:
+        this.height = 54;
+        break;
+    }
+  }
+
+  filterRows(exludedColumns?: Column[]) {
+    if (exludedColumns) {
+      this.notIncludedColumns = exludedColumns;
+    }
+    this.filter(this.filterForm.get('search').value);
+    this.refreshStatus();
+    this.cd.markForCheck();
+  }
+
+  public filter(globalValue: string) {
+    const filterColumns = this.getColumnsWithFilter(this.columns);
+
+    if (globalValue || filterColumns.length > 0) {
+      let filteredData = [...this.currentRows];
+
+      for (const column of filterColumns) {
+
+        filteredData = filteredData.filter(row => this.filterService.rowShouldBeFiltered(row, column));
+      }
+      if (globalValue) {
+        filteredData = filteredData.filter((row, index) => {
+          return this.columns.find(column => {
+            const isExcluded = this.notIncludedColumns.find(notIncludedColumn => notIncludedColumn.key === column.key);
+            if (isExcluded || row[column.key] == null) {
+              return false;
+            }
+            return row[column.key].toString().includes(globalValue);
+          });
+        });
+      }
+
+      this.rows = filteredData;
+    } else {
+      this.rows = [...this.currentRows];
+    }
+  }
+
+  public exportAsExcel() {
+    this.excelService.exportAsExcelFile(this.rows, 'file', this.columns.filter(column => column.visible && !column.childrenConfig));
+  }
+
+  private createMessage(type: string, message: Translation): void {
+    this.messageService.create(type, message[this.settingsService.language]);
+  }
+
+  public hasUnsavedChanges = () => {
+    if (!this.form
+      || (this.unsavedRowsLength + this.deletedRowsLength + this.newRowsLength === 0
+        && !this.form.dirty)
+    ) {
+      return false;
+    }
+    return true;
+  }
+
+  public clearFilters() {
+    this.columns.forEach(column => column.filter.values = []);
+    this.mapOfSort = {};
+    this.filterRows();
+  }
+
+  private getColumnsWithFilter(columns: Column[]): Column[] {
+    columns.forEach(column => {
+      const values = column.filter.values;
+      if (values.length > 0 && values.every((value: Date | string | number) => value == null || value === '')) {
+        column.filter.values = [];
+      }
+    });
+
+    return columns.filter(column => column.filter && (column.filter.values.length > 0));
+  }
+
+  openDrawer(row: any): void {
+    const foundColumn = this.columns.find(column => column.key === this.childrenKey);
+    if (foundColumn) {
+      foundColumn.childrenConfig.componentConfig.inputs = {
+        dataSource$: of(row[this.childrenKey]),
+        columns: this.childColumns,
+      };
+      const event = new EventEmitter<ChangesEvent>();
+      foundColumn.childrenConfig.componentConfig.outputs = {
+        changes: event,
+      };
+
+      event.subscribe((changes: ChangesEvent) => {
+        const updatedRow = {
+          ...row,
+          [this.childrenKey]: changes.currentState
+        };
+
+        if (this.editMode === EditMode.direct) {
+          this.successedSubject.pipe(
+            takeUntil(this.componentDestroyed$),
+            take(1)
+          ).subscribe(successed => {
+            changes.track.next(successed[this.childrenKey]);
+
+            if (successed !== false) {
+              this.saveEdit(successed);
+            } else {
+              this.showError();
+            }
+          });
+          this.updated.emit({ row: updatedRow, track: this.successedSubject });
+        } else {
+          this.saveEdit(updatedRow);
+          changes.track.next(changes.currentState);
+        }
+      });
+
+      this.componentConfig = foundColumn.childrenConfig.componentConfig;
+      this.drawerVisible = true;
+    } else {
+      this.childrenKey = null;
+      this.drawerVisible = false;
+    }
+  }
+
+  closeDrawer(): void {
+    this.drawerVisible = false;
+  }
+
+  handleClick(column: Column, row: any, index: number, event: MouseEvent) {
+    this.updateFocusedCell(index, column.key);
+
+    if (column.showModalOnClick) {
+      this.showValueInModal(row, column);
+    }
+  }
+}

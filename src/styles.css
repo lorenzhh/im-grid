@@ -1,0 +1,54 @@
+/* You can add global styles to this file, and also import other style files */
+.ant-modal {
+  top: 0px;
+  padding: 30px;
+  height: 100%;
+}
+
+.ant-modal-content {
+  max-width: 100%;
+  max-height: 100%;
+  height: auto !important;
+}
+
+.ant-modal-content,
+.ant-modal-body,
+.ant-modal-confirm-body-wrapper,
+.ant-modal-confirm-content,
+.ant-modal-confirm-body {
+  height: 100%;
+  display: flex;
+  overflow: auto;
+  flex-direction: column;
+}
+
+.ant-modal-confirm-content {
+  overflow: auto;
+}
+
+.ant-modal-confirm-btns {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.ant-modal-confirm-body i {
+  position: absolute;
+  width: fit-content;
+}
+
+.ant-modal-confirm-title {
+  display: contents !important;
+}
+
+.ant-modal-confirm-title span {
+  margin-left: 38px;
+}
+
+.ant-drawer-content-wrapper {
+  max-width: 95% !important;
+}
+
+pre {
+  white-space: pre-wrap;
+}

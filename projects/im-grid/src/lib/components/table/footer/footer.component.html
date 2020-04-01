@@ -1,0 +1,37 @@
+<div>
+  {{ translations.records | translate}}: {{ rowsLength }}
+</div>
+<div class="table-filter-footer">
+  <nz-select
+    nzNoAnimation
+    nzMode="multiple"
+    nzAllowClear
+    [(ngModel)]="notIncludedColumns"
+    [nzPlaceHolder]="translations.excludeColumns | translate"
+    (ngModelChange)="filterRows.emit($event)"
+  >
+    <nz-option
+      *ngFor="let column of columns"
+      [nzLabel]="column.title"
+      [nzValue]="column"
+    ></nz-option>
+  </nz-select>
+  <nz-divider nzType="vertical"></nz-divider>
+  <nz-input-group
+    [formGroup]="filterForm"
+    [nzSuffix]="suffixIconSearch"
+  >
+    <input
+      type="text"
+      nz-input
+      formControlName="search"
+      [placeholder]="translations.filter | translate"
+    >
+  </nz-input-group>
+  <ng-template #suffixIconSearch>
+    <i
+      nz-icon
+      nzType="search"
+    ></i>
+  </ng-template>
+</div>
