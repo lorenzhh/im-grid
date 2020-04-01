@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiHost: '/imosWebApi',
+  apiHost: '/yourapiHost',
   apiEndpoint: '/api/'
 };
