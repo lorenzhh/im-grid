@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Language, Locale, Translation } from '../models/settings.model';
 import { BehaviorSubject } from 'rxjs';
-import { NzI18nService, de_DE, en_US, en_GB } from 'ng-zorro-antd';
+import { NzI18nService, de_DE, en_US } from 'ng-zorro-antd';
 
 export interface Settings {
     language: Language;
