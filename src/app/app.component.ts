@@ -10,7 +10,7 @@ export class AppComponent {
   isCollapsed = false;
   Language = Language;
   Locale = Locale;
-
+  value: 0;
   constructor(private settingsService: SettingsService) { }
 
   changeLanguage(language: Language) {
@@ -19,5 +19,9 @@ export class AppComponent {
 
   changeLocale(locale: Locale) {
     this.settingsService.locale = locale;
+  }
+
+  changeTheme(value: number) {
+    document.querySelector('html').style.filter = `hue-rotate(${value}deg)`;
   }
 }

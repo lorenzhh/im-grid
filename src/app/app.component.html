@@ -86,6 +86,15 @@
           ></i>
         </span>
         <div style="display: flex;">
+          <div style="display: flex; align-items: center">
+            <nz-slider
+              [style.width.px]="180"
+              [nzMin]="0"
+              [nzMax]="360"
+              [(ngModel)]="value"
+              (ngModelChange)="changeTheme($event)"
+            ></nz-slider>
+          </div>
           <div>
             <a (click)="changeLocale(Locale.us)">en-US</a>
             <nz-divider nzType="vertical"></nz-divider>
