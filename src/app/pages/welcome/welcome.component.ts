@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChangeEvent, EditMode, ImColumn, ImGridComponent } from 'im-grid';
-import { BehaviorSubject, ReplaySubject } from 'rxjs';
-import { filter, tap } from 'rxjs/operators';
+import { BehaviorSubject, ReplaySubject, of } from 'rxjs';
+import { filter, tap, switchMap, catchError, delay } from 'rxjs/operators';
 import { columns as invoiceColumns } from 'src/app/shared/configs/invoice.config';
 import { columns as mandatorColumns } from 'src/app/shared/configs/mandator.config';
 import { columns as queueColumns } from 'src/app/shared/configs/queue.config';
@@ -43,6 +43,7 @@ export class WelcomeComponent implements OnInit {
     this.section.pipe(
       filter(section => !!section),
       tap((section) => this.setColumns(section)),
+      delay(0)
     ).subscribe(() => this.dataSource$.next(generate(1000, this.columns)));
 
     this.route.paramMap.subscribe(params => {
