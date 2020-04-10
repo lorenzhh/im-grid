@@ -11,6 +11,8 @@ export enum ImFieldType {
     Checkbox = 'Checkbox',
     Textarea = 'Textarea',
     Select = 'Select',
+    Rating = 'Rating',
+    Website = 'Website'
 }
 
 export enum ImColumnType {
@@ -20,6 +22,8 @@ export enum ImColumnType {
     Decimal = 'Decimal',
     Boolean = 'Boolean',
     Xml = 'Xml',
+    Rating = 'Rating',
+    Website = 'Website'
 }
 
 export enum ImFilterType {

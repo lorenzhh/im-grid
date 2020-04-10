@@ -18,6 +18,12 @@ export const generate = (times: number, columns: ImColumn[]) => {
                     case ImColumnType.Boolean:
                         generatedRow[column.key] = randomBoolean();
                         break;
+                    case ImColumnType.Rating:
+                        generatedRow[column.key] = randomNumber(1, 5);
+                        break;
+                    case ImColumnType.Website:
+                        generatedRow[column.key] = randomUrl();
+                        break;
                     case ImColumnType.Date:
                         generatedRow[column.key] = randomDate(new Date(0), new Date()).toISOString();
                         break;
@@ -42,12 +48,17 @@ export const randomDate = (start: Date, end: Date): Date => {
     return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
 };
 
+export const randomUrl = (): string => {
+    // TODO: create an url generator
+    return 'https://www.google.com';
+};
+
 export const randomBoolean = (): boolean => {
     return Math.random() >= 0.5;
 };
 
 export const randomNumber = (min: number, max: number): number => {
-    return Math.floor(Math.random() * (max - min + 1) + 0);
+    return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
 export const randomText = (length: number, possibleLetters?: string): string => {

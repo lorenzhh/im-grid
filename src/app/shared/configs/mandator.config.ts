@@ -21,8 +21,24 @@ export const columns: ImColumn[] = [
         columnType: ImColumnType.Date,
     },
     {
+        key: 'active',
+        title: 'Active',
+        columnType: ImColumnType.Boolean,
+        width: 95
+    },
+    {
         key: 'created',
         title: 'Created at',
         columnType: ImColumnType.Date,
+    },
+    {
+        key: 'rating',
+        title: 'Rating',
+        columnType: ImColumnType.Rating
+    },
+    {
+        key: 'website',
+        title: 'Website',
+        columnType: ImColumnType.Website
     },
 ];
