@@ -20,11 +20,10 @@
     ],
     "paths": {
       "im-grid": [
-        "dist/im-grid/im-grid",
-        "dist/im-grid"
+        "projects/im-grid/src/public-api"
       ],
       "im-grid/*": [
-        "dist/im-grid/*"
+        "projects/im-grid/src/public-api"
       ]
     }
   },
