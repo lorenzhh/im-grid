@@ -8,9 +8,9 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "build-grid": "ng build --prod im-grid",
+    "build-grid": "ng build --prod im-grid && npm run copy",
+    "copy": "copyfiles --flat projects/im-grid/styles.css ./dist/im-grid",
     "publish-grid": "npm publish --access=public dist/im-grid"
-
   },
   "private": true,
   "dependencies": {
@@ -23,6 +23,7 @@
     "@angular/platform-browser-dynamic": "~9.0.0",
     "@angular/router": "~9.0.0",
     "@types/xml-formatter": "^1.1.0",
+    "copyfiles": "^2.2.0",
     "ng-zorro-antd": "^8.5.2",
     "rxjs": "~6.5.4",
     "tslib": "^1.10.0",
