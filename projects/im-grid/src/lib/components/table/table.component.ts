@@ -744,7 +744,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
         this.height = 40;
         break;
       case 'middle':
-        this.height = 40;
+        this.height = 48;
         break;
       default:
         this.height = 54;

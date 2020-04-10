@@ -200,11 +200,10 @@
           [style.width.px]="70"
           [style.maxWidth.px]="70"
         >
-          {{ index + 1 }}
+         <i>{{ index + 1 }}</i>
         </td>
         <td
           *ngFor="let column of columns | filter: { visible: true }"
-          class="cell"
           [class.focused]="column.key === (focusedCellSubject | async).key
           && index === (focusedCellSubject | async).rowIndex"
           [style.minWidth.px]="column.width"

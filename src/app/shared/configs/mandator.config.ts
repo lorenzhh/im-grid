@@ -24,7 +24,6 @@ export const columns: ImColumn[] = [
         key: 'active',
         title: 'Active',
         columnType: ImColumnType.Boolean,
-        width: 95
     },
     {
         key: 'created',

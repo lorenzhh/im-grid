@@ -175,7 +175,7 @@ nz-table {
 }
 
 .focused {
-  border: 1px #1890ff solid !important;
+  box-shadow: inset 0px 0px 0px 1px #1890ff;
 }
 
 .highlighted {
