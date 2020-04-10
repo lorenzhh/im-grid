@@ -34,6 +34,23 @@
           [formControlName]="column.key"
         >
         </label>
+        <nz-rate
+          *ngSwitchCase="ImFieldType.Rating"
+          [formControlName]="column.key"
+          nzAllowHalf
+        >
+        </nz-rate>
+        <nz-input-group
+          *ngSwitchCase="ImFieldType.Website"
+          [nzAddOnAfterIcon]="'global'"
+        >
+          <input
+            type="text"
+            nz-input
+            [formControlName]="column.key"
+            [placeholder]="column.title + '...'"
+          >
+        </nz-input-group>
         <nz-date-picker
           *ngSwitchCase="ImFieldType.Date"
           [style.width.%]="100"

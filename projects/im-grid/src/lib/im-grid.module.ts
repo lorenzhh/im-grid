@@ -13,6 +13,7 @@ import { ImToolbarComponent } from './components/table/toolbar/toolbar.component
 import { FilterPipe } from './pipes/filter.pipe';
 import { FormatPipe } from './pipes/format.pipe';
 import { TranslatePipe } from './pipes/translate.pipe';
+import { CellComponent } from './components/table/cell/cell.component';
 
 
 @NgModule({
@@ -30,6 +31,7 @@ import { TranslatePipe } from './pipes/translate.pipe';
     FilterPipe,
     FormatPipe,
     TranslatePipe,
+    CellComponent,
   ],
   imports: [
     CommonModule,

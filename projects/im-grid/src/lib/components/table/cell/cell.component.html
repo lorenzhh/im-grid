@@ -1,0 +1,27 @@
+<ng-container [ngSwitch]="columnType">
+  <nz-rate
+    *ngSwitchCase="ImColumnType.Rating"
+    [ngModel]="value"
+    nzAllowHalf
+    nzDisabled
+  >
+  </nz-rate>
+
+  <a
+    *ngSwitchCase="ImColumnType.Website"
+    [href]="value"
+    [style.width.%]="100"
+  >
+    <i
+      nz-icon
+      nzType="arrow-right"
+    ></i>
+  </a>
+  <i
+    *ngSwitchCase="ImColumnType.Boolean"
+    nz-icon
+    [nzType]="rawValue === 1 || rawValue === '1' || rawValue === true || rawValue === 'true' ? 'check': 'close'"
+  >
+  </i>
+  <ng-container *ngSwitchDefault>{{value}}</ng-container>
+</ng-container>

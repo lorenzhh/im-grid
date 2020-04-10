@@ -420,6 +420,12 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
           case ImColumnType.Date:
             column.fieldType = ImFieldType.Date;
             break;
+          case ImColumnType.Rating:
+            column.fieldType = ImFieldType.Rating;
+            break;
+          case ImColumnType.Website:
+            column.fieldType = ImFieldType.Website;
+            break;
           case ImColumnType.Decimal:
           case ImColumnType.Int:
             column.fieldType = ImFieldType.Number;

@@ -71,6 +71,7 @@
         class="cell"
         [title]="column.title"
         [style.minWidth.px]="column.width"
+        [style.maxWidth.px]="column.width"
         [style.width.px]="column.width"
         [(nzSort)]="mapOfSort[column.key]"
         (nzSortChange)="sort(column.key, $event)"
@@ -212,7 +213,11 @@
           [title]="row[column.key] | format: column.columnType: (settingsService.settings | async)"
           (click)="handleClick(column, row, index, $event)"
         >
-          {{ row[column.key] | format: column.columnType: (settingsService.settings | async) }}
+          <im-cell
+            [rawValue]="row[column.key]"
+            [value]="row[column.key] | format: column.columnType: (settingsService.settings | async)"
+            [columnType]="column.columnType"
+          ></im-cell>
         </td>
         <td
           nzRight="0px"
