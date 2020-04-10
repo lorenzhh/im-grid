@@ -145,13 +145,14 @@
         [style.minWidth.px]="60"
         [style.width.px]="60"
         [style.maxWidth.px]="60"
-        [style.padding.px]="8"
+        [style.paddingLeft.px]="2"
         [title]="translations.clearFilters | translate"
       >
         <a (click)="clearFilters()">
           <i
+            class="clear-icon"
             nz-icon
-            nzType="close"
+            nzType="stop"
           ></i>
           {{ translations.clear | translate }}
         </a>
@@ -200,7 +201,7 @@
           [style.width.px]="70"
           [style.maxWidth.px]="70"
         >
-         <i>{{ index + 1 }}</i>
+          <i>{{ index + 1 }}</i>
         </td>
         <td
           *ngFor="let column of columns | filter: { visible: true }"
