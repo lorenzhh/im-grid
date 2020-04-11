@@ -19,7 +19,7 @@
   [nzFooter]="footerTemplate"
   [nzFrontPagination]="false"
   [nzLoading]="loading"
-  [nzScroll]="{ x: '100%', y: '100%' }"
+  [nzScroll]="{ x: columnsWidth + 'px', y: '100%' }"
   [nzShowPagination]="false"
   [nzSize]="size"
   [nzTitle]="toolbarTemplate"
@@ -225,8 +225,8 @@
           *ngFor="let column of columns | filter: { visible: true }"
         >
           <im-cell
-            [focused]="column.key === (focusedCellSubject | async).key && index === (focusedCellSubject | async).rowIndex"
             [columnType]="column.columnType"
+            [focused]="column.key === (focusedCellSubject | async).key && index === (focusedCellSubject | async).rowIndex"
             [rawValue]="row[column.key]"
             [value]="row[column.key] | format: column.columnType: (settingsService.settings | async)"
           ></im-cell>

@@ -51,7 +51,7 @@ export abstract class DataService {
     return sectionName.split('-').join('');
   }
 
-  private updateLoading(value: boolean) {
+  public updateLoading(value: boolean) {
     this.loadingSubject.next(value);
   }
 }

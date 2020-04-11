@@ -35,14 +35,10 @@ nz-table {
     }
 
     .ant-table-placeholder {
-      height: calc(100% - 125px) !important;
-      display: flex !important;
       border: none;
       position: absolute;
-      top: 85px;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
+      top: 50%;
+      left: 50%;
       background: inherit;
       padding: 0;
     }
@@ -85,6 +81,10 @@ nz-table {
     cdk-virtual-scroll-viewport {
       height: calc(100% - 100px) !important;
       display: flex !important;
+
+      .cdk-virtual-scroll-content-wrapper {
+        min-height: 1px;
+      }
     }
 
     th {

@@ -42,9 +42,14 @@ export class WelcomeComponent implements OnInit {
 
     this.section.pipe(
       filter(section => !!section),
+      tap(() => this.dataSource$.next([])),
       tap((section) => this.setColumns(section)),
-      delay(0)
-    ).subscribe(() => this.dataSource$.next(generate(1000, this.columns)));
+      tap(() => this.dataService.updateLoading(true)),
+      delay(1000)
+    ).subscribe(() => {
+      this.dataSource$.next(generate(1000, this.columns));
+      this.dataService.updateLoading(false);
+    });
 
     this.route.paramMap.subscribe(params => {
       this.section.next(params.get('section'));
