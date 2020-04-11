@@ -79,6 +79,12 @@
     autocomplete="off"
     nzSize="small"
   >
+  <nz-rate
+    [(ngModel)]="column.filter.values[0]"
+    (ngModelChange)="filterRows.emit()"
+    *ngSwitchCase="ImFilterType.Rating"
+    nzAllowHalf
+  ></nz-rate>
   <nz-range-picker
     [(ngModel)]="column.filter.values"
     [nzFormat]="DateFormats[settingsService.locale]"

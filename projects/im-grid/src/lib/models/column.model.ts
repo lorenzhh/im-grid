@@ -31,7 +31,8 @@ export enum ImFilterType {
     Select,
     RangeDate,
     FreeText,
-    RangeNumber
+    RangeNumber,
+    Rating
 }
 
 export interface ImColumn {

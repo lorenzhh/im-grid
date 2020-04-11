@@ -409,6 +409,9 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
           case ImColumnType.Int:
             column.filter.type = ImFilterType.RangeNumber;
             break;
+          case ImColumnType.Rating:
+            column.filter.type = ImFilterType.Rating;
+            break;
           default:
             column.filter.type = ImFilterType.FreeText;
         }
