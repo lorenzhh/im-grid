@@ -1,6 +1,6 @@
 <form
-  nz-form
   [formGroup]="form"
+  nz-form
 >
   <nz-form-item *ngFor="let column of columns">
     <ng-container *ngIf="column.fieldType !== ImFieldType.None">
@@ -11,69 +11,69 @@
         nzErrorTip="Please write something here!"
       >
         <nz-select
-          *ngSwitchCase="ImFieldType.Select"
           [formControlName]="column.key"
           [nzPlaceHolder]="column.title + '...'"
+          *ngSwitchCase="ImFieldType.Select"
         >
           <nz-option
-            *ngFor="let option of column.selectValues"
-            [nzValue]="option"
             [nzLabel]="option"
+            [nzValue]="option"
+            *ngFor="let option of column.selectValues"
           ></nz-option>
         </nz-select>
         <nz-input-number
-          *ngSwitchCase="ImFieldType.Number"
-          [style.width.%]="100"
           [formControlName]="column.key"
-          [nzStep]="1"
           [nzPlaceHolder]="column.title + '...'"
+          [nzStep]="1"
+          [style.width.%]="100"
+          *ngSwitchCase="ImFieldType.Number"
         ></nz-input-number>
         <label
+          [formControlName]="column.key"
           *ngSwitchCase="ImFieldType.Checkbox"
           nz-checkbox
-          [formControlName]="column.key"
         >
         </label>
         <nz-rate
-          *ngSwitchCase="ImFieldType.Rating"
           [formControlName]="column.key"
+          *ngSwitchCase="ImFieldType.Rating"
           nzAllowHalf
         >
         </nz-rate>
         <nz-input-group
-          *ngSwitchCase="ImFieldType.Website"
           [nzAddOnAfterIcon]="'global'"
+          *ngSwitchCase="ImFieldType.Website"
         >
           <input
-            type="text"
-            nz-input
             [formControlName]="column.key"
             [placeholder]="column.title + '...'"
+            type="text"
+            nz-input
           >
         </nz-input-group>
         <nz-date-picker
-          *ngSwitchCase="ImFieldType.Date"
-          [style.width.%]="100"
-          [nzStyle]="{width: '100%'}"
-          [nzFormat]="TimeFormats[settingsService.locale]"
-          [nzShowTime]="true"
           [formControlName]="column.key"
+          [nzFormat]="TimeFormats[settingsService.locale]"
           [nzPlaceHolder]="column.title + '...'"
+          [nzShowTime]="true"
+          [nzStyle]="{width: '100%'}"
+          [style.width.%]="100"
+          *ngSwitchCase="ImFieldType.Date"
         ></nz-date-picker>
         <textarea
-          *ngSwitchCase="ImFieldType.Textarea"
           [formControlName]="column.key"
+          [placeholder]="column.title + '...'"
+          *ngSwitchCase="ImFieldType.Textarea"
           width="700"
           height="500"
           nz-input
           rows="5"
-          [placeholder]="column.title + '...'"
         ></textarea>
         <input
-          *ngSwitchDefault
-          nz-input
           [formControlName]="column.key"
           [placeholder]="column.title + '...'"
+          *ngSwitchDefault
+          nz-input
         >
       </nz-form-control>
     </ng-container>

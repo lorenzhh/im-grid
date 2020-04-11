@@ -1,8 +1,8 @@
 <div>
   <button
+    (click)="deleteRows.emit(numberOfChecked > 1000)"
     *ngIf="numberOfChecked > 0 && !directMode"
     nz-button
-    (click)="deleteRows.emit(numberOfChecked > 1000)"
   >
     <i
       nz-icon
@@ -14,8 +14,8 @@
 </div>
 <div class="toolbar-buttons">
   <button
-    nz-button
     (click)="exportAsExcel.emit()"
+    nz-button
   >
     <i
       nz-icon
@@ -25,8 +25,8 @@
   </button>
   <nz-divider nzType="vertical"></nz-divider>
   <nz-radio-group
-    [(ngModel)]="size"
     name="size"
+    [(ngModel)]="size"
     (ngModelChange)="changeSize.emit($event)"
   >
     <label
@@ -53,10 +53,10 @@
     nzType="vertical"
   ></nz-divider>
   <button
-    *ngIf="!directMode"
-    nz-button
     [disabled]="unsavedRowsLength + deletedRowsLength + newRowsLength === 0"
     (click)="resetRows.emit()"
+    *ngIf="!directMode"
+    nz-button
   >
     <i
       nz-icon
@@ -66,8 +66,8 @@
   </button>
   <nz-divider nzType="vertical"></nz-divider>
   <button
-    nz-button
     (click)="addRow.emit()"
+    nz-button
   >
     <i
       nz-icon
@@ -80,12 +80,12 @@
     nzType="vertical"
   ></nz-divider>
   <button
-    *ngIf="!directMode"
-    nz-button
     [class.saveButton]="!loading && (unsavedRowsLength + deletedRowsLength + newRowsLength !== 0)"
     [disabled]="loading || (unsavedRowsLength + deletedRowsLength + newRowsLength) === 0"
     [title]="'New rows: ' + newRowsLength + ' - Updated rows: ' + unsavedRowsLength + ' - Deleted rows: ' + deletedRowsLength"
     (click)="saveRows.emit()"
+    *ngIf="!directMode"
+    nz-button
   >
     <i
       nz-icon

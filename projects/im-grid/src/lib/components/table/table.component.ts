@@ -59,7 +59,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   public currentRows: any[] = [];
   public form: FormGroup;
   public size = 'default';
-  public height = 54;
+  public height = 63;
   public editCache: Edit = {};
   public isAllDisplayDataChecked = false;
   public isIndeterminate = false;
@@ -72,6 +72,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   public filterForm: FormGroup;
   public notIncludedColumns: ImColumn[] = [];
   public uniqueKey: string;
+  public scrollIndex: number;
   public allowSearch: boolean;
   private modal: NzModalRef;
   private componentDestroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
@@ -741,13 +742,13 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     this.size = size;
     switch (size) {
       case 'small':
-        this.height = 40;
+        this.height = 54;
         break;
       case 'middle':
-        this.height = 48;
+        this.height = 55;
         break;
       default:
-        this.height = 54;
+        this.height = 63;
         break;
     }
   }

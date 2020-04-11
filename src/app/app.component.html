@@ -1,11 +1,11 @@
 <nz-layout class="app-layout">
   <nz-sider
     class="menu-sidebar"
+    [(nzCollapsed)]="isCollapsed"
+    [nzTrigger]="null"
     nzCollapsible
     nzWidth="256px"
     nzBreakpoint="md"
-    [(nzCollapsed)]="isCollapsed"
-    [nzTrigger]="null"
   >
     <div class="sidebar-logo">
       <a
@@ -20,10 +20,10 @@
       </a>
     </div>
     <ul
+      [nzInlineCollapsed]="isCollapsed"
       nz-menu
       nzTheme="dark"
       nzMode="inline"
-      [nzInlineCollapsed]="isCollapsed"
     >
       <li
         nz-submenu
@@ -81,20 +81,21 @@
         >
           <i
             class="trigger"
-            nz-icon
             [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"
+            nz-icon
           ></i>
         </span>
-        <div style="display: flex;">
+        <div style="display: flex; align-items: center">
           <div style="display: flex; align-items: center">
             <nz-slider
-              [style.width.px]="180"
-              [nzMin]="0"
-              [nzMax]="360"
               [(ngModel)]="value"
+              [nzMax]="360"
+              [nzMin]="0"
+              [style.width.px]="180"
               (ngModelChange)="changeTheme($event)"
             ></nz-slider>
           </div>
+          <nz-divider nzType="vertical"></nz-divider>
           <div>
             <a (click)="changeLocale(Locale.us)">en-US</a>
             <nz-divider nzType="vertical"></nz-divider>
