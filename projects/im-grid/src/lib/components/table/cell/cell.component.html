@@ -27,8 +27,9 @@
 </ng-container>
 <p
   class="copy-icon"
-  [nzCopyText]="value"
-  *ngIf="focused"
+  [nzCopyText]="value.toString()"
+  *ngIf="focused && value != null"
   nz-paragraph
   nzCopyable
-></p>
+>
+</p>
