@@ -64,7 +64,7 @@
       >
       </th>
       <th
-        class="cell"
+        class="header-cell"
         [(nzSort)]="mapOfSort[column.key]"
         [style.maxWidth.px]="column.width"
         [style.minWidth.px]="column.width"
@@ -215,6 +215,7 @@
           <i>{{ index + 1 }}</i>
         </td>
         <td
+          class="table-cell"
           [class.focused]="column.key === (focusedCellSubject | async).key
           && index === (focusedCellSubject | async).rowIndex"
           [style.maxWidth.px]="column.width"
@@ -225,6 +226,7 @@
           *ngFor="let column of columns | filter: { visible: true }"
         >
           <im-cell
+            [focused]="column.key === (focusedCellSubject | async).key && index === (focusedCellSubject | async).rowIndex"
             [columnType]="column.columnType"
             [rawValue]="row[column.key]"
             [value]="row[column.key] | format: column.columnType: (settingsService.settings | async)"

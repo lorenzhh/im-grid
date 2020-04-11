@@ -4,10 +4,14 @@
   height: 100%;
 }
 
-.cell {
+.header-cell {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.table-cell {
+  position: relative;
 }
 
 pre {

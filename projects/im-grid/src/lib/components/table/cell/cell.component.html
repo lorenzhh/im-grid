@@ -25,3 +25,10 @@
   </i>
   <ng-container *ngSwitchDefault>{{value}}</ng-container>
 </ng-container>
+<p
+  class="copy-icon"
+  [nzCopyText]="value"
+  *ngIf="focused"
+  nz-paragraph
+  nzCopyable
+></p>

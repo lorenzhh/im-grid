@@ -9,6 +9,7 @@ import { ImColumnType } from '../../../models/column.model';
 export class CellComponent {
   @Input() rawValue: any;
   @Input() value: any;
+  @Input() focused: boolean;
   @Input() columnType: ImColumnType;
 
   ImColumnType = ImColumnType;

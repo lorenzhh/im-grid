@@ -5,3 +5,14 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.copy-icon {
+  position: absolute;
+  right: 5px;
+  bottom: 2px;
+  margin: 0;
+}
+
+.copy-icon ::ng-deep nz-text-copy .anticon {
+  font-size: x-small;
+}
