@@ -18,6 +18,7 @@
     ></i>
   </a>
   <i
+    class="boolean-icon"
     [nzType]="rawValue === 1 || rawValue === '1' || rawValue === true || rawValue === 'true' ? 'check': 'close'"
     *ngSwitchCase="ImColumnType.Boolean"
     nz-icon
@@ -25,11 +26,30 @@
   </i>
   <ng-container *ngSwitchDefault>{{value}}</ng-container>
 </ng-container>
-<p
-  class="copy-icon"
-  [nzCopyText]="value.toString()"
+<div
+  class="footer-icons"
   *ngIf="focused && value != null"
-  nz-paragraph
-  nzCopyable
 >
-</p>
+  <div>
+    <a
+      (click)="zoomed.emit()"
+      *ngIf="zoom"
+    >
+      <i
+        class="zoom-icon"
+        nz-icon
+        nzType="zoom-in"
+      ></i>
+    </a>
+  </div>
+  <div>
+    <p
+      class="copy-icon"
+      [nzCopyText]="value.toString()"
+      *ngIf="copy"
+      nz-paragraph
+      nzCopyable
+    >
+    </p>
+  </div>
+</div>

@@ -386,6 +386,15 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
         }
       }
 
+      if (column.copy === undefined) {
+        column.copy = true;
+      }
+      if (column.zoom === undefined) {
+        column.zoom = true;
+      }
+      if (column.showModalOnClick === true) {
+        column.zoom = false;
+      }
       if (column.title === undefined) {
         column.title = column.key;
       }

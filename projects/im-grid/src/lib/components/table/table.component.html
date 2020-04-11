@@ -226,9 +226,12 @@
         >
           <im-cell
             [columnType]="column.columnType"
+            [copy]="column.copy"
             [focused]="column.key === (focusedCellSubject | async).key && index === (focusedCellSubject | async).rowIndex"
             [rawValue]="row[column.key]"
             [value]="row[column.key] | format: column.columnType: (settingsService.settings | async)"
+            [zoom]="column.zoom"
+            (zoomed)="showValueInModal(row, column)"
           ></im-cell>
         </td>
         <td

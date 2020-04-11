@@ -9,10 +9,22 @@
 }
 
 .copy-icon {
-  position: absolute;
-  right: 5px;
-  bottom: 2px;
   margin: 0;
+}
+
+.footer-icons {
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  right: 3px;
+  left: 3px;
+  bottom: 5px;
+  align-items: center;
+  height: 10px;
+}
+
+.zoom-icon {
+  font-size: x-small;
 }
 
 .copy-icon ::ng-deep nz-text-copy .anticon {
@@ -21,4 +33,8 @@
 
 nz-rate ::ng-deep .ant-rate-star {
   font-size: large;
+}
+
+.boolean-icon {
+  font-size: medium;
 }

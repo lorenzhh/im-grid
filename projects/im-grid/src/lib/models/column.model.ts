@@ -54,6 +54,8 @@ export interface ImColumn {
     width?: number;
     visible?: boolean;
     filter?: ImFilter;
+    zoom?: boolean;
+    copy?: boolean;
 }
 
 export interface ImFilter {
