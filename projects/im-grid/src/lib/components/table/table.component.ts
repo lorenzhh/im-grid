@@ -59,7 +59,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   public currentRows: any[] = [];
   public form: FormGroup;
   public size = 'default';
-  public height = 63;
+  public height = 54;
   public editCache: Edit = {};
   public isAllDisplayDataChecked = false;
   public isIndeterminate = false;
@@ -742,13 +742,13 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     this.size = size;
     switch (size) {
       case 'small':
-        this.height = 54;
+        this.height = 37;
         break;
       case 'middle':
-        this.height = 55;
+        this.height = 46;
         break;
       default:
-        this.height = 63;
+        this.height = 54;
         break;
     }
   }

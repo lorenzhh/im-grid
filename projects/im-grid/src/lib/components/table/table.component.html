@@ -216,8 +216,7 @@
         </td>
         <td
           class="table-cell"
-          [class.focused]="column.key === (focusedCellSubject | async).key
-          && index === (focusedCellSubject | async).rowIndex"
+          [class.focused]="column.key === (focusedCellSubject | async).key && index === (focusedCellSubject | async).rowIndex"
           [style.maxWidth.px]="column.width"
           [style.minWidth.px]="column.width"
           [style.width.px]="column.width"

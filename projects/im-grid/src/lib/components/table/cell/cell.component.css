@@ -4,6 +4,8 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 21px;
+  height: 21px;
 }
 
 .copy-icon {
@@ -15,4 +17,8 @@
 
 .copy-icon ::ng-deep nz-text-copy .anticon {
   font-size: x-small;
+}
+
+nz-rate ::ng-deep .ant-rate-star {
+  font-size: large;
 }
