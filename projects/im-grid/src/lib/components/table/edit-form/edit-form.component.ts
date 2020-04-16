@@ -12,9 +12,8 @@ import { SettingsService } from '../../../services/settings.service';
 export class EditFormComponent {
   @Input() form: FormGroup;
   @Input() columns: ImColumn[];
+  @Input() locale: string;
   ImColumnType = ImColumnType;
   ImFieldType = ImFieldType;
   TimeFormats = TimeFormats;
-
-  constructor(public settingsService: SettingsService) { }
 }

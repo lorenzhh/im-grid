@@ -1,55 +1,67 @@
-<ng-container [ngSwitch]="columnType">
-  <nz-rate
-    [ngModel]="value"
-    *ngSwitchCase="ImColumnType.Rating"
-    nzAllowHalf
-    nzDisabled
-  >
-  </nz-rate>
+<ng-container *ngIf="!editing else editTemplate">
+  <ng-container [ngSwitch]="column.columnType">
+    <nz-rate
+      [ngModel]="value"
+      *ngSwitchCase="ImColumnType.Rating"
+      nzAllowHalf
+      nzDisabled
+    >
+    </nz-rate>
 
-  <a
-    [href]="value"
-    [style.width.%]="100"
-    *ngSwitchCase="ImColumnType.Website"
-  >
-    <i
-      nz-icon
-      nzType="arrow-right"
-    ></i>
-  </a>
-  <i
-    class="boolean-icon"
-    [nzType]="rawValue === 1 || rawValue === '1' || rawValue === true || rawValue === 'true' ? 'check': 'close'"
-    *ngSwitchCase="ImColumnType.Boolean"
-    nz-icon
-  >
-  </i>
-  <ng-container *ngSwitchDefault>{{value}}</ng-container>
-</ng-container>
-<div
-  class="footer-icons"
-  *ngIf="focused && value != null"
->
-  <div>
     <a
-      (click)="zoomed.emit()"
-      *ngIf="zoom"
+      [href]="value"
+      [style.width.%]="100"
+      *ngSwitchCase="ImColumnType.Website"
     >
       <i
-        class="zoom-icon"
         nz-icon
-        nzType="zoom-in"
+        nzType="arrow-right"
       ></i>
     </a>
-  </div>
-  <div>
-    <p
-      class="copy-icon"
-      [nzCopyText]="value.toString()"
-      *ngIf="copy"
-      nz-paragraph
-      nzCopyable
+    <i
+      class="boolean-icon"
+      [nzType]="rawValue === 1 || rawValue === '1' || rawValue === true || rawValue === 'true' ? 'check': 'close'"
+      *ngSwitchCase="ImColumnType.Boolean"
+      nz-icon
     >
-    </p>
+    </i>
+    <ng-container *ngSwitchDefault>{{value}}</ng-container>
+  </ng-container>
+  <div
+    class="footer-icons"
+    *ngIf="focused && value != null"
+  >
+    <div>
+      <a
+        (click)="zoomed.emit()"
+        *ngIf="column.zoom"
+      >
+        <i
+          class="zoom-icon"
+          nz-icon
+          nzType="zoom-in"
+        ></i>
+      </a>
+    </div>
+    <div>
+      <p
+        class="copy-icon"
+        [nzCopyText]="value.toString()"
+        *ngIf="column.copy"
+        nz-paragraph
+        nzCopyable
+      >
+      </p>
+    </div>
   </div>
-</div>
+</ng-container>
+
+<ng-template #editTemplate>
+  <im-editing-cell
+    [form]="form"
+    [column]="column"
+    [locale]="locale"
+    (cancel)="cancel.emit()"
+    (next)="next.emit($event)"
+  ></im-editing-cell>
+</ng-template>

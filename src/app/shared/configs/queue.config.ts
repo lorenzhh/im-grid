@@ -18,7 +18,6 @@ export const columns: ImColumn[] = [
     {
         key: 'value',
         title: 'Value',
-        showModalOnClick: true,
         columnType: ImColumnType.Xml
     },
     {

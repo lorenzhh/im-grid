@@ -1,6 +1,6 @@
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 // tslint:disable:max-line-length
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, TemplateRef, ViewChild, HostListener } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { NzMessageService, NzModalRef, NzModalService, NzTableComponent } from 'ng-zorro-antd';
 import { BehaviorSubject, fromEvent, Observable, of, ReplaySubject, Subject } from 'rxjs';
@@ -16,7 +16,6 @@ import { dynamicTranslations } from './translations/dynamic-translations';
 
 export interface Edit {
   [key: number]: {
-    edit: boolean,
     row?: any,
     changed?: boolean,
     deleted?: boolean,
@@ -88,6 +87,10 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     key: null
   });
 
+  public editingCellSubject: BehaviorSubject<CellCordinates> = new BehaviorSubject<CellCordinates>({
+    rowIndex: -1,
+    key: null
+  });
   public columnsWidth: number;
   constructor(
     private formBuilder: FormBuilder,
@@ -126,6 +129,10 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     this.focusedCellSubject.next({ rowIndex, key });
   }
 
+  updateEditingCell(rowIndex: number, key: string) {
+    this.editingCellSubject.next({ rowIndex, key });
+  }
+
   scrollToIndex(index: number): void {
     this.table.cdkVirtualScrollViewport.scrollToIndex(+index);
   }
@@ -138,10 +145,14 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
       takeUntil(this.componentDestroyed$)
     )
       .subscribe(data => {
-        this.originalRows = [...data];
-        this.currentRows = [...data];
+        this.originalRows = this.deepCloneArray(data);
+        this.currentRows = this.deepCloneArray(data);
         this.reset();
       });
+  }
+
+  deepCloneArray(array: Array<any>): Array<any> {
+    return JSON.parse(JSON.stringify(array));
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -171,8 +182,20 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     this.componentDestroyed$.complete();
   }
 
+  @HostListener('document:keydown.f2', ['$event']) onF2KeydownHandler(event: KeyboardEvent) {
+    const { rowIndex, key } = this.focusedCellSubject.value;
+    if (rowIndex > -1 && key) {
+      event.preventDefault();
+      const foundColumn = this.columns.find(column => column.key === key);
+
+      if (foundColumn && !foundColumn.notEditable) {
+        this.startEditing(foundColumn, this.rows[rowIndex], rowIndex);
+      }
+    }
+  }
   public resetRows() {
-    this.currentRows = [...this.originalRows];
+    this.currentRows = this.deepCloneArray(this.originalRows);
+    console.log(this.currentRows);
     this.resetEditCache();
     this.filterRows();
     this.updateCounters();
@@ -188,7 +211,6 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
 
       this.editCache[originalRow[this.uniqueKey]] = {
         row: { ...originalRow },
-        edit: false,
         changed: false
       };
 
@@ -212,8 +234,8 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
       take(1)
     ).subscribe(successed => {
       if (successed !== false) {
-        this.originalRows = [...successed];
-        this.currentRows = [...successed];
+        this.originalRows = this.deepCloneArray(successed);
+        this.currentRows = this.deepCloneArray(successed);
         this.reset();
       } else {
         this.showError();
@@ -350,14 +372,32 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
       );
       form.addControl(column.key, newControl);
 
-      if (column.columnType === ImColumnType.Date) {
-        const formControl = form.get(column.key);
-        formControl.valueChanges.subscribe((value: Date) => {
+
+      form.get(column.key).valueChanges.pipe(
+        takeUntil(this.componentDestroyed$)
+      ).subscribe(value => {
+        if (
+          value
+          && (
+            column.columnType === ImColumnType.Int
+            || column.columnType === ImColumnType.Decimal
+          )
+        ) {
+          value = Number(value);
+        }
+        if (column.columnType === ImColumnType.Date) {
           if (value) {
-            formControl.setValue(value.toISOString(), { emitEvent: false });
+            value = value.toISOString();
           }
-        });
-      }
+        }
+        row[column.key] = value;
+
+        this.editCache[row[this.uniqueKey]] = {
+          row: { ...row },
+          changed: true
+        };
+        this.updateUnsavedRowsLength();
+      });
     });
 
     if (!row) {
@@ -632,7 +672,6 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
 
     this.currentRows = [...this.currentRows, newObject];
     this.editCache[newObject[this.uniqueKey]] = {
-      edit: false,
       row: { ...newObject },
       new: true
     };
@@ -646,7 +685,6 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   private saveDelete(deletedRow: any): void {
     this.currentRows = this.currentRows.filter(row => row[this.uniqueKey] !== deletedRow[this.uniqueKey]);
     this.editCache[deletedRow[this.uniqueKey]] = {
-      edit: false,
       changed: true,
       deleted: true
     };
@@ -666,7 +704,6 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
 
     this.editCache[editedRow[this.uniqueKey]] = {
       row: { ...editedRow },
-      edit: false,
       changed: true
     };
 
@@ -690,9 +727,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   private resetEditCache(): void {
     this.editCache = {};
     this.currentRows.forEach(row => {
-      this.editCache[row[this.uniqueKey]] = {
-        edit: false,
-      };
+      this.editCache[row[this.uniqueKey]] = {};
     });
   }
 
@@ -902,5 +937,41 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     if (column.showModalOnClick) {
       this.showValueInModal(row, column);
     }
+  }
+
+  startEditing(column: ImColumn, row: any, index: number) {
+    this.initForm(row);
+    this.updateFocusedCell(index, column.key);
+    this.updateEditingCell(index, column.key);
+  }
+
+
+  public jump(currentRow: any, currentColumnKey: string, currentRowIndex: number, backwards: boolean) {
+    const filteredColumns = this.columns.filter(column => !column.childrenConfig && column.visible && !column.notEditable);
+    const reversedColumns = filteredColumns.slice().reverse();
+
+    const columns = backwards ? reversedColumns : filteredColumns;
+    const currentColumnIndex = columns.findIndex(column => column.key === currentColumnKey);
+
+    let nextColumn = columns.find((column: ImColumn, index: number) => index > currentColumnIndex);
+
+    if (!nextColumn) {
+      backwards ? currentRowIndex -= 1 : currentRowIndex += 1;
+      currentRow = this.rows[currentRowIndex];
+      if (currentRow) {
+        nextColumn = columns.find((column: ImColumn) => !column.notEditable);
+      }
+    }
+    if (currentRow) {
+      const newColumnKey = nextColumn.key;
+      const newRowIndex = currentRowIndex;
+      this.initForm(currentRow);
+      this.updateFocusedCell(newRowIndex, newColumnKey);
+      this.updateEditingCell(newRowIndex, newColumnKey);
+    }
+  }
+
+  public cancelEditing() {
+    this.updateEditingCell(-1, null);
   }
 }

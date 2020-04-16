@@ -222,15 +222,19 @@
           [style.width.px]="column.width"
           [title]="row[column.key] | format: column.columnType: (settingsService.settings | async)"
           (click)="handleClick(column, row, index, $event)"
+          (dblclick)="startEditing(column, row, index)"
           *ngFor="let column of columns | filter: { visible: true }"
         >
           <im-cell
-            [columnType]="column.columnType"
-            [copy]="column.copy"
+            [column]="column"
+            [editing]="column.key === (editingCellSubject | async).key && index === (editingCellSubject | async).rowIndex"
             [focused]="column.key === (focusedCellSubject | async).key && index === (focusedCellSubject | async).rowIndex"
+            [form]="form"
+            [locale]="settingsService.locale"
             [rawValue]="row[column.key]"
             [value]="row[column.key] | format: column.columnType: (settingsService.settings | async)"
-            [zoom]="column.zoom"
+            (cancel)="cancelEditing()"
+            (next)="jump(row, column.key, index, $event)"
             (zoomed)="showValueInModal(row, column)"
           ></im-cell>
         </td>
@@ -310,6 +314,7 @@
   <im-edit-form
     [columns]="columns"
     [form]="form"
+    [locale]="settingsService.locale"
     *ngIf="form"
   ></im-edit-form>
 </ng-template>

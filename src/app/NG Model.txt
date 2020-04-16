@@ -1,0 +1,86 @@
+NG Model
+
+[(ngModel)]
+onModelChange($event)
+
+
+
+
+ReactiveForm
+
+FormGroup
+formControlName
+
+
+
+
+Validators
+
+patchValue()
+setValue()
+reset()
+
+
+
+dynamic html attributes
+
+[ngClass]="highlighted === item.highlighted"
+[ngStyle]="{ width.px: width }"
+
+
+
+Angular cycles
+
+OnInit()
+OnChanges(changes: SimpleChanges)
+OnDestory()
+
+
+
+
+Array
+
+map()
+filter()
+find()
+findIndex()
+
+
+
+arrow function
+
+doSomething() {}
+vs
+doSomething = () => {}
+
+
+
+time
+
+new Date()
+moment()
+
+
+
+Auth
+
+authService
+localeStorage
+auth guard
+login component
+
+
+
+Pipes
+
+pure pipe
+unpure pipe
+
+
+Interceptors
+
+AuthInterceptor
+LoadingIntereptor
+RefreshTokenInterceptor
+
+

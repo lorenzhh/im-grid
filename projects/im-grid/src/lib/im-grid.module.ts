@@ -14,6 +14,7 @@ import { FilterPipe } from './pipes/filter.pipe';
 import { FormatPipe } from './pipes/format.pipe';
 import { TranslatePipe } from './pipes/translate.pipe';
 import { CellComponent } from './components/table/cell/cell.component';
+import { EditingCellComponent } from './components/table/editing-cell/editing-cell.component';
 
 
 @NgModule({
@@ -32,6 +33,7 @@ import { CellComponent } from './components/table/cell/cell.component';
     FormatPipe,
     TranslatePipe,
     CellComponent,
+    EditingCellComponent,
   ],
   imports: [
     CommonModule,
