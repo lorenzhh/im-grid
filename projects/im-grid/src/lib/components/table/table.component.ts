@@ -132,7 +132,6 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnInit() {
     this.normalizeConfig();
-    this.calculateColumnsWidth();
     this.mapOfSort = {};
     this.dataSource$.pipe(
       takeUntil(this.componentDestroyed$)
@@ -154,17 +153,11 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
         this.closeDrawer();
       }
       this.normalizeConfig();
-      this.calculateColumnsWidth();
       this.mapOfSort = {};
       this.notIncludedColumns = [];
     }
   }
 
-  calculateColumnsWidth() {
-    const result = this.childrenKey ? 200 : 165;
-    this.columnsWidth = this.columns.filter(column => column.visible && !column.childrenConfig)
-      .reduce((accumulator, currentValue) => accumulator + currentValue.width, result);
-  }
 
   ngOnDestroy() {
     this.componentDestroyed$.next(true);

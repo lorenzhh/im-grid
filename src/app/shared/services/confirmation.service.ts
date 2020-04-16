@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
-import { NzModalService, ModalOptionsForService } from 'ng-zorro-antd';
+import { NzModalService, ModalOptions } from 'ng-zorro-antd';
 
 export type modalType = 'confirm' | 'info' | 'success' | 'warning' | 'create' | 'error';
 
@@ -23,7 +23,7 @@ export class ConfirmationService {
         return confirmed.asObservable();
     }
 
-    private options(confirmed: Subject<boolean>, message: string): ModalOptionsForService {
+    private options(confirmed: Subject<boolean>, message: string): ModalOptions {
         return ({
             nzWidth: 'fit-content',
             nzClosable: true,

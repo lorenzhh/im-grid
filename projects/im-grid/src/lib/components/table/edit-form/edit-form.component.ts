@@ -1,8 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ImColumn, ImColumnType, ImFieldType } from '../../../models/column.model';
-import { TimeFormats } from '../../../models/settings.model';
-import { SettingsService } from '../../../services/settings.service';
+import { Locale, TimeFormats } from '../../../models/settings.model';
 
 @Component({
   selector: 'im-edit-form',
@@ -12,9 +11,8 @@ import { SettingsService } from '../../../services/settings.service';
 export class EditFormComponent {
   @Input() form: FormGroup;
   @Input() columns: ImColumn[];
+  @Input() locale: Locale;
   ImColumnType = ImColumnType;
   ImFieldType = ImFieldType;
   TimeFormats = TimeFormats;
-
-  constructor(public settingsService: SettingsService) { }
 }

@@ -19,7 +19,7 @@
   [nzFooter]="footerTemplate"
   [nzFrontPagination]="false"
   [nzLoading]="loading"
-  [nzScroll]="{ x: columnsWidth + 'px', y: '100%' }"
+  [nzScroll]="{ y: '100%' }"
   [nzShowPagination]="false"
   [nzSize]="size"
   [nzTitle]="toolbarTemplate"
@@ -37,38 +37,30 @@
       cdkDropListOrientation="horizontal"
     >
       <th
-        [style.maxWidth.px]="35"
-        [style.minWidth.px]="35"
-        [style.width.px]="35"
+        class="children-column"
         *ngIf="childrenKey"
-        nzLeft="0px"
+        nzWidth="35px"
+        nzLeft
       >
       </th>
       <th
         [(nzChecked)]="isAllDisplayDataChecked"
         [nzIndeterminate]="isIndeterminate"
-        [nzLeft]="childrenKey ? '35px' : '0px'"
-        [style.maxWidth.px]="35"
-        [style.minWidth.px]="35"
-        [style.width.px]="35"
         (nzCheckedChange)="checkAll($event)"
+        nzWidth="35px"
+        nzLeft
         nzShowCheckbox
       >
       </th>
       <th
         [innerHtml]="numberOfChecked ? numberOfChecked: '#'"
-        [nzLeft]="childrenKey ? '70px' : '35px'"
-        [style.maxWidth.px]="70"
-        [style.minWidth.px]="70"
-        [style.width.px]="70"
+        nzWidth="70px"
+        nzLeft
       >
       </th>
       <th
-        class="header-cell"
-        [(nzSort)]="mapOfSort[column.key]"
-        [style.maxWidth.px]="column.width"
-        [style.minWidth.px]="column.width"
-        [style.width.px]="column.width"
+        [(nzSortOrder)]="mapOfSort[column.key]"
+        [nzWidth]="column.width + 'px'"
         [title]="column.title"
         (nzSortChange)="sort(column.key, $event)"
         *ngFor="let column of columns | filter: { visible: true }"
@@ -78,10 +70,9 @@
         {{ column.title }}
       </th>
       <th
-        [style.maxWidth.px]="60"
-        [style.minWidth.px]="60"
-        [style.width.px]="60"
-        nzRight="0px"
+        [style.padding.px]="5"
+        nzWidth="60px"
+        nzRight
       >
         <nz-switch
           [(ngModel)]="allowSearch"
@@ -102,30 +93,23 @@
     >
       <th
         class="filter-cell sticky"
-        [style.maxWidth.px]="35"
-        [style.minWidth.px]="35"
-        [style.width.px]="35"
         *ngIf="childrenKey"
-        nzLeft="0px"
+        nzWidth="35px"
+        nzLeft
       >
       </th>
       <th
         class="filter-cell sticky"
-        [nzLeft]="childrenKey ? '35px' : '0px'"
-        [style.maxWidth.px]="35"
-        [style.minWidth.px]="35"
-        [style.width.px]="35"
-        nzLeft="35px"
+        nzWidth="35px"
+        nzLeft
       >
       </th>
       <th
         class="filter-cell sticky"
-        [nzLeft]="childrenKey ? '70px' : '35px'"
-        [style.maxWidth.px]="70"
-        [style.minWidth.px]="70"
-        [style.paddingLeft.px]="0"
-        [style.paddingRight.px]="0"
-        [style.width.px]="70"
+        [style.paddingLeft.px]="3"
+        [style.paddingRight.px]="3"
+        nzWidth="70px"
+        nzLeft
       >
         <input
           [(ngModel)]="scrollIndex"
@@ -140,9 +124,7 @@
       </th>
       <th
         class="filter-cell"
-        [style.maxWidth.px]="column.width"
-        [style.minWidth.px]="column.width"
-        [style.width.px]="column.width"
+        [nzWidth]="column.width + 'px'"
         *ngFor="let column of columns | filter: { visible: true }"
       >
         <im-filter-cell
@@ -151,13 +133,11 @@
         ></im-filter-cell>
       </th>
       <th
-        class="filter-cell"
-        [style.maxWidth.px]="60"
-        [style.minWidth.px]="60"
+        class="filter-cell clear"
         [style.paddingLeft.px]="2"
-        [style.width.px]="60"
         [title]="translations.clearFilters | translate"
-        nzRight="0px"
+        nzWidth="60px"
+        nzRight
       >
         <a (click)="clearFilters()">
           <i
@@ -165,7 +145,6 @@
             nz-icon
             nzType="stop"
           ></i>
-          {{ translations.clear | translate }}
         </a>
       </th>
     </tr>
@@ -183,11 +162,10 @@
         [class.odd]="index % 2 === 1"
       >
         <td
-          [style.maxWidth.px]="35"
-          [style.minWidth.px]="35"
-          [style.width.px]="35"
+          class="children-column"
           *ngIf="childrenKey"
-          nzLeft="0px"
+          nzWidth="35px"
+          nzLeft
         >
           <a (click)="openDrawer(row)">
             <i
@@ -199,27 +177,20 @@
         <td
           [(nzChecked)]="mapOfCheckedId[row[uniqueKey]]"
           [nzDisabled]="row.disabled"
-          [nzLeft]="childrenKey ? '35px' : '0px'"
-          [style.maxWidth.px]="35"
-          [style.minWidth.px]="35"
-          [style.width.px]="35"
           (nzCheckedChange)="refreshStatus()"
+          nzWidth="35px"
+          nzLeft
           nzShowCheckbox
         ></td>
         <td
-          [nzLeft]="childrenKey ? '70px' : '35px'"
-          [style.maxWidth.px]="70"
-          [style.minWidth.px]="70"
-          [style.width.px]="70"
+          nzWidth="70px"
+          nzLeft
         >
           <i>{{ index + 1 }}</i>
         </td>
         <td
           class="table-cell"
           [class.focused]="column.key === (focusedCellSubject | async).key && index === (focusedCellSubject | async).rowIndex"
-          [style.maxWidth.px]="column.width"
-          [style.minWidth.px]="column.width"
-          [style.width.px]="column.width"
           [title]="row[column.key] | format: column.columnType: (settingsService.settings | async)"
           (click)="handleClick(column, row, index, $event)"
           *ngFor="let column of columns | filter: { visible: true }"
@@ -235,11 +206,8 @@
           ></im-cell>
         </td>
         <td
-          [style.maxWidth.px]="60"
-          [style.minWidth.px]="60"
           [style.padding.px]="5"
-          [style.width.px]="60"
-          nzRight="0px"
+          nzRight
         >
           <div [style.marginLeft.px]="3">
             <a (click)="openCreateOrEditModal(row)">
@@ -310,6 +278,7 @@
   <im-edit-form
     [columns]="columns"
     [form]="form"
+    [locale]="settingsService.locale"
     *ngIf="form"
   ></im-edit-form>
 </ng-template>

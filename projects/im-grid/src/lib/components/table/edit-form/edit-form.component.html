@@ -53,10 +53,9 @@
         </nz-input-group>
         <nz-date-picker
           [formControlName]="column.key"
-          [nzFormat]="TimeFormats[settingsService.locale]"
+          [nzFormat]="TimeFormats[locale]"
           [nzPlaceHolder]="column.title + '...'"
           [nzShowTime]="true"
-          [nzStyle]="{width: '100%'}"
           [style.width.%]="100"
           *ngSwitchCase="ImFieldType.Date"
         ></nz-date-picker>

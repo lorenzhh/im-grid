@@ -4,7 +4,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { ModuleWithProviders, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ImGridModule } from 'im-grid';
-import { NgZorroAntdModule } from 'ng-zorro-antd';
+import { NgZorroAntdModule } from './ng-zorro.module';
 
 @NgModule({
     imports: [

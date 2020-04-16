@@ -4,12 +4,6 @@
   height: 100%;
 }
 
-.header-cell {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .table-cell {
   position: relative;
 }
@@ -22,25 +16,32 @@ nz-table {
   height: 100% !important;
 
   ::ng-deep {
+
+    tr {
+
+      .ant-table-selection-column,
+      .children-column,
+      .clear {
+        padding: 0;
+        text-align: center;
+      }
+    }
+
+    .ant-table-header-column,
     .ant-table-column-sorters {
       display: flex !important;
       align-items: center;
+      justify-content: space-between;
+
+      span:not(.ant-table-column-sorter) {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
     }
 
-    .ant-table-column-title {
-      width: 100%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .ant-table-placeholder {
+    .ant-table-placeholder td {
       border: none;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      background: inherit;
-      padding: 0;
     }
 
     .ant-spin-nested-loading>div>.ant-spin {
@@ -73,29 +74,14 @@ nz-table {
       }
     }
 
-    .ant-table-header-column,
-    .ant-table-column-sorters {
-      width: 100%;
-    }
-
     cdk-virtual-scroll-viewport {
-      height: calc(100% - 100px) !important;
-      display: flex !important;
+      height: 100% !important;
 
-      .cdk-virtual-scroll-content-wrapper {
-        min-height: 1px;
-      }
+
     }
 
     th {
       background-color: inherit !important;
-    }
-
-    table,
-    th,
-    td {
-      border-left: 0px !important;
-      border-right: 0px !important;
     }
 
     tr:not(:hover) {
@@ -106,24 +92,14 @@ nz-table {
       }
     }
 
-    .ant-table-header {
-      min-height: fit-content;
-      margin-bottom: 0px !important;
-      background-color: #f2f2f2 !important;
-
-      &::-webkit-scrollbar {
-        height: 0px;
-      }
-    }
-
     .ant-table-thead {
       background-color: #f2f2f2;
     }
 
+    nz-table-inner-scroll,
     .ant-table-scroll,
     .ant-table-content,
     .ant-table,
-    .ant-table-content,
     .ant-spin-nested-loading,
     .ant-spin-container {
       height: 100% !important;
@@ -170,9 +146,9 @@ nz-table {
 }
 
 .filter-cell {
-  padding-top: 2px !important;
-  padding-bottom: 2px !important;
-  line-height: 22px;
+  padding: 0px 3px 10px 3px;
+  position: relative;
+  line-height: 33px;
 
   &.sticky {
     z-index: 2;
@@ -188,5 +164,5 @@ nz-table {
 }
 
 .clear-icon {
-  font-size: small;
+  font-size: large;
 }
