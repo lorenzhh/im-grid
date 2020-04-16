@@ -76,8 +76,7 @@ nz-table {
 
     cdk-virtual-scroll-viewport {
       height: 100% !important;
-
-
+      overflow-y: scroll;
     }
 
     th {
