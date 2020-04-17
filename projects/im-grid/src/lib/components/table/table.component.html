@@ -38,40 +38,68 @@
     >
       <th
         class="children-column"
+        [style.maxWidth.px]="35"
+        [style.minWidth.px]="35"
+        [style.width.px]="35"
         *ngIf="childrenKey"
         nzWidth="35px"
-        nzLeft
+        nzLeft="0px"
       >
       </th>
       <th
         [(nzChecked)]="isAllDisplayDataChecked"
         [nzIndeterminate]="isIndeterminate"
+        [nzLeft]="childrenKey ? '35px' : '0px'"
+        [style.maxWidth.px]="35"
+        [style.minWidth.px]="35"
+        [style.width.px]="35"
         (nzCheckedChange)="checkAll($event)"
         nzWidth="35px"
-        nzLeft
         nzShowCheckbox
       >
       </th>
       <th
         [innerHtml]="numberOfChecked ? numberOfChecked: '#'"
+        [nzLeft]="childrenKey ? '70px' : '35px'"
+        [style.maxWidth.px]="70"
+        [style.minWidth.px]="70"
+        [style.width.px]="70"
         nzWidth="70px"
-        nzLeft
       >
       </th>
       <th
         [(nzSortOrder)]="mapOfSort[column.key]"
+        [nzMaxWidth]="column.maxWidth"
+        [nzMinWidth]="column.minWidth"
         [nzWidth]="column.width + 'px'"
+        [style.maxWidth.px]="column.width"
+        [style.minWidth.px]="column.width"
+        [style.width.px]="column.width"
         [title]="column.title"
+        (nzResize)="onResize($event, column, column.key)"
         (nzSortChange)="sort(column.key, $event)"
         *ngFor="let column of columns | filter: { visible: true }"
+        nz-resizable
         nzShowSort
         cdkDrag
       >
-        {{ column.title }}
+        <div cdkDragHandle>{{ column.title }}</div>
+        <nz-resize-handle nzDirection="right">
+          <div class="right-handle-wrap">
+            <i
+              class="right-handle"
+              nz-icon
+              nzType="more"
+            ></i>
+          </div>
+        </nz-resize-handle>
       </th>
       <th
+        [style.maxWidth.px]="70"
+        [style.minWidth.px]="70"
         [style.padding.px]="5"
-        nzWidth="60px"
+        [style.width.px]="70"
+        nzWidth="70px"
         nzRight
       >
         <nz-switch
@@ -93,23 +121,32 @@
     >
       <th
         class="filter-cell sticky"
+        [style.maxWidth.px]="35"
+        [style.minWidth.px]="35"
+        [style.width.px]="35"
         *ngIf="childrenKey"
         nzWidth="35px"
-        nzLeft
+        nzLeft="0px"
       >
       </th>
       <th
         class="filter-cell sticky"
+        [nzLeft]="childrenKey ? '35px' : '0px'"
+        [style.maxWidth.px]="35"
+        [style.minWidth.px]="35"
+        [style.width.px]="35"
         nzWidth="35px"
-        nzLeft
       >
       </th>
       <th
         class="filter-cell sticky"
+        [nzLeft]="childrenKey ? '70px' : '35px'"
+        [style.maxWidth.px]="70"
+        [style.minWidth.px]="70"
         [style.paddingLeft.px]="3"
         [style.paddingRight.px]="3"
+        [style.width.px]="70"
         nzWidth="70px"
-        nzLeft
       >
         <input
           [(ngModel)]="scrollIndex"
@@ -125,6 +162,9 @@
       <th
         class="filter-cell"
         [nzWidth]="column.width + 'px'"
+        [style.maxWidth.px]="column.width"
+        [style.minWidth.px]="column.width"
+        [style.width.px]="column.width"
         *ngFor="let column of columns | filter: { visible: true }"
       >
         <im-filter-cell
@@ -134,9 +174,12 @@
       </th>
       <th
         class="filter-cell clear"
+        [style.maxWidth.px]="70"
+        [style.minWidth.px]="70"
         [style.paddingLeft.px]="2"
+        [style.width.px]="70"
         [title]="translations.clearFilters | translate"
-        nzWidth="60px"
+        nzWidth="70px"
         nzRight
       >
         <a (click)="clearFilters()">
@@ -163,9 +206,11 @@
       >
         <td
           class="children-column"
+          [style.maxWidth.px]="35"
+          [style.minWidth.px]="35"
+          [style.width.px]="35"
           *ngIf="childrenKey"
-          nzWidth="35px"
-          nzLeft
+          nzLeft="0px"
         >
           <a (click)="openDrawer(row)">
             <i
@@ -177,20 +222,27 @@
         <td
           [(nzChecked)]="mapOfCheckedId[row[uniqueKey]]"
           [nzDisabled]="row.disabled"
+          [nzLeft]="childrenKey ? '35px' : '0px'"
+          [style.maxWidth.px]="35"
+          [style.minWidth.px]="35"
+          [style.width.px]="35"
           (nzCheckedChange)="refreshStatus()"
-          nzWidth="35px"
-          nzLeft
           nzShowCheckbox
         ></td>
         <td
-          nzWidth="70px"
-          nzLeft
+          [nzLeft]="childrenKey ? '70px' : '35px'"
+          [style.maxWidth.px]="70"
+          [style.minWidth.px]="70"
+          [style.width.px]="70"
         >
           <i>{{ index + 1 }}</i>
         </td>
         <td
           class="table-cell"
           [class.focused]="column.key === (focusedCellSubject | async).key && index === (focusedCellSubject | async).rowIndex"
+          [style.maxWidth.px]="column.width"
+          [style.minWidth.px]="column.width"
+          [style.width.px]="column.width"
           [title]="row[column.key] | format: column.columnType: (settingsService.settings | async)"
           (click)="handleClick(column, row, index, $event)"
           *ngFor="let column of columns | filter: { visible: true }"
@@ -206,7 +258,10 @@
           ></im-cell>
         </td>
         <td
+          [style.maxWidth.px]="70"
+          [style.minWidth.px]="70"
           [style.padding.px]="5"
+          [style.width.px]="70"
           nzRight
         >
           <div [style.marginLeft.px]="3">

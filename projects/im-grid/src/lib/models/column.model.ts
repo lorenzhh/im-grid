@@ -52,6 +52,8 @@ export interface ImColumn {
     notEditable?: boolean;
     notCreateable?: boolean;
     width?: number;
+    minWidth?: number;
+    maxWidth?: number;
     visible?: boolean;
     filter?: ImFilter;
     zoom?: boolean;

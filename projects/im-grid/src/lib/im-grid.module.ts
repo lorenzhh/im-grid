@@ -2,7 +2,6 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule, CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { ModuleWithProviders, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgZorroAntdModule } from 'ng-zorro-antd';
 import { ChildTableComponent } from './components/child-table/child-table.component';
 import { ImDrawerComponent } from './components/table/drawer/drawer.component';
 import { EditFormComponent } from './components/table/edit-form/edit-form.component';
@@ -14,6 +13,7 @@ import { FilterPipe } from './pipes/filter.pipe';
 import { FormatPipe } from './pipes/format.pipe';
 import { TranslatePipe } from './pipes/translate.pipe';
 import { CellComponent } from './components/table/cell/cell.component';
+import { NgZorroAntdModule } from './ng-zorro.module';
 
 
 @NgModule({
@@ -37,8 +37,8 @@ import { CellComponent } from './components/table/cell/cell.component';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    NgZorroAntdModule,
     DragDropModule,
+    NgZorroAntdModule
   ],
   providers: [
     FilterPipe,

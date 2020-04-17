@@ -13,6 +13,7 @@ import { FormatService } from '../../services/format.service';
 import { SettingsService } from '../../services/settings.service';
 import { translations } from './translations/default-translations';
 import { dynamicTranslations } from './translations/dynamic-translations';
+import { NzResizeEvent } from 'ng-zorro-antd/resizable/public-api';
 
 export interface Edit {
   [key: number]: {
@@ -199,6 +200,14 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     )];
   }
 
+  onResize({ width }: NzResizeEvent, column: ImColumn): void {
+    let id = 0;
+    cancelAnimationFrame(id);
+    id = requestAnimationFrame(() => {
+      column.width = width;
+    });
+  }
+
   public saveRows() {
     this.successedSubject.pipe(
       takeUntil(this.componentDestroyed$),
@@ -379,6 +388,12 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
         }
       }
 
+      if (column.minWidth === undefined) {
+        column.minWidth = 60;
+      }
+      if (column.maxWidth === undefined) {
+        column.maxWidth = 500;
+      }
       if (column.copy === undefined) {
         column.copy = true;
       }
