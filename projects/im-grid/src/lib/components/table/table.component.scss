@@ -41,9 +41,14 @@ nz-table {
       justify-content: space-between;
 
       span:not(.ant-table-column-sorter) {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        width: calc(100% - 11px);
+
+        .title {
+          white-space: nowrap;
+          width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
       }
     }
 
@@ -103,6 +108,10 @@ nz-table {
       background-color: #f2f2f2;
     }
 
+    .ant-table-header {
+      min-height: fit-content;
+    }
+
     nz-table-inner-scroll,
     .ant-table-scroll,
     .ant-table-content,
@@ -153,9 +162,8 @@ nz-table {
 }
 
 .filter-cell {
-  padding: 0px 3px 10px 3px;
+  padding: 2px;
   position: relative;
-  line-height: 33px;
 
   &.sticky {
     z-index: 2;
@@ -183,6 +191,7 @@ nz-table {
 
 .right-handle {
   background: #fff;
+  color: #1890ff;
   border: 1px solid #ddd;
   text-align: center;
   font-size: 12px;

@@ -83,7 +83,12 @@
         nzShowSort
         cdkDrag
       >
-        <div cdkDragHandle>{{ column.title }}</div>
+        <div
+          class="title"
+          cdkDragHandle
+        >
+          {{ column.title }}
+        </div>
         <nz-resize-handle nzDirection="right">
           <div class="right-handle-wrap">
             <i
@@ -235,7 +240,7 @@
           [style.minWidth.px]="70"
           [style.width.px]="70"
         >
-          <i>{{ index + 1 }}</i>
+          <b>{{ index + 1 }}</b>
         </td>
         <td
           class="table-cell"
@@ -269,6 +274,7 @@
               <i
                 nz-icon
                 nzType="edit"
+                nzTheme="fill"
               ></i>
             </a>
             <nz-divider nzType="vertical"></nz-divider>
