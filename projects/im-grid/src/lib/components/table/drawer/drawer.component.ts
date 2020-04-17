@@ -1,6 +1,7 @@
 // tslint:disable:max-line-length
 import { Component, ComponentFactoryResolver, ComponentRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { DynamicComponentConfig } from '../../../models/column.model';
+import { NzResizeEvent } from 'ng-zorro-antd/resizable';
 
 @Component({
   selector: 'im-drawer',
@@ -15,7 +16,9 @@ export class ImDrawerComponent implements OnChanges {
   @ViewChild('content', {
     static: true,
     read: ViewContainerRef
-  }) public viewport: ViewContainerRef;
+  })
+
+  public viewport: ViewContainerRef;
   private componentRef: ComponentRef<any> = null;
   id = -1;
   width = 1000;
@@ -25,6 +28,13 @@ export class ImDrawerComponent implements OnChanges {
     if (changes.visible) {
       this.buildComponent();
     }
+  }
+
+  onResize({ width }: NzResizeEvent): void {
+    cancelAnimationFrame(this.id);
+    this.id = requestAnimationFrame(() => {
+      this.width = width;
+    });
   }
 
   buildComponent() {
