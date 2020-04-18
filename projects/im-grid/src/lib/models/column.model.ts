@@ -49,8 +49,8 @@ export interface ImColumn {
     fieldType?: ImFieldType;
     selectValues?: string[] | number[] | boolean[];
     columnType?: ImColumnType;
-    notEditable?: boolean;
-    notCreatable?: boolean;
+    editable?: boolean;
+    creatable?: boolean;
     width?: number;
     minWidth?: number;
     maxWidth?: number;

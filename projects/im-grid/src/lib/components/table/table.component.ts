@@ -353,8 +353,8 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     this.columns.forEach((column: ImColumn) => {
       const newControl = new FormControl(
         row
-          ? { value: row[column.key], disabled: column.notEditable }
-          : { value: column.defaultValue, disabled: column.notCreatable },
+          ? { value: row[column.key], disabled: !column.editable }
+          : { value: column.defaultValue, disabled: !column.creatable },
         column.validators,
       );
       form.addControl(column.key, newControl);
@@ -379,8 +379,8 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   private normalizeConfig() {
     this.columns.forEach(column => {
       if (column.isUnique === true) {
-        column.notEditable = true;
-        column.notCreatable = true;
+        column.editable = false;
+        column.creatable = false;
       }
       if (column.width === undefined) {
         switch (column.columnType) {
@@ -416,11 +416,11 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
       if (column.visible === undefined) {
         column.visible = true;
       }
-      if (column.notEditable === undefined) {
-        column.notEditable = false;
+      if (column.editable === undefined) {
+        column.editable = true;
       }
-      if (column.notCreatable === undefined) {
-        column.notCreatable = false;
+      if (column.creatable === undefined) {
+        column.creatable = true;
       }
       if (column.filter === undefined) {
         column.filter = {
