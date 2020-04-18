@@ -1,18 +1,17 @@
 <nz-drawer
-  [nzBodyStyle]="{height: 'calc(100% - 55px)', padding: '0px'}"
+  [nzBodyStyle]="{ height: 'calc(100% - 55px)', padding: '0px' }"
   [nzPlacement]="'right'"
   [nzTitle]="title"
-  [nzWidth]="width"
   [nzVisible]="visible"
   [nzWidth]="width"
   (nzOnClose)="closed.emit()"
 >
   <div
     class="drawer-body"
-    nz-resizable
-    nzBounds="window"
     [nzMinWidth]="500"
     (nzResize)="onResize($event)"
+    nz-resizable
+    nzBounds="window"
   >
     <nz-resize-handle nzDirection="left">
       <div class="resize-wrap">

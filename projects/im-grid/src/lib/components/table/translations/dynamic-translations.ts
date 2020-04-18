@@ -1,5 +1,5 @@
 export const dynamicTranslations = {
-    deletedSuccessfuly: {
+    deletedSuccessfully: {
         en: 'Deleted {count} rows successfully',
         de: '{count} Zeilen sind erfolgreich gelöscht'
     },

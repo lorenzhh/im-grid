@@ -1,7 +1,7 @@
 // tslint:disable:max-line-length
 import { Component, ComponentFactoryResolver, ComponentRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
-import { DynamicComponentConfig } from '../../../models/column.model';
 import { NzResizeEvent } from 'ng-zorro-antd/resizable';
+import { DynamicComponentConfig } from '../../../models/column.model';
 
 @Component({
   selector: 'im-drawer',

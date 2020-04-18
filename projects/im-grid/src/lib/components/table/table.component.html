@@ -19,7 +19,7 @@
   [nzFooter]="footerTemplate"
   [nzFrontPagination]="false"
   [nzLoading]="loading"
-  [nzScroll]="{ y: '100%' }"
+  [nzScroll]="{ x: columnsWidth + 'px', y: '100%' }"
   [nzShowPagination]="false"
   [nzSize]="size"
   [nzTitle]="toolbarTemplate"
@@ -76,7 +76,8 @@
         [style.minWidth.px]="column.width"
         [style.width.px]="column.width"
         [title]="column.title"
-        (nzResize)="onResize($event, column, column.key)"
+        (nzResize)="onResize($event, column)"
+        (nzResizeEnd)="calculateColumnsWidth()"
         (nzSortChange)="sort(column.key, $event)"
         *ngFor="let column of columns | filter: { visible: true }"
         nz-resizable

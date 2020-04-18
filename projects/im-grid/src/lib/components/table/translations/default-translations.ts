@@ -32,7 +32,7 @@ export const translations = {
         de: 'Änderungen verwerfen'
     },
     discardedAllChanges: {
-        en: 'All changes discared successfully',
+        en: 'All changes discarded successfully',
         de: 'Alle Änderungen wurden erfolgreich verworfen'
     },
     discardedRow: {
@@ -43,8 +43,8 @@ export const translations = {
         en: 'Edit',
         de: 'Bearbeiten'
     },
-    errorOccured: {
-        en: 'An error has occured',
+    errorOccurred: {
+        en: 'An error has occurred',
         de: 'Ein Fehler ist aufgetreten'
     },
     excel: {

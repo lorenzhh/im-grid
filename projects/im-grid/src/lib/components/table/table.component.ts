@@ -3,9 +3,10 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { NzMessageService, NzModalRef, NzModalService, NzTableComponent } from 'ng-zorro-antd';
+import { NzResizeEvent } from 'ng-zorro-antd/resizable';
 import { BehaviorSubject, fromEvent, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, take, takeUntil } from 'rxjs/operators';
-import { CellCordinates, ChangeEvent, ChangesEvent, DynamicComponentConfig, EditMode, ImColumn, ImColumnType, ImFieldType, ImFilterType, SelectionMode } from '../../models/column.model';
+import { CellCoordinates, ChangeEvent, ChangesEvent, DynamicComponentConfig, EditMode, ImColumn, ImColumnType, ImFieldType, ImFilterType, SelectionMode } from '../../models/column.model';
 import { Translation } from '../../models/settings.model';
 import { ExcelService } from '../../services/excel.service';
 import { FilterService } from '../../services/filter.service';
@@ -13,7 +14,6 @@ import { FormatService } from '../../services/format.service';
 import { SettingsService } from '../../services/settings.service';
 import { translations } from './translations/default-translations';
 import { dynamicTranslations } from './translations/dynamic-translations';
-import { NzResizeEvent } from 'ng-zorro-antd/resizable/public-api';
 
 export interface Edit {
   [key: number]: {
@@ -82,14 +82,14 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   public childrenTitle: string;
   public componentConfig: DynamicComponentConfig;
   public drawerVisible = false;
+  public columnsWidth: number;
 
-  private successedSubject: Subject<boolean | any> = new Subject<boolean | any>();
-  public focusedCellSubject: BehaviorSubject<CellCordinates> = new BehaviorSubject<CellCordinates>({
+  private successSubject: Subject<boolean | any> = new Subject<boolean | any>();
+  public focusedCellSubject: BehaviorSubject<CellCoordinates> = new BehaviorSubject<CellCoordinates>({
     rowIndex: -1,
     key: null
   });
 
-  public columnsWidth: number;
   constructor(
     private formBuilder: FormBuilder,
     private modalService: NzModalService,
@@ -133,6 +133,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnInit() {
     this.normalizeConfig();
+    this.calculateColumnsWidth();
     this.mapOfSort = {};
     this.dataSource$.pipe(
       takeUntil(this.componentDestroyed$)
@@ -154,6 +155,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
         this.closeDrawer();
       }
       this.normalizeConfig();
+      this.calculateColumnsWidth();
       this.mapOfSort = {};
       this.notIncludedColumns = [];
     }
@@ -163,6 +165,11 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   ngOnDestroy() {
     this.componentDestroyed$.next(true);
     this.componentDestroyed$.complete();
+  }
+
+  public calculateColumnsWidth() {
+    this.columnsWidth = this.columns.filter(column => column.visible && !column.childrenConfig)
+      .reduce((accumulator, currentValue) => accumulator + currentValue.width, this.childrenKey ? 210 : 175);
   }
 
   public resetRows() {
@@ -209,13 +216,13 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   public saveRows() {
-    this.successedSubject.pipe(
+    this.successSubject.pipe(
       takeUntil(this.componentDestroyed$),
       take(1)
-    ).subscribe(successed => {
-      if (successed !== false) {
-        this.originalRows = [...successed];
-        this.currentRows = [...successed];
+    ).subscribe(success => {
+      if (success !== false) {
+        this.originalRows = [...success];
+        this.currentRows = [...success];
         this.reset();
       } else {
         this.showError();
@@ -227,7 +234,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
       deletedIds: this.getDeletedRowsId(),
       new: this.getNewRows(),
       currentState: this.currentRows,
-      track: this.successedSubject
+      track: this.successSubject
     });
   }
 
@@ -300,14 +307,14 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     if (this.editMode === EditMode.direct) {
-      this.successedSubject.pipe(
+      this.successSubject.pipe(
         takeUntil(this.componentDestroyed$),
         take(1)
-      ).subscribe(successed => {
-        if (successed !== false) {
+      ).subscribe(success => {
+        if (success !== false) {
           value.isNew
-            ? this.addRow(successed)
-            : this.saveEdit(successed);
+            ? this.addRow(success)
+            : this.saveEdit(success);
           this.closeModal();
         } else {
           this.showError();
@@ -315,8 +322,8 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
       });
 
       value.isNew
-        ? this.created.emit({ row: value, track: this.successedSubject })
-        : this.updated.emit({ row: value, track: this.successedSubject });
+        ? this.created.emit({ row: value, track: this.successSubject })
+        : this.updated.emit({ row: value, track: this.successSubject });
     } else {
       value.isNew
         ? this.addRow(value)
@@ -326,7 +333,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private showError() {
-    this.createMessage('error', translations.errorOccured);
+    this.createMessage('error', translations.errorOccurred);
   }
 
   public resetForm(event: MouseEvent): void {
@@ -347,7 +354,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
       const newControl = new FormControl(
         row
           ? { value: row[column.key], disabled: column.notEditable }
-          : { value: column.defaultValue, disabled: column.notCreateable },
+          : { value: column.defaultValue, disabled: column.notCreatable },
         column.validators,
       );
       form.addControl(column.key, newControl);
@@ -373,7 +380,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     this.columns.forEach(column => {
       if (column.isUnique === true) {
         column.notEditable = true;
-        column.notCreateable = true;
+        column.notCreatable = true;
       }
       if (column.width === undefined) {
         switch (column.columnType) {
@@ -412,8 +419,8 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
       if (column.notEditable === undefined) {
         column.notEditable = false;
       }
-      if (column.notCreateable === undefined) {
-        column.notCreateable = false;
+      if (column.notCreatable === undefined) {
+        column.notCreatable = false;
       }
       if (column.filter === undefined) {
         column.filter = {
@@ -608,7 +615,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     this.createMessage(
       'success',
       this.settingsService.dynamicTranslate(
-        dynamicTranslations.deletedSuccessfuly,
+        dynamicTranslations.deletedSuccessfully,
         { '{count}': deletedRowIds.length })
     );
     this.filterRows();
@@ -616,17 +623,17 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
 
   public deleteRow(value: any): void {
     if (this.editMode === EditMode.direct) {
-      this.successedSubject.pipe(
+      this.successSubject.pipe(
         takeUntil(this.componentDestroyed$),
         take(1)
-      ).subscribe(successed => {
-        if (successed !== false) {
-          this.saveDelete(successed);
+      ).subscribe(success => {
+        if (success !== false) {
+          this.saveDelete(success);
         } else {
           this.showError();
         }
       });
-      this.deleted.emit({ row: value, track: this.successedSubject });
+      this.deleted.emit({ row: value, track: this.successSubject });
     } else {
       this.saveDelete(value);
     }
@@ -663,7 +670,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     this.filterRows();
     this.createMessage(
       'success',
-      this.settingsService.dynamicTranslate(dynamicTranslations.deletedSuccessfuly, { '{count}': 1 })
+      this.settingsService.dynamicTranslate(dynamicTranslations.deletedSuccessfully, { '{count}': 1 })
     );
   }
 
@@ -782,9 +789,9 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  filterRows(exludedColumns?: ImColumn[]) {
-    if (exludedColumns) {
-      this.notIncludedColumns = exludedColumns;
+  filterRows(excludedColumns?: ImColumn[]) {
+    if (excludedColumns) {
+      this.notIncludedColumns = excludedColumns;
     }
     this.filter(this.filterForm.get('search').value);
     this.refreshStatus();
@@ -873,19 +880,19 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
         };
 
         if (this.editMode === EditMode.direct) {
-          this.successedSubject.pipe(
+          this.successSubject.pipe(
             takeUntil(this.componentDestroyed$),
             take(1)
-          ).subscribe(successed => {
-            changes.track.next(successed[this.childrenKey]);
+          ).subscribe(success => {
+            changes.track.next(success[this.childrenKey]);
 
-            if (successed !== false) {
-              this.saveEdit(successed);
+            if (success !== false) {
+              this.saveEdit(success);
             } else {
               this.showError();
             }
           });
-          this.updated.emit({ row: updatedRow, track: this.successedSubject });
+          this.updated.emit({ row: updatedRow, track: this.successSubject });
         } else {
           this.saveEdit(updatedRow);
           changes.track.next(changes.currentState);

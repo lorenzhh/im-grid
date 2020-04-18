@@ -50,7 +50,7 @@ export interface ImColumn {
     selectValues?: string[] | number[] | boolean[];
     columnType?: ImColumnType;
     notEditable?: boolean;
-    notCreateable?: boolean;
+    notCreatable?: boolean;
     width?: number;
     minWidth?: number;
     maxWidth?: number;
@@ -96,7 +96,7 @@ export interface ChangesEvent {
     track: Subject<boolean | any>;
 }
 
-export interface CellCordinates {
+export interface CellCoordinates {
     rowIndex: number;
     key: string;
 }
