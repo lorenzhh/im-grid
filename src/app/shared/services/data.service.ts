@@ -12,38 +12,38 @@ export abstract class DataService {
 
   constructor(private http: HttpClient) { }
 
-  public getAll(section: string): Observable<any[]> {
+  public getAll<T>(section: string): Observable<T[]> {
     this.updateLoading(true);
 
-    return this.http.get<any[]>(`${this.getName(section)}`)
+    return this.http.get<T[]>(`${this.getName(section)}`)
       .pipe(finalize(() => this.updateLoading(false)));
   }
 
-  public getOne(section: string, uniqueValue: any): Observable<any[]> {
+  public getOne<T>(section: string, uniqueValue: string): Observable<T> {
     this.updateLoading(true);
 
-    return this.http.get<any>(`${this.getName(section)}/${uniqueValue}`)
+    return this.http.get<T>(`${this.getName(section)}/${uniqueValue}`)
       .pipe(finalize(() => this.updateLoading(false)));
   }
 
-  public post(section: any, body: any): Observable<any> {
+  public post<T>(section: string, body: T): Observable<T> {
     this.updateLoading(true);
 
-    return this.http.post<any>(`${this.getName(section)}`, body)
+    return this.http.post<T>(`${this.getName(section)}`, body)
       .pipe(finalize(() => this.updateLoading(false)));
   }
 
-  public put(section: any, body: any, uniqueKey: string): Observable<any> {
+  public put<T>(section: string, body: T, uniqueKey: string): Observable<T> {
     this.updateLoading(true);
 
-    return this.http.put<any>(`${this.getName(section)}/${body[uniqueKey]}`, body)
+    return this.http.put<T>(`${this.getName(section)}/${body[uniqueKey]}`, body)
       .pipe(finalize(() => this.updateLoading(false)));
   }
 
-  public delete(section: string, uniqueValue: string): Observable<any> {
+  public delete<T>(section: string, uniqueValue: string): Observable<T> {
     this.updateLoading(true);
 
-    return this.http.delete<any>(`${this.getName(section)}/${uniqueValue}`)
+    return this.http.delete<T>(`${this.getName(section)}/${uniqueValue}`)
       .pipe(finalize(() => this.updateLoading(false)));
   }
 
