@@ -175,22 +175,18 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private scrollToRowElement(rowIndex: number, direction: ImDirection, key?: string) {
+  private scrollToRowElement(targetIndex: number, direction: ImDirection, key?: string) {
     const allRows = Array.from<HTMLElement>
       (this.table.cdkVirtualScrollViewport._contentWrapper.nativeElement.firstChild['rows']);
-    const foundRow: HTMLElement = allRows.find((row: HTMLElement) => row.classList.contains('highlighted'));
-    if (foundRow != null) {
+    const targetRow: HTMLElement = allRows
+      .find((row: HTMLElement) => row.getAttribute('index') === targetIndex.toString())
+    if (targetRow != null) {
       if (direction === ImDirection.TOP || direction === ImDirection.Bottom) {
         const cdkScrollEelemnt = this.table.cdkVirtualScrollViewport.elementRef;
         const cdkScrollEelemntTop = cdkScrollEelemnt.nativeElement.getBoundingClientRect().top;
         const cdkScrollOffsetTop = cdkScrollEelemntTop;
-        const rowElementTopWidthOffset = foundRow.nextElementSibling.getBoundingClientRect().top;
-        const rowElementTop = rowElementTopWidthOffset
-          - cdkScrollOffsetTop
-          - (direction === ImDirection.TOP
-            ? 2 * this.height
-            : 0
-          );
+        const rowElementTopWidthOffset = targetRow.getBoundingClientRect().top;
+        const rowElementTop = rowElementTopWidthOffset - cdkScrollOffsetTop;
 
         const rowBottom = rowElementTopWidthOffset - cdkScrollEelemntTop + this.height;
         const tableHeight = cdkScrollEelemnt.nativeElement.clientHeight;
@@ -203,7 +199,6 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
         }
       } else {
         const cdkScrollEelemnt = this.table.cdkVirtualScrollViewport.elementRef;
-
         const nextColumnIndex = this.columns
           .findIndex(column => column.key === key);
 
@@ -214,7 +209,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
         cdkScrollEelemnt.nativeElement.scrollLeft = width;
       }
     } else {
-      this.scrollToIndex(rowIndex);
+      this.scrollToIndex(targetIndex);
     }
   }
 

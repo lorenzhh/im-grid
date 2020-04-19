@@ -206,6 +206,7 @@
       let-even
     >
       <tr
+        [attr.index]="index"
         [class.even]="index % 2 === 0"
         [class.highlighted]="index === (focusedCellSubject | async).rowIndex"
         [class.odd]="index % 2 === 1"
