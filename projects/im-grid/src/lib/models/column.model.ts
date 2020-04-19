@@ -100,3 +100,10 @@ export interface CellCoordinates {
     rowIndex: number;
     key: string;
 }
+
+export enum ImDirection {
+    LEFT,
+    RIGHT,
+    TOP,
+    Bottom
+}

@@ -1,12 +1,12 @@
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 // tslint:disable:max-line-length
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, TemplateRef, ViewChild, HostListener } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { NzMessageService, NzModalRef, NzModalService, NzTableComponent } from 'ng-zorro-antd';
 import { NzResizeEvent } from 'ng-zorro-antd/resizable';
 import { BehaviorSubject, fromEvent, Observable, of, ReplaySubject, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, take, takeUntil } from 'rxjs/operators';
-import { CellCoordinates, ChangeEvent, ChangesEvent, DynamicComponentConfig, EditMode, ImColumn, ImColumnType, ImFieldType, ImFilterType, SelectionMode } from '../../models/column.model';
+import { debounceTime, distinctUntilChanged, take, takeUntil, delay, throttleTime } from 'rxjs/operators';
+import { CellCoordinates, ChangeEvent, ChangesEvent, DynamicComponentConfig, EditMode, ImColumn, ImColumnType, ImFieldType, ImFilterType, SelectionMode, ImDirection } from '../../models/column.model';
 import { Translation } from '../../models/settings.model';
 import { ExcelService } from '../../services/excel.service';
 import { FilterService } from '../../services/filter.service';
@@ -90,6 +90,10 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     key: null
   });
 
+  private stillClickedInsideBodySubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private clickedInsideOfBody = false;
+  private arrowKeys = new Subject<KeyboardEvent>();
+
   constructor(
     private formBuilder: FormBuilder,
     private modalService: NzModalService,
@@ -100,6 +104,11 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     private cd: ChangeDetectorRef,
     public settingsService: SettingsService
   ) {
+    this.arrowKeys
+      .pipe(
+        takeUntil(this.componentDestroyed$),
+        throttleTime(20))
+      .subscribe((event: KeyboardEvent) => this.handleArrowKeyboardEvent(event));
 
     fromEvent(window, 'resize')
       .pipe(
@@ -121,6 +130,92 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
       ).subscribe(() => {
         this.filterRows();
       });
+  }
+
+
+  private getNeighborColumn(key: string, forward: boolean): ImColumn {
+    const columns = this.columns.filter(column => column.visible);
+    const currentColumnIndex = columns.findIndex((column) => column.key === key);
+    return columns.find((_, index) => forward ? index > currentColumnIndex : index === currentColumnIndex - 1);
+  }
+
+  private handleArrowKeyboardEvent(event: KeyboardEvent) {
+    const index = this.focusedCellSubject.value.rowIndex;
+    const key = this.focusedCellSubject.value.key;
+    if (index > -1) {
+      if (event.key === 'ArrowLeft') {
+        const neighborColumn = this.getNeighborColumn(key, false);
+
+        if (neighborColumn) {
+          this.scrollToRowElement(index, ImDirection.LEFT, neighborColumn.key);
+          this.updateFocusedCell(index, neighborColumn.key);
+        }
+      }
+      if (event.key === 'ArrowRight') {
+        const neighborColumn = this.getNeighborColumn(key, true);
+        if (neighborColumn) {
+          this.updateFocusedCell(index, neighborColumn.key);
+          this.scrollToRowElement(index, ImDirection.RIGHT, neighborColumn.key);
+
+        }
+      }
+      if (event.key === 'ArrowUp') {
+        if (index - 1 > -1) {
+          this.updateFocusedCell(index - 1, key);
+          this.scrollToRowElement(index - 1, ImDirection.TOP);
+
+        }
+      }
+      if (event.key === 'ArrowDown') {
+        if (index + 1 < this.rows.length) {
+          this.scrollToRowElement(index + 1, ImDirection.Bottom);
+          this.updateFocusedCell(index + 1, key);
+        }
+      }
+    }
+  }
+
+  private scrollToRowElement(rowIndex: number, direction: ImDirection, key?: string) {
+    const allRows = Array.from<HTMLElement>
+      (this.table.cdkVirtualScrollViewport._contentWrapper.nativeElement.firstChild['rows']);
+    const foundRow: HTMLElement = allRows.find((row: HTMLElement) => row.classList.contains('highlighted'));
+    if (foundRow != null) {
+      if (direction === ImDirection.TOP || direction === ImDirection.Bottom) {
+        const cdkScrollEelemnt = this.table.cdkVirtualScrollViewport.elementRef;
+        const cdkScrollEelemntTop = cdkScrollEelemnt.nativeElement.getBoundingClientRect().top;
+        const cdkScrollOffsetTop = cdkScrollEelemntTop;
+        const rowElementTopWidthOffset = foundRow.nextElementSibling.getBoundingClientRect().top;
+        const rowElementTop = rowElementTopWidthOffset
+          - cdkScrollOffsetTop
+          - (direction === ImDirection.TOP
+            ? 2 * this.height
+            : 0
+          );
+
+        const rowBottom = rowElementTopWidthOffset - cdkScrollEelemntTop + this.height;
+        const tableHeight = cdkScrollEelemnt.nativeElement.clientHeight;
+        const currentScroll = cdkScrollEelemnt.nativeElement.scrollTop;
+        if (direction === ImDirection.TOP && rowElementTop < 0) {
+          cdkScrollEelemnt.nativeElement.scrollTop = (currentScroll + rowElementTop);
+        } else if (direction === ImDirection.Bottom && rowBottom > tableHeight) {
+          const scrollAmount = rowBottom - tableHeight;
+          cdkScrollEelemnt.nativeElement.scrollTop = (currentScroll + scrollAmount);
+        }
+      } else {
+        const cdkScrollEelemnt = this.table.cdkVirtualScrollViewport.elementRef;
+
+        const nextColumnIndex = this.columns
+          .findIndex(column => column.key === key);
+
+        const width = this.columns
+          .filter((column, index) => column.visible && index < nextColumnIndex)
+          .reduce((acc, curr) => acc + curr.width, 0);
+
+        cdkScrollEelemnt.nativeElement.scrollLeft = width;
+      }
+    } else {
+      this.scrollToIndex(rowIndex);
+    }
   }
 
   updateFocusedCell(rowIndex: number, key: string) {
@@ -911,11 +1006,36 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     this.drawerVisible = false;
   }
 
-  handleClick(column: ImColumn, row: any, index: number, event: MouseEvent) {
+  handleClick(column: ImColumn, row: any, index: number) {
+    this.clickInside();
+
     this.updateFocusedCell(index, column.key);
 
     if (column.showModalOnClick) {
       this.showValueInModal(row, column);
     }
+  }
+
+  @HostListener('document:click') clickout() {
+    if (!this.clickedInsideOfBody) {
+      this.stillClickedInsideBodySubject.next(false);
+    }
+    this.clickedInsideOfBody = false;
+  }
+
+  @HostListener('document:keydown.ArrowUp', ['$event'])
+  @HostListener('document:keydown.ArrowRight', ['$event'])
+  @HostListener('document:keydown.ArrowDown', ['$event'])
+  @HostListener('document:keydown.ArrowLeft', ['$event'])
+  handleEvent(event: KeyboardEvent) {
+    if (this.stillClickedInsideBodySubject.value) {
+      event.preventDefault();
+      this.arrowKeys.next(event);
+    }
+  }
+
+  public clickInside() {
+    this.stillClickedInsideBodySubject.next(true);
+    this.clickedInsideOfBody = true;
   }
 }

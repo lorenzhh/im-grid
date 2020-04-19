@@ -250,7 +250,7 @@
           [style.minWidth.px]="column.width"
           [style.width.px]="column.width"
           [title]="row[column.key] | format: column.columnType: (settingsService.settings | async)"
-          (click)="handleClick(column, row, index, $event)"
+          (click)="handleClick(column, row, index)"
           *ngFor="let column of columns | filter: { visible: true }"
         >
           <im-cell
