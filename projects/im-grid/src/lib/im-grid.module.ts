@@ -13,7 +13,7 @@ import { FilterPipe } from './pipes/filter.pipe';
 import { FormatPipe } from './pipes/format.pipe';
 import { TranslatePipe } from './pipes/translate.pipe';
 import { CellComponent } from './components/table/cell/cell.component';
-import { NgZorroAntdModule } from './ng-zorro.module';
+import { NgZorroAntdModule } from './modules/ng-zorro.module';
 
 
 @NgModule({
