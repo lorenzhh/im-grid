@@ -106,9 +106,9 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   ) {
     this.arrowKeys
       .pipe(
-        takeUntil(this.componentDestroyed$),
-        throttleTime(20))
-      .subscribe((event: KeyboardEvent) => this.handleArrowKeyboardEvent(event));
+        throttleTime(50),
+        takeUntil(this.componentDestroyed$)
+      ).subscribe((event: KeyboardEvent) => this.handleArrowKeyboardEvent(event));
 
     fromEvent(window, 'resize')
       .pipe(
@@ -134,7 +134,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
 
 
   private getNeighborColumn(key: string, forward: boolean): ImColumn {
-    const columns = this.columns.filter(column => column.visible);
+    const columns = this.columns.filter(column => column.visible && !column.hidden);
     const currentColumnIndex = columns.findIndex((column) => column.key === key);
     return columns.find((_, index) => forward ? index > currentColumnIndex : index === currentColumnIndex - 1);
   }
@@ -203,7 +203,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
           .findIndex(column => column.key === key);
 
         const width = this.columns
-          .filter((column, index) => column.visible && index < nextColumnIndex)
+          .filter((column, index) => column.visible && !column.hidden && index < nextColumnIndex)
           .reduce((acc, curr) => acc + curr.width, 0);
 
         cdkScrollEelemnt.nativeElement.scrollLeft = width;
@@ -258,7 +258,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   public calculateColumnsWidth() {
-    this.columnsWidth = this.columns.filter(column => column.visible && !column.childrenConfig)
+    this.columnsWidth = this.columns.filter(column => column.visible && !column.hidden && !column.childrenConfig)
       .reduce((accumulator, currentValue) => accumulator + currentValue.width, this.childrenKey ? 210 : 175);
   }
 
@@ -293,7 +293,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   public drop(event: CdkDragDrop<string[]>): void {
     this.columns = [...this.dragEndEvent(event,
       this.columns,
-      this.columns.filter(column => column.visible)
+      this.columns.filter(column => column.visible && !column.hidden)
     )];
   }
 
@@ -472,6 +472,9 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
         column.editable = false;
         column.creatable = false;
       }
+      if (column.hidden === undefined) {
+        column.hidden = false;
+      }
       if (column.width === undefined) {
         switch (column.columnType) {
           case ImColumnType.Boolean:
@@ -571,6 +574,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
 
       if (column.childrenConfig !== undefined) {
         column.visible = false;
+        column.hidden = true;
         this.childColumns = column.childrenConfig.columns;
         this.childrenKey = column.key;
         this.childrenTitle = column.title;
@@ -581,6 +585,9 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
           }
           if (childColumn.visible === undefined) {
             childColumn.visible = true;
+          }
+          if (childColumn.hidden === undefined) {
+            childColumn.hidden = false;
           }
         });
       }
@@ -597,6 +604,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     if (!childrenColumn) {
       this.childrenKey = null;
       this.childrenTitle = null;
+      this.childColumns = null;
     }
   }
 
@@ -917,7 +925,8 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   public exportAsExcel() {
-    this.excelService.exportAsExcelFile(this.rows, 'file', this.columns.filter(column => column.visible && !column.childrenConfig));
+    this.excelService.exportAsExcelFile(this.rows, 'file',
+      this.columns.filter(column => column.visible && !column.hidden && !column.childrenConfig));
   }
 
   private createMessage(type: string, message: Translation): void {
