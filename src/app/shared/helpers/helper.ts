@@ -21,6 +21,9 @@ export const generate = (times: number, columns: ImColumn[]) => {
                     case ImColumnType.Rating:
                         generatedRow[column.key] = randomNumber(1, 5);
                         break;
+                    case ImColumnType.Currency:
+                        generatedRow[column.key] = randomNumber(1, 1000);
+                        break;
                     case ImColumnType.Website:
                         generatedRow[column.key] = randomUrl();
                         break;

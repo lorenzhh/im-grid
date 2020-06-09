@@ -9,12 +9,12 @@
     nzSize="small"
   >
     <nz-option
-      [nzLabel]="translations.yes | translate"
+      [nzLabel]="translations.yes | translate | async"
       [nzValue]="true"
     >
     </nz-option>
     <nz-option
-      [nzLabel]="translations.no | translate"
+      [nzLabel]="translations.no | translate | async"
       [nzValue]="false"
     ></nz-option>
   </nz-select>

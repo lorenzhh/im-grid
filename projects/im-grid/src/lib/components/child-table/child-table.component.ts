@@ -1,11 +1,12 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { ImColumn, EditMode, ChangesEvent } from '../../models/column.model';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { Observable, of } from 'rxjs';
+import { ChangesEvent, EditMode, ImColumn } from '../../models/column.model';
 
 @Component({
   selector: 'im-child-table',
   templateUrl: './child-table.component.html',
-  styleUrls: ['./child-table.component.css']
+  styleUrls: ['./child-table.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChildTableComponent {
   @Input() columns: ImColumn[] = [];

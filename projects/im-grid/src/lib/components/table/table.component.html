@@ -59,6 +59,7 @@
       >
       </th>
       <th
+        class="table-cell-row-index"
         [innerHtml]="numberOfChecked ? numberOfChecked: '#'"
         [nzLeft]="childrenKey ? '70px' : '35px'"
         [style.maxWidth.px]="70"
@@ -184,7 +185,7 @@
         [style.minWidth.px]="70"
         [style.paddingLeft.px]="2"
         [style.width.px]="70"
-        [title]="translations.clearFilters | translate"
+        [title]="translations.clearFilters | translate | async"
         nzWidth="70px"
         nzRight
       >
@@ -237,6 +238,7 @@
           nzShowCheckbox
         ></td>
         <td
+          class="table-cell-row-index"
           [nzLeft]="childrenKey ? '70px' : '35px'"
           [style.maxWidth.px]="70"
           [style.minWidth.px]="70"
@@ -246,8 +248,8 @@
         </td>
         <td
           class="table-cell"
-          [class.searchHighlight]="(this.filterForm.get('search').valueChanges | async) && row[column.key].toString().includes(this.filterForm.get('search').value)"
           [class.focused]="column.key === (focusedCellSubject | async).key && index === (focusedCellSubject | async).rowIndex"
+          [class.searchHighlight]="(this.filterForm.get('search').valueChanges | async) && row[column.key].toString().includes(this.filterForm.get('search').value)"
           [style.maxWidth.px]="column.width"
           [style.minWidth.px]="column.width"
           [style.width.px]="column.width"
@@ -282,8 +284,8 @@
             </a>
             <nz-divider nzType="vertical"></nz-divider>
             <a
-              [nzOkText]="translations.delete | translate"
-              [nzPopconfirmTitle]="translations.areYouSure | translate"
+              [nzOkText]="translations.delete | translate | async"
+              [nzPopconfirmTitle]="translations.areYouSure | translate | async"
               (nzOnConfirm)="deleteRow(row)"
               nz-popconfirm
             >
@@ -309,7 +311,7 @@
         *ngIf="!form.get('isNew') && editMode !== EditMode.direct"
         nz-button
       >
-        {{ translations.discardChanges | translate }}
+        {{ translations.discardChanges | translate | async }}
       </button>
     </div>
     <div>
@@ -319,21 +321,21 @@
         nz-button
         nzType="primary"
       >
-        {{ translations.submit | translate }}
+        {{ translations.submit | translate | async }}
       </button>
       <nz-divider nzType="vertical"></nz-divider>
       <button
         (click)="resetForm($event)"
         nz-button
       >
-        {{ translations.reset | translate }}
+        {{ translations.reset | translate | async }}
       </button>
       <nz-divider nzType="vertical"></nz-divider>
       <button
         (click)="closeModal()"
         nz-button
       >
-        {{ translations.cancel | translate }}
+        {{ translations.cancel | translate | async }}
       </button>
     </div>
   </div>

@@ -1,11 +1,11 @@
 <div>
-  {{ translations.records | translate}}:
+  {{ translations.records | translate | async}}:
   <b>{{ rowsLength }}</b>
 </div>
 <div class="table-filter-footer">
   <nz-select
     [(ngModel)]="notIncludedColumns"
-    [nzPlaceHolder]="translations.excludeColumns | translate"
+    [nzPlaceHolder]="translations.excludeColumns | translate | async"
     (ngModelChange)="filterRows.emit($event)"
     nzNoAnimation
     nzMode="multiple"
@@ -23,7 +23,7 @@
     [nzSuffix]="suffixIconSearch"
   >
     <input
-      [placeholder]="translations.filter | translate"
+      [placeholder]="translations.filter | translate | async"
       type="text"
       nz-input
       formControlName="search"
