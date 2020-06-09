@@ -1,12 +1,12 @@
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 // tslint:disable:max-line-length
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, TemplateRef, ViewChild, HostListener } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { NzMessageService, NzModalRef, NzModalService, NzTableComponent } from 'ng-zorro-antd';
 import { NzResizeEvent } from 'ng-zorro-antd/resizable';
 import { BehaviorSubject, fromEvent, Observable, of, ReplaySubject, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, take, takeUntil, delay, throttleTime } from 'rxjs/operators';
-import { CellCoordinates, ChangeEvent, ChangesEvent, DynamicComponentConfig, EditMode, ImColumn, ImColumnType, ImFieldType, ImFilterType, SelectionMode, ImDirection } from '../../models/column.model';
+import { debounceTime, distinctUntilChanged, take, takeUntil, throttleTime } from 'rxjs/operators';
+import { CellCoordinates, ChangeEvent, ChangesEvent, DynamicComponentConfig, EditMode, ImColumn, ImColumnType, ImDirection, ImFieldType, ImFilterType, SelectionMode } from '../../models/column.model';
 import { Translation } from '../../models/settings.model';
 import { ExcelService } from '../../services/excel.service';
 import { FilterService } from '../../services/filter.service';
@@ -827,6 +827,9 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
       if (formGroup.controls.hasOwnProperty(control)) {
         const formControl = formGroup.controls[control];
         const foundColumn = this.columns.find(column => column.key === control);
+        if (!foundColumn) {
+          return null;
+        }
         const resetValue = foundColumn.isUnique ? formGroup.get(control).value : foundColumn.defaultValue;
         formControl.reset(resetValue);
         formControl.markAsPristine(opts);

@@ -1,12 +1,13 @@
 // tslint:disable:max-line-length
-import { Component, ComponentFactoryResolver, ComponentRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ComponentFactoryResolver, ComponentRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { NzResizeEvent } from 'ng-zorro-antd/resizable';
 import { DynamicComponentConfig } from '../../../models/column.model';
 
 @Component({
   selector: 'im-drawer',
   templateUrl: './drawer.component.html',
-  styleUrls: ['./drawer.component.scss']
+  styleUrls: ['./drawer.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ImDrawerComponent implements OnChanges {
   @Input() public componentConfig: DynamicComponentConfig;

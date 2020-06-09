@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ChangeEvent, EditMode, ImColumn, ImGridComponent } from 'im-grid';
+import { ChangeEvent, ChangesEvent, EditMode, ImColumn, ImGridComponent } from 'im-grid';
 import { BehaviorSubject, ReplaySubject } from 'rxjs';
 import { delay, filter, tap } from 'rxjs/operators';
 import { columns as invoiceColumns } from 'src/app/shared/configs/invoice.config';
@@ -100,5 +100,9 @@ export class WelcomeComponent implements OnInit {
       .subscribe(
         (response) => changeEvent.track.next(response),
         (error) => changeEvent.track.next(false));
+  }
+
+  save(event: ChangesEvent) {
+    event.track.next(event.currentState);
   }
 }

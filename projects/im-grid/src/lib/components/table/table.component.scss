@@ -101,6 +101,12 @@ nz-table {
       background-color: inherit !important;
     }
 
+    th.table-cell-row-index,
+    td.table-cell-row-index {
+      padding: 10px;
+      text-align: center;
+    }
+
     tr:not(:hover) {
 
       .ant-table-td-left-sticky,

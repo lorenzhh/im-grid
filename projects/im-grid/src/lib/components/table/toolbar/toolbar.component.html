@@ -21,7 +21,7 @@
       nz-icon
       nzType="file-excel"
     ></i>
-    {{ translations.excel | translate }}
+    {{ translations.excel | translate | async }}
   </button>
   <nz-divider nzType="vertical"></nz-divider>
   <nz-radio-group
@@ -33,19 +33,19 @@
       nz-radio-button
       nzValue="default"
     >
-      {{ translations.large | translate }}
+      {{ translations.large | translate | async }}
     </label>
     <label
       nz-radio-button
       nzValue="middle"
     >
-      {{ translations.medium | translate }}
+      {{ translations.medium | translate | async }}
     </label>
     <label
       nz-radio-button
       nzValue="small"
     >
-      {{ translations.small | translate }}
+      {{ translations.small | translate | async }}
     </label>
   </nz-radio-group>
   <nz-divider
@@ -62,7 +62,7 @@
       nz-icon
       nzType="rollback"
     ></i>
-    {{ translations.discardChanges | translate }}
+    {{ translations.discardChanges | translate | async }}
   </button>
   <nz-divider nzType="vertical"></nz-divider>
   <button
@@ -73,7 +73,7 @@
       nz-icon
       nzType="plus-circle"
     ></i>
-    {{ translations.createNew | translate }}
+    {{ translations.createNew | translate | async }}
   </button>
   <nz-divider
     *ngIf="!directMode"
@@ -91,6 +91,6 @@
       nz-icon
       nzType="save"
     ></i>
-    {{ translations.save | translate }}
+    {{ translations.save | translate | async }}
   </button>
 </div>

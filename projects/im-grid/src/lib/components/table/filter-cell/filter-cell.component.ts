@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { ImColumn, ImFilterType } from '../../../models/column.model';
 import { DateFormats } from '../../../models/settings.model';
 import { SettingsService } from '../../../services/settings.service';
@@ -7,7 +7,8 @@ import { translations } from '../translations/default-translations';
 @Component({
   selector: 'im-filter-cell',
   templateUrl: './filter-cell.component.html',
-  styleUrls: ['./filter-cell.component.css']
+  styleUrls: ['./filter-cell.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ImFilterCellComponent {
   @Input() column: ImColumn;

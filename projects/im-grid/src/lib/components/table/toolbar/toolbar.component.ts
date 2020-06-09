@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { translations } from '../translations/default-translations';
 export type Size = 'small' | 'middle' | 'default';
 @Component({
   selector: 'im-toolbar',
   templateUrl: './toolbar.component.html',
-  styleUrls: ['./toolbar.component.css']
+  styleUrls: ['./toolbar.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ImToolbarComponent {
   @Input() numberOfChecked: number;
