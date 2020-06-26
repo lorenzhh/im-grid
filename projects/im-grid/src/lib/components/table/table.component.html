@@ -249,7 +249,7 @@
         <td
           class="table-cell"
           [class.focused]="column.key === (focusedCellSubject | async).key && index === (focusedCellSubject | async).rowIndex"
-          [class.searchHighlight]="(this.filterForm.get('search').valueChanges | async) && row[column.key].toString().includes(this.filterForm.get('search').value)"
+          [class.searchHighlight]="(this.filterForm.get('search').valueChanges | async) && row[column.key]?.toString().includes(this.filterForm.get('search').value)"
           [style.maxWidth.px]="column.width"
           [style.minWidth.px]="column.width"
           [style.width.px]="column.width"

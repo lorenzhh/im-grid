@@ -54,7 +54,7 @@ import { NgZorroAntdModule } from './modules/ng-zorro.module';
   ]
 })
 export class ImGridModule {
-  static forRoot(): ModuleWithProviders {
+  static forRoot(): ModuleWithProviders<ImGridModule> {
     return {
       ngModule: ImGridModule,
     };
