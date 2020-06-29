@@ -43,6 +43,9 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   @Input() dataSource$: Observable<any[]>;
   @Input() loading = false;
   @Input() showRowIndex = true;
+  @Input() allowDelete = true;
+  @Input() allowEdit = true;
+  @Input() allowCreate = true;
 
   @Output() selectedIds = new EventEmitter<{ [key: string]: boolean }>();
   @Output() save = new EventEmitter<ChangesEvent>();

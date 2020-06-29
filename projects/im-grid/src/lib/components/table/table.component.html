@@ -1,5 +1,6 @@
 <ng-template #toolbarTemplate>
   <im-toolbar
+    [allowCreate]="allowCreate"
     [deletedRowsLength]="deletedRowsLength"
     [directMode]="editMode === EditMode.Direct"
     [newRowsLength]="newRowsLength"
@@ -280,21 +281,29 @@
           [style.minWidth.px]="70"
           [style.padding.px]="5"
           [style.width.px]="70"
+          *ngIf="allowDelete || allowEdit"
           nzRight
         >
           <div [style.marginLeft.px]="3">
-            <a (click)="openCreateOrEditModal(row)">
+            <a
+              (click)="openCreateOrEditModal(row)"
+              *ngIf="allowEdit"
+            >
               <i
                 nz-icon
                 nzType="edit"
                 nzTheme="fill"
               ></i>
             </a>
-            <nz-divider nzType="vertical"></nz-divider>
+            <nz-divider
+              *ngIf="allowDelete"
+              nzType="vertical"
+            ></nz-divider>
             <a
               [nzOkText]="translations.delete | translate | async"
               [nzPopconfirmTitle]="translations.areYouSure | translate | async"
               (nzOnConfirm)="deleteRow(row)"
+              *ngIf="allowDelete"
               nz-popconfirm
             >
               <i

@@ -64,9 +64,13 @@
     ></i>
     {{ translations.discardChanges | translate | async }}
   </button>
-  <nz-divider nzType="vertical"></nz-divider>
+  <nz-divider
+    *ngIf="allowCreate"
+    nzType="vertical"
+  ></nz-divider>
   <button
     (click)="addRow.emit()"
+    *ngIf="allowCreate"
     nz-button
   >
     <i
