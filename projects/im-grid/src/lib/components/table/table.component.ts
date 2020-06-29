@@ -6,6 +6,7 @@ import { NzMessageService, NzModalRef, NzModalService, NzTableComponent } from '
 import { NzResizeEvent } from 'ng-zorro-antd/resizable';
 import { BehaviorSubject, fromEvent, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, take, takeUntil, throttleTime } from 'rxjs/operators';
+import { randomUuid } from '../../helpers/generator';
 import { CellCoordinates, ChangeEvent, ChangesEvent, DynamicComponentConfig, EditMode, ImColumn, ImColumnType, ImDirection, ImFieldType, ImFilterType, SelectionMode } from '../../models/column.model';
 import { Translation } from '../../models/settings.model';
 import { ExcelService } from '../../services/excel.service';
@@ -37,10 +38,11 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('virtualTable') table: NzTableComponent;
 
   @Input() columns: ImColumn[];
-  @Input() editMode = EditMode.direct;
-  @Input() selection = SelectionMode.checkbox;
+  @Input() editMode = EditMode.Direct;
+  @Input() selection = SelectionMode.Checkbox;
   @Input() dataSource$: Observable<any[]>;
   @Input() loading = false;
+  @Input() showRowIndex = true;
 
   @Output() selectedIds = new EventEmitter<{ [key: string]: boolean }>();
   @Output() save = new EventEmitter<ChangesEvent>();
@@ -93,7 +95,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   private stillClickedInsideBodySubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   private clickedInsideOfBody = false;
   private arrowKeys = new Subject<KeyboardEvent>();
-
+  public resizing = false;
   constructor(
     private formBuilder: FormBuilder,
     private modalService: NzModalService,
@@ -257,6 +259,13 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     this.componentDestroyed$.complete();
   }
 
+  resizeStart() {
+    this.resizing = true
+  }
+  resizeEnd() {
+    this.resizing = false;
+    this.calculateColumnsWidth();
+  }
   public calculateColumnsWidth() {
     this.columnsWidth = this.columns.filter(column => column.visible && !column.hidden && !column.childrenConfig)
       .reduce((accumulator, currentValue) => accumulator + currentValue.width, this.childrenKey ? 210 : 175);
@@ -359,15 +368,32 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   private setUniqueValues() {
     this.columns.forEach(column => {
       if (column.filter && column.filter.type === ImFilterType.Select) {
-        column.filter.selectValues = this.getUniqueSelectFilterValues(
-          column.key
-        );
+        column.filter.selectValues = this.getUniqueSelectFilterValues(column);
       }
     });
   }
 
-  private getUniqueSelectFilterValues(key: string): any[] {
-    return this.currentRows.map(row => row[key])
+  private getUniqueSelectFilterValues(column: ImColumn): any[] {
+    if (column.columnType === ImColumnType.Array) {
+      const uniques = [];
+      this.currentRows
+        .forEach(row => {
+          row[column.key].forEach(item => {
+            const foundItem = uniques
+              .find(unique => unique && typeof unique === 'object'
+                ? unique[column.valueProperty] === item[column.valueProperty]
+                : unique === item);
+            if (!foundItem) {
+              uniques.push(item);
+            }
+          });
+
+        })
+      return uniques;
+    }
+
+    return this.currentRows
+      .map(row => row[column.key])
       .filter((value, index, self) => value != null && self.indexOf(value) === index);
   }
 
@@ -396,13 +422,13 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
 
-    if (this.editMode === EditMode.direct) {
+    if (this.editMode === EditMode.Direct) {
       this.successSubject.pipe(
         takeUntil(this.componentDestroyed$),
         take(1)
       ).subscribe(success => {
         if (success !== false) {
-          value.isNew
+          value.isNew && value[this.uniqueKey] == null
             ? this.addRow(success)
             : this.saveEdit(success);
           this.closeModal();
@@ -411,11 +437,11 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
         }
       });
 
-      value.isNew
+      value.isNew && value[this.uniqueKey] == null
         ? this.created.emit({ row: value, track: this.successSubject })
         : this.updated.emit({ row: value, track: this.successSubject });
     } else {
-      value.isNew
+      value.isNew && value[this.uniqueKey] == null
         ? this.addRow(value)
         : this.saveEdit(value);
       this.closeModal();
@@ -459,7 +485,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
       }
     });
 
-    if (!row) {
+    if (!row || row.isNew) {
       const isNewControl = new FormControl(true);
       form.addControl('isNew', isNewControl);
     }
@@ -520,11 +546,17 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
           values: []
         };
       }
+      if (column.filter.multiSelect === undefined) {
+        column.filter.multiSelect = true;
+      }
       if (column.filter.values === undefined) {
         column.filter.values = [];
       }
       if (column.filter.type === undefined) {
         switch (column.columnType) {
+          case ImColumnType.Array:
+            column.filter.type = ImFilterType.Select;
+            break;
           case ImColumnType.Boolean:
             column.filter.type = ImFilterType.Boolean;
             break;
@@ -657,7 +689,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
 
 
   public showValueInModal(row: any, column: ImColumn): void {
-    const content: string = this.formatService.format(row[column.key], column.columnType, true);
+    const content: string = this.formatService.format(row[column.key], column, true);
     const viewMode = String(content).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
     this.modal = this.modalService.create({
@@ -720,7 +752,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   public deleteRow(value: any): void {
-    if (this.editMode === EditMode.direct) {
+    if (this.editMode === EditMode.Direct) {
       this.successSubject.pipe(
         takeUntil(this.componentDestroyed$),
         take(1)
@@ -740,7 +772,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   private addRow(newObject: any): void {
 
     if (newObject[this.uniqueKey] == null) {
-      newObject[this.uniqueKey] = this.currentRows.length * 2 + 10;
+      newObject[this.uniqueKey] = randomUuid();
     }
 
     this.currentRows = [...this.currentRows, newObject];
@@ -947,7 +979,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   public clearFilters() {
-    this.columns.forEach(column => column.filter.values = []);
+    this.columns.forEach(column => column.filter = { ...column.filter, values: [] });
     this.mapOfSort = {};
     this.filterRows();
   }
@@ -981,7 +1013,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
           [this.childrenKey]: changes.currentState
         };
 
-        if (this.editMode === EditMode.direct) {
+        if (this.editMode === EditMode.Direct) {
           this.successSubject.pipe(
             takeUntil(this.componentDestroyed$),
             take(1)

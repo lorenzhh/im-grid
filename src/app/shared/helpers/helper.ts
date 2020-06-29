@@ -1,4 +1,4 @@
-import { ImColumn, ImColumnType } from 'im-grid';
+import { ImColumn, ImColumnType, ImSelectOption } from 'im-grid';
 
 export const generate = (times: number, columns: ImColumn[]) => {
     const array: any[] = [];
@@ -20,6 +20,9 @@ export const generate = (times: number, columns: ImColumn[]) => {
                         break;
                     case ImColumnType.Rating:
                         generatedRow[column.key] = randomNumber(1, 5);
+                        break;
+                    case ImColumnType.Array:
+                        generatedRow[column.key] = [{id: 1, role: 'admin'}];
                         break;
                     case ImColumnType.Currency:
                         generatedRow[column.key] = randomNumber(1, 1000);

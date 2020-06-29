@@ -22,7 +22,7 @@
     [(ngModel)]="column.filter.values"
     [nzMaxTagCount]="0"
     [nzMaxTagPlaceholder]="selectListTagPlaceholder"
-    [nzMode]="'multiple'"
+    [nzMode]="column.filter.multiSelect ? 'multiple': 'default'"
     [style.width.%]="100"
     (ngModelChange)="filterRows.emit()"
     *ngSwitchCase="ImFilterType.Select"
@@ -31,9 +31,15 @@
     nzSize="small"
   >
     <nz-option
-      [nzLabel]="value != null ? (value | format: column.columnType: (settingsService.settings | async)) : ''"
-      [nzValue]="value"
-      *ngFor="let value of column.filter.selectValues"
+      [nzLabel]="column.columnType === ImColumnType.Array
+        ? option[column.labelProperty] 
+        : option != null
+          ? (option | format: column: (settingsService.settings | async)) 
+          : ''"
+      [nzValue]="column.filter.multiSelect 
+        ? option 
+        : [option]"
+      *ngFor="let option of column.filter.selectValues"
     ></nz-option>
   </nz-select>
   <ng-template

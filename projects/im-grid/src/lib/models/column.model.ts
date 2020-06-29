@@ -23,7 +23,8 @@ export enum ImColumnType {
     Boolean = 'Boolean',
     Xml = 'Xml',
     Rating = 'Rating',
-    Website = 'Website'
+    Website = 'Website',
+    Array = 'Array'
 }
 
 export enum ImFilterType {
@@ -47,7 +48,11 @@ export interface ImColumn {
     defaultValue?: number | string | boolean;
     validators?: ValidatorFn[];
     fieldType?: ImFieldType;
-    selectValues?: string[] | number[] | boolean[];
+    selectValues?: string[] | number[] | boolean[] | ImSelectOption[];
+    multiSelect?: boolean,
+    labelProperty?: string,
+    valueProperty?: string,
+    compareFn?: (option1: any, option2: any) => boolean
     columnType?: ImColumnType;
     editable?: boolean;
     creatable?: boolean;
@@ -59,6 +64,11 @@ export interface ImColumn {
     filter?: ImFilter;
     zoom?: boolean;
     copy?: boolean;
+}
+
+export interface ImSelectOption {
+    id: number,
+    [label: string]: string | number,
 }
 
 export interface ImFilter {
@@ -75,13 +85,12 @@ export interface DynamicComponentConfig {
 }
 
 export enum EditMode {
-    direct,
-    cache
+    Direct = 'Direct',
+    Cache = 'Cache'
 }
 
 export enum SelectionMode {
-    checkbox,
-    radio
+    Checkbox = 'Checkbox'
 }
 
 export interface ChangeEvent {

@@ -13,7 +13,10 @@ export class EditFormComponent {
   @Input() form: FormGroup;
   @Input() columns: ImColumn[];
   @Input() locale: Locale;
+  @Input() valueProperty: Locale;
   ImColumnType = ImColumnType;
   ImFieldType = ImFieldType;
   TimeFormats = TimeFormats;
+
+  defaultCompareWith = (o1: any, o2: any) => o1 === o2;
 }

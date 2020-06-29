@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
-import { ImColumn, ImFilterType } from '../../../models/column.model';
+import { ImColumn, ImColumnType, ImFilterType } from '../../../models/column.model';
 import { DateFormats } from '../../../models/settings.model';
 import { SettingsService } from '../../../services/settings.service';
 import { translations } from '../translations/default-translations';
@@ -14,6 +14,7 @@ export class ImFilterCellComponent {
   @Input() column: ImColumn;
   @Output() filterRows = new EventEmitter();
   ImFilterType = ImFilterType;
+  ImColumnType = ImColumnType;
   translations = translations;
   DateFormats = DateFormats;
 

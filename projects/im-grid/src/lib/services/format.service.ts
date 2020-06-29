@@ -1,9 +1,9 @@
+import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Injectable } from '@angular/core';
-import { DatePipe, DecimalPipe, CurrencyPipe } from '@angular/common';
-import { ImColumnType } from '../models/column.model';
-import { SettingsService } from './settings.service';
 import { translations } from '../components/table/translations/default-translations';
+import { ImColumn, ImColumnType } from '../models/column.model';
 import { TimeFormats } from '../models/settings.model';
+import { SettingsService } from './settings.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,11 +19,11 @@ export class FormatService {
     private settingsService: SettingsService
   ) { }
 
-  format(value: any, type: ImColumnType, optional = false) {
+  format(value: any, column: ImColumn, optional = false) {
     if (value == null) {
       return '';
     }
-    switch (type) {
+    switch (column.columnType) {
       case ImColumnType.Xml:
         return optional ? this.formattedXml(value) : value;
       case ImColumnType.Date:
@@ -39,6 +39,9 @@ export class FormatService {
       case ImColumnType.Currency: {
         return this.currencyPipe.transform(value, 'EUR', 'symbol-narrow');
       }
+      case ImColumnType.Array: {
+        return this.mapKeys(value, column.labelProperty)
+      }
       case ImColumnType.Decimal: {
         return this.decimalPipe.transform(value, '1.2-2', this.settingsService.locale);
       }
@@ -51,6 +54,13 @@ export class FormatService {
     return this.isTrue(value)
       ? translations.yes[this.settingsService.language]
       : translations.no[this.settingsService.language];
+  }
+
+  private mapKeys(array: any[], property: string) {
+    return array.map((item, index) => item && typeof (item) === 'object'
+      ? item[property]
+      : item
+    );
   }
 
   private isTrue(value: any): boolean {

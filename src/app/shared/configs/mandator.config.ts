@@ -1,4 +1,9 @@
-import { ImColumn, ImColumnType } from 'im-grid';
+import { ImColumn, ImColumnType, ImFieldType, ImFilterType } from 'im-grid';
+
+export interface Role {
+    id: number,
+    role: string
+}
 
 export const columns: ImColumn[] = [
     {
@@ -9,6 +14,9 @@ export const columns: ImColumn[] = [
     {
         key: 'shortName',
         title: 'Short Name',
+        filter: {
+            type: ImFilterType.Select
+        }
     },
     {
         key: 'no',
@@ -40,4 +48,18 @@ export const columns: ImColumn[] = [
         title: 'Website',
         columnType: ImColumnType.Website
     },
+    {
+        key: 'roles',
+        title: 'Roles',
+        fieldType: ImFieldType.Select,
+        columnType: ImColumnType.Array,
+        selectValues: [
+            { id: 1, role: 'admin' },
+            { id: 2, role: 'user' }
+        ],
+        labelProperty: 'role',
+        valueProperty: 'id',
+        multiSelect: true,
+        compareFn: (o1: Role, o2: Role) => o1 && o2 ? o1.id === o2.id : o1 === o2,
+    }
 ];

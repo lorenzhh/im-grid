@@ -3,17 +3,18 @@ import { CommonModule, CurrencyPipe, DatePipe, DecimalPipe } from '@angular/comm
 import { ModuleWithProviders, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ChildTableComponent } from './components/child-table/child-table.component';
+import { CellComponent } from './components/table/cell/cell.component';
 import { ImDrawerComponent } from './components/table/drawer/drawer.component';
 import { EditFormComponent } from './components/table/edit-form/edit-form.component';
 import { ImFilterCellComponent } from './components/table/filter-cell/filter-cell.component';
 import { ImFooterComponent } from './components/table/footer/footer.component';
 import { ImGridComponent } from './components/table/table.component';
 import { ImToolbarComponent } from './components/table/toolbar/toolbar.component';
+import { NgZorroAntdModule } from './modules/ng-zorro.module';
 import { FilterPipe } from './pipes/filter.pipe';
 import { FormatPipe } from './pipes/format.pipe';
+import { MapPipe } from './pipes/map.pipe';
 import { TranslatePipe } from './pipes/translate.pipe';
-import { CellComponent } from './components/table/cell/cell.component';
-import { NgZorroAntdModule } from './modules/ng-zorro.module';
 
 
 @NgModule({
@@ -24,13 +25,11 @@ import { NgZorroAntdModule } from './modules/ng-zorro.module';
     ImFooterComponent,
     FormatPipe,
     FilterPipe,
+    MapPipe,
     TranslatePipe,
     EditFormComponent,
     ImDrawerComponent,
     ImFilterCellComponent,
-    FilterPipe,
-    FormatPipe,
-    TranslatePipe,
     CellComponent,
   ],
   imports: [
@@ -47,6 +46,7 @@ import { NgZorroAntdModule } from './modules/ng-zorro.module';
     DecimalPipe,
     CurrencyPipe,
     DatePipe,
+    MapPipe
   ],
   exports: [
     ImGridComponent,
