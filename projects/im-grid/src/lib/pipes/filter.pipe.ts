@@ -5,7 +5,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class FilterPipe implements PipeTransform {
 
-  filter = (array: any[], filters: object): any[] => {
+  filter = <T>(array: T[], filters: object): T[] => {
     const filterKeys = Object.keys(filters);
     return array.filter(item => {
       return filterKeys.every(key => {
@@ -14,7 +14,7 @@ export class FilterPipe implements PipeTransform {
     });
   }
 
-  transform(items: any[], filters: object): any[] {
+  transform(items: any, filters: object): any[] {
     return this.filter(items, filters);
   }
 }

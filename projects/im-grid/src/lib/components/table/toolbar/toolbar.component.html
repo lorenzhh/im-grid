@@ -30,22 +30,35 @@
     (ngModelChange)="changeSize.emit($event)"
   >
     <label
+      [title]="translations.large | translate | async"
       nz-radio-button
       nzValue="default"
     >
-      {{ translations.large | translate | async }}
+      <i
+        nz-icon
+        nzType="menu"
+      ></i>
     </label>
     <label
+      [title]="translations.medium | translate | async"
       nz-radio-button
       nzValue="middle"
     >
-      {{ translations.medium | translate | async }}
+      <i
+        nz-icon
+        nzType="pause"
+        nzRotate="90"
+      ></i>
     </label>
     <label
+      [title]="translations.small | translate | async"
       nz-radio-button
       nzValue="small"
     >
-      {{ translations.small | translate | async }}
+      <i
+        nz-icon
+        nzType="line"
+      ></i>
     </label>
   </nz-radio-group>
   <nz-divider
@@ -54,6 +67,7 @@
   ></nz-divider>
   <button
     [disabled]="unsavedRowsLength + deletedRowsLength + newRowsLength === 0"
+    [title]="translations.discardChanges | translate | async"
     (click)="resetRows.emit()"
     *ngIf="!directMode"
     nz-button
@@ -62,18 +76,21 @@
       nz-icon
       nzType="rollback"
     ></i>
-    {{ translations.discardChanges | translate | async }}
   </button>
-  <nz-divider nzType="vertical"></nz-divider>
+  <nz-divider
+    *ngIf="allowCreate"
+    nzType="vertical"
+  ></nz-divider>
   <button
+    [title]="translations.createNew | translate | async"
     (click)="addRow.emit()"
+    *ngIf="allowCreate"
     nz-button
   >
     <i
       nz-icon
       nzType="plus-circle"
     ></i>
-    {{ translations.createNew | translate | async }}
   </button>
   <nz-divider
     *ngIf="!directMode"

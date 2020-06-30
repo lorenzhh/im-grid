@@ -11,13 +11,26 @@
         nzErrorTip="Please write something here!"
       >
         <nz-select
+          [compareWith]="column.compareFn 
+            ? column.compareFn
+            : defaultCompareWith"
           [formControlName]="column.key"
+          [nzMode]="column.multiSelect 
+            ? 'multiple'
+            : 'default'"
           [nzPlaceHolder]="column.title + '...'"
           *ngSwitchCase="ImFieldType.Select"
+          nzAllowClear
         >
           <nz-option
-            [nzLabel]="option"
-            [nzValue]="option"
+            [nzLabel]="(option | typeof) === 'object' 
+              ? option[column.labelProperty] 
+              : (option | typeof) !== 'null'
+                ? (option | format: column) 
+                : ''"
+            [nzValue]="column.columnType === ImColumnType.Array && !column.multiSelect 
+              ? [option] 
+              : option"
             *ngFor="let option of column.selectValues"
           ></nz-option>
         </nz-select>

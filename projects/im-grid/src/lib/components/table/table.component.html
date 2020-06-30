@@ -1,7 +1,8 @@
 <ng-template #toolbarTemplate>
   <im-toolbar
+    [allowCreate]="allowCreate"
     [deletedRowsLength]="deletedRowsLength"
-    [directMode]="editMode === EditMode.direct"
+    [directMode]="editMode === EditMode.Direct"
     [newRowsLength]="newRowsLength"
     [numberOfChecked]="numberOfChecked"
     [size]="size"
@@ -54,22 +55,25 @@
         [style.minWidth.px]="35"
         [style.width.px]="35"
         (nzCheckedChange)="checkAll($event)"
+        *ngIf="selection === SelectionMode.Checkbox"
         nzWidth="35px"
         nzShowCheckbox
       >
       </th>
       <th
-        class="table-cell-row-index"
+        class="table-cell-row-index table-cell-row-index"
         [innerHtml]="numberOfChecked ? numberOfChecked: '#'"
-        [nzLeft]="childrenKey ? '70px' : '35px'"
+        [nzLeft]="childrenKey ? '70px' : selection ? '35px' : '0px'"
         [style.maxWidth.px]="70"
         [style.minWidth.px]="70"
         [style.width.px]="70"
+        *ngIf="showRowIndex"
         nzWidth="70px"
       >
       </th>
       <th
         [(nzSortOrder)]="mapOfSort[column.key]"
+        [ngStyle]="{'pointer-events': resizing ? 'none': 'unset'}"
         [nzMaxWidth]="column.maxWidth"
         [nzMinWidth]="column.minWidth"
         [nzWidth]="column.width + 'px'"
@@ -78,7 +82,8 @@
         [style.width.px]="column.width"
         [title]="column.title"
         (nzResize)="onResize($event, column)"
-        (nzResizeEnd)="calculateColumnsWidth()"
+        (nzResizeEnd)="resizeEnd()"
+        (nzResizeStart)="resizeStart()"
         (nzSortChange)="sort(column.key, $event)"
         *ngFor="let column of columns | filter: { visible: true, hidden: false }"
         nz-resizable
@@ -142,17 +147,19 @@
         [style.maxWidth.px]="35"
         [style.minWidth.px]="35"
         [style.width.px]="35"
+        *ngIf="selection"
         nzWidth="35px"
       >
       </th>
       <th
         class="filter-cell sticky"
-        [nzLeft]="childrenKey ? '70px' : '35px'"
+        [nzLeft]="childrenKey ? '70px' : selection ? '35px' : '0px'"
         [style.maxWidth.px]="70"
         [style.minWidth.px]="70"
         [style.paddingLeft.px]="3"
         [style.paddingRight.px]="3"
         [style.width.px]="70"
+        *ngIf="showRowIndex"
         nzWidth="70px"
       >
         <input
@@ -235,14 +242,16 @@
           [style.minWidth.px]="35"
           [style.width.px]="35"
           (nzCheckedChange)="refreshStatus()"
+          *ngIf="selection === SelectionMode.Checkbox"
           nzShowCheckbox
         ></td>
         <td
           class="table-cell-row-index"
-          [nzLeft]="childrenKey ? '70px' : '35px'"
+          [nzLeft]="childrenKey ? '70px' : selection ? '35px' : '0px'"
           [style.maxWidth.px]="70"
           [style.minWidth.px]="70"
           [style.width.px]="70"
+          *ngIf="showRowIndex"
         >
           <b>{{ index + 1 }}</b>
         </td>
@@ -253,7 +262,7 @@
           [style.maxWidth.px]="column.width"
           [style.minWidth.px]="column.width"
           [style.width.px]="column.width"
-          [title]="row[column.key] | format: column.columnType: (settingsService.settings | async)"
+          [title]="row[column.key] | format: column: (settingsService.settings | async)"
           (click)="handleClick(column, row, index)"
           *ngFor="let column of columns | filter: { visible: true, hidden: false }"
         >
@@ -262,7 +271,7 @@
             [copy]="column.copy"
             [focused]="column.key === (focusedCellSubject | async).key && index === (focusedCellSubject | async).rowIndex"
             [rawValue]="row[column.key]"
-            [value]="row[column.key] | format: column.columnType: (settingsService.settings | async)"
+            [value]="row[column.key] | format: column: (settingsService.settings | async)"
             [zoom]="column.zoom"
             (zoomed)="showValueInModal(row, column)"
           ></im-cell>
@@ -272,21 +281,29 @@
           [style.minWidth.px]="70"
           [style.padding.px]="5"
           [style.width.px]="70"
+          *ngIf="allowDelete || allowEdit"
           nzRight
         >
           <div [style.marginLeft.px]="3">
-            <a (click)="openCreateOrEditModal(row)">
+            <a
+              (click)="openCreateOrEditModal(row)"
+              *ngIf="allowEdit"
+            >
               <i
                 nz-icon
                 nzType="edit"
                 nzTheme="fill"
               ></i>
             </a>
-            <nz-divider nzType="vertical"></nz-divider>
+            <nz-divider
+              *ngIf="allowDelete"
+              nzType="vertical"
+            ></nz-divider>
             <a
               [nzOkText]="translations.delete | translate | async"
               [nzPopconfirmTitle]="translations.areYouSure | translate | async"
               (nzOnConfirm)="deleteRow(row)"
+              *ngIf="allowDelete"
               nz-popconfirm
             >
               <i
@@ -308,7 +325,7 @@
     <div>
       <button
         (click)="resetRow()"
-        *ngIf="!form.get('isNew') && editMode !== EditMode.direct"
+        *ngIf="!form.get('isNew') && editMode !== EditMode.Direct"
         nz-button
       >
         {{ translations.discardChanges | translate | async }}

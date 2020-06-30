@@ -9,6 +9,7 @@ export type Size = 'small' | 'middle' | 'default';
 })
 export class ImToolbarComponent {
   @Input() numberOfChecked: number;
+  @Input() allowCreate: boolean;
   @Input() loading: boolean;
   @Input() size: Size;
   @Input() directMode: boolean;

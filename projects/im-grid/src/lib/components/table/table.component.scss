@@ -173,8 +173,9 @@ nz-table {
 }
 
 .filter-cell {
-  padding: 2px;
+  padding: 0px !important;
   position: relative;
+  line-height: 0px;
 
   &.sticky {
     z-index: 2;

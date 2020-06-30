@@ -61,9 +61,8 @@ export class ExcelService {
         }
         switch (column.columnType) {
             case ImColumnType.Boolean:
-                return this.formatService.format(value, column.columnType);
             case ImColumnType.Xml:
-                return this.formatService.format(value, column.columnType);
+                return this.formatService.format(value, column);
             default: return value;
         }
     }

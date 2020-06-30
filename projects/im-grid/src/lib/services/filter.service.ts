@@ -20,6 +20,19 @@ export class FilterService {
         }
         if (column.filter.type === ImFilterType.Select
         ) {
+
+            if (Array.isArray(row[column.key])) {
+                return column
+                    .filter
+                    .values
+                    .find((filterValue: any) =>
+                        row[column.key].find(item =>
+                            filterValue && typeof filterValue === 'object'
+                                ? filterValue[column.valueProperty] === item[column.valueProperty]
+                                : filterValue === item
+                        )
+                    );
+            }
             return column.filter.values.find((value: any) => row[column.key].toString().includes(value));
         }
         return row[column.key].toString().includes(column.filter.values[0]);
