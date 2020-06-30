@@ -15,6 +15,7 @@ import { FilterPipe } from './pipes/filter.pipe';
 import { FormatPipe } from './pipes/format.pipe';
 import { MapPipe } from './pipes/map.pipe';
 import { TranslatePipe } from './pipes/translate.pipe';
+import { TypeofPipe } from './pipes/typeof.pipe';
 
 
 @NgModule({
@@ -27,6 +28,7 @@ import { TranslatePipe } from './pipes/translate.pipe';
     FilterPipe,
     MapPipe,
     TranslatePipe,
+    TypeofPipe,
     EditFormComponent,
     ImDrawerComponent,
     ImFilterCellComponent,
@@ -43,6 +45,7 @@ import { TranslatePipe } from './pipes/translate.pipe';
     FilterPipe,
     FormatPipe,
     TranslatePipe,
+    TypeofPipe,
     DecimalPipe,
     CurrencyPipe,
     DatePipe,

@@ -31,14 +31,14 @@
     nzSize="small"
   >
     <nz-option
-      [nzLabel]="column.columnType === ImColumnType.Array
+      [nzLabel]="(option | typeof) === 'object' 
         ? option[column.labelProperty] 
-        : option != null
+        : (option | typeof) !== 'null'
           ? (option | format: column: (settingsService.settings | async)) 
           : ''"
-      [nzValue]="column.filter.multiSelect 
-        ? option 
-        : [option]"
+      [nzValue]="column.columnType === ImColumnType.Array && !column.multiSelect 
+        ? [option] 
+        : option"
       *ngFor="let option of column.filter.selectValues"
     ></nz-option>
   </nz-select>

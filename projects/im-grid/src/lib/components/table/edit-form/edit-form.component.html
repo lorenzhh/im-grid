@@ -23,14 +23,14 @@
           nzAllowClear
         >
           <nz-option
-            [nzLabel]="column.columnType === ImColumnType.Array
+            [nzLabel]="(option | typeof) === 'object' 
               ? option[column.labelProperty] 
-              : option != null
+              : (option | typeof) !== 'null'
                 ? (option | format: column) 
                 : ''"
-            [nzValue]="column.multiSelect 
-              ? option 
-              : [option]"
+            [nzValue]="column.columnType === ImColumnType.Array && !column.multiSelect 
+              ? [option] 
+              : option"
             *ngFor="let option of column.selectValues"
           ></nz-option>
         </nz-select>

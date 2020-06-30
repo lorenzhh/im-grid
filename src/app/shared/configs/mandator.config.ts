@@ -1,4 +1,4 @@
-import { ImColumn, ImColumnType, ImFieldType, ImFilterType } from 'im-grid';
+import { ImColumn, ImColumnType, ImFilterType } from 'im-grid';
 
 export interface Role {
     id: number,
@@ -51,7 +51,6 @@ export const columns: ImColumn[] = [
     {
         key: 'roles',
         title: 'Roles',
-        fieldType: ImFieldType.Select,
         columnType: ImColumnType.Array,
         selectValues: [
             { id: 1, role: 'admin' },
@@ -61,5 +60,36 @@ export const columns: ImColumn[] = [
         valueProperty: 'id',
         multiSelect: true,
         compareFn: (o1: Role, o2: Role) => o1 && o2 ? o1.id === o2.id : o1 === o2,
-    }
+    },
+    // {
+    //     key: 'roless',
+    //     title: 'Roles',
+    //     columnType: ImColumnType.Array,
+    //     childrenConfig: {
+    //         columns: [
+
+    //             {
+    //                 key: 'id',
+    //                 title: 'Id',
+    //                 isUnique: true
+    //             },
+    //             {
+    //                 key: 'role',
+    //                 title: 'Role',
+    //                 selectValues: [
+    //                     { id: 1, role: 'admin' },
+    //                     { id: 2, role: 'user' }
+    //                 ],
+    //                 columnType: ImColumnType.Object,
+    //                 multiSelect: false,
+    //                 labelProperty: 'role',
+    //                 valueProperty: 'id',
+    //                 compareFn: (o1: Role, o2: Role) => o1 && o2 ? o1.id === o2.id : o1 === o2
+    //             },
+    //         ],
+    //         componentConfig: {
+    //             componentToPort: ChildTableComponent
+    //         }
+    //     }
+    // }
 ];

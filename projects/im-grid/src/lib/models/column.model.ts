@@ -24,7 +24,8 @@ export enum ImColumnType {
     Xml = 'Xml',
     Rating = 'Rating',
     Website = 'Website',
-    Array = 'Array'
+    Array = 'Array',
+    Object = 'Object',
 }
 
 export enum ImFilterType {

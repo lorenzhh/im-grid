@@ -42,6 +42,10 @@ export class FormatService {
       case ImColumnType.Array: {
         return this.mapKeys(value, column.labelProperty)
       }
+      case ImColumnType.Object: {
+        console.log(value)
+        return value[column.labelProperty]
+      }
       case ImColumnType.Decimal: {
         return this.decimalPipe.transform(value, '1.2-2', this.settingsService.locale);
       }

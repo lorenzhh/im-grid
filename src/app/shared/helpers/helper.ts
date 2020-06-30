@@ -22,7 +22,10 @@ export const generate = (times: number, columns: ImColumn[]) => {
                         generatedRow[column.key] = randomNumber(1, 5);
                         break;
                     case ImColumnType.Array:
-                        generatedRow[column.key] = [{id: 1, role: 'admin'}];
+                        generatedRow[column.key] = [{ id: 1, role: 'admin' }];
+                        break;
+                    case ImColumnType.Object:
+                        generatedRow[column.key] = { id: 1, role: 'admin' };
                         break;
                     case ImColumnType.Currency:
                         generatedRow[column.key] = randomNumber(1, 1000);

@@ -558,6 +558,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
       if (column.filter.type === undefined) {
         switch (column.columnType) {
           case ImColumnType.Array:
+          case ImColumnType.Object:
             column.filter.type = ImFilterType.Select;
             break;
           case ImColumnType.Boolean:
@@ -581,6 +582,10 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
         switch (column.columnType) {
           case ImColumnType.Boolean:
             column.fieldType = ImFieldType.Checkbox;
+            break;
+          case ImColumnType.Array:
+          case ImColumnType.Object:
+            column.fieldType = ImFieldType.Select;
             break;
           case ImColumnType.Date:
             column.fieldType = ImFieldType.Date;
