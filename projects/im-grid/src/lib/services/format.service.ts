@@ -43,7 +43,6 @@ export class FormatService {
         return this.mapKeys(value, column.labelProperty)
       }
       case ImColumnType.Object: {
-        console.log(value)
         return value[column.labelProperty]
       }
       case ImColumnType.Decimal: {

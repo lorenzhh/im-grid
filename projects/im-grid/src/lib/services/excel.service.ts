@@ -62,13 +62,15 @@ export class ExcelService {
         switch (column.columnType) {
             case ImColumnType.Boolean:
             case ImColumnType.Xml:
+            case ImColumnType.Object:
+            case ImColumnType.Array:
                 return this.formatService.format(value, column);
             default: return value;
         }
     }
 
     private getType(column: ImColumn, value: any) {
-        if (!value) {
+        if (!value && column.columnType !== ImColumnType.Boolean) {
             return 's';
         }
 
