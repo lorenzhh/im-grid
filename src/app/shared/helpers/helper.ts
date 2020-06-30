@@ -19,7 +19,7 @@ export const generate = (times: number, columns: ImColumn[]) => {
                         generatedRow[column.key] = randomBoolean();
                         break;
                     case ImColumnType.Rating:
-                        generatedRow[column.key] = randomNumber(1, 5);
+                        generatedRow[column.key] = randomNumber(1, 5, true);
                         break;
                     case ImColumnType.Array:
                         generatedRow[column.key] = [{ id: 1, role: 'admin' }];
@@ -66,8 +66,10 @@ export const randomBoolean = (): boolean => {
     return Math.random() >= 0.5;
 };
 
-export const randomNumber = (min: number, max: number): number => {
-    return Math.floor(Math.random() * (max - min + 1) + min);
+export const randomNumber = (min: number, max: number, allowHalf = false): number => {
+    return allowHalf
+        ? Math.floor(Math.random() * (max - min + 1) + min) - (randomBoolean() ? 0.5 : 0)
+        : Math.floor(Math.random() * (max - min + 1) + min);
 };
 
 export const randomText = (length: number, possibleLetters?: string): string => {
