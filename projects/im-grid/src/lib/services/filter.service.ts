@@ -18,6 +18,10 @@ export class FilterService {
         if (row[column.key] == null) {
             return false;
         }
+        if (column.filter.type === ImFilterType.Rating
+        ) {
+            return row[column.key] === column.filter.values[0];
+        }
         if (column.filter.type === ImFilterType.Select
         ) {
 
