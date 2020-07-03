@@ -1,13 +1,40 @@
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
-// tslint:disable:max-line-length
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, TemplateRef, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  HostListener,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { NzMessageService, NzModalRef, NzModalService, NzTableComponent } from 'ng-zorro-antd';
 import { NzResizeEvent } from 'ng-zorro-antd/resizable';
 import { BehaviorSubject, fromEvent, Observable, of, ReplaySubject, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, take, takeUntil, throttleTime } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, filter, take, takeUntil, throttleTime } from 'rxjs/operators';
 import { randomUuid } from '../../helpers/generator';
-import { CellCoordinates, ChangeEvent, ChangesEvent, DynamicComponentConfig, EditMode, ImColumn, ImColumnType, ImDirection, ImFieldType, ImFilterType, SelectionMode } from '../../models/column.model';
+import {
+  CellCoordinates,
+  ChangeEvent,
+  ChangesEvent,
+  DynamicComponentConfig,
+  EditMode,
+  ImAction,
+  ImColumn,
+  ImColumnType,
+  ImDirection,
+  ImFieldType,
+  ImFilterType,
+  ImTrack,
+  SelectionMode
+} from '../../models/column.model';
 import { Translation } from '../../models/settings.model';
 import { ExcelService } from '../../services/excel.service';
 import { FilterService } from '../../services/filter.service';
@@ -89,13 +116,15 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   public drawerVisible = false;
   public columnsWidth: number;
 
-  private successSubject: Subject<boolean | any> = new Subject<boolean | any>();
-  public focusedCellSubject: BehaviorSubject<CellCoordinates> = new BehaviorSubject<CellCoordinates>({
-    rowIndex: -1,
-    key: null
-  });
+  private successSubject: Subject<ImTrack> = new Subject<ImTrack>();
+  public focusedCellSubject: BehaviorSubject<CellCoordinates>
+    = new BehaviorSubject<CellCoordinates>({
+      rowIndex: -1,
+      key: null
+    });
 
-  private stillClickedInsideBodySubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private stillClickedInsideBodySubject: BehaviorSubject<boolean>
+    = new BehaviorSubject<boolean>(false);
   private clickedInsideOfBody = false;
   private arrowKeys = new Subject<KeyboardEvent>();
   public resizing = false;
@@ -141,7 +170,9 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   private getNeighborColumn(key: string, forward: boolean): ImColumn {
     const columns = this.columns.filter(column => column.visible && !column.hidden);
     const currentColumnIndex = columns.findIndex((column) => column.key === key);
-    return columns.find((_, index) => forward ? index > currentColumnIndex : index === currentColumnIndex - 1);
+    return columns.find((_, index) => forward
+      ? index > currentColumnIndex
+      : index === currentColumnIndex - 1);
   }
 
   private handleArrowKeyboardEvent(event: KeyboardEvent) {
@@ -208,7 +239,10 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
           .findIndex(column => column.key === key);
 
         const width = this.columns
-          .filter((column, index) => column.visible && !column.hidden && index < nextColumnIndex)
+          .filter((column, index) => column.visible
+            && !column.hidden
+            && index < nextColumnIndex
+          )
           .reduce((acc, curr) => acc + curr.width, 0);
 
         cdkScrollEelemnt.nativeElement.scrollLeft = width;
@@ -270,8 +304,13 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     this.calculateColumnsWidth();
   }
   public calculateColumnsWidth() {
-    this.columnsWidth = this.columns.filter(column => column.visible && !column.hidden && !column.childrenConfig)
-      .reduce((accumulator, currentValue) => accumulator + currentValue.width, this.childrenKey ? 210 : 175);
+    this.columnsWidth = this.columns
+      .filter(column => column.visible && !column.hidden && !column.childrenConfig)
+      .reduce((accumulator, currentValue) => accumulator + currentValue.width,
+        this.childrenKey
+          ? 210
+          : 175
+      );
   }
 
   public resetRows() {
@@ -283,8 +322,10 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   public resetRow() {
-    const foundIndex = this.currentRows.findIndex(row => row[this.uniqueKey] === this.form.getRawValue()[this.uniqueKey]);
-    const originalRow = this.originalRows.find(row => row[this.uniqueKey] === this.form.getRawValue()[this.uniqueKey]);
+    const foundIndex = this.currentRows
+      .findIndex(row => row[this.uniqueKey] === this.form.getRawValue()[this.uniqueKey]);
+    const originalRow = this.originalRows
+      .find(row => row[this.uniqueKey] === this.form.getRawValue()[this.uniqueKey]);
 
     if (foundIndex > -1 && originalRow) {
       this.currentRows[foundIndex] = { ...originalRow };
@@ -319,12 +360,13 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
 
   public saveRows() {
     this.successSubject.pipe(
+      filter(success => success.action === ImAction.SaveAll),
       takeUntil(this.componentDestroyed$),
       take(1)
     ).subscribe(success => {
-      if (success !== false) {
-        this.originalRows = [...success];
-        this.currentRows = [...success];
+      if (success.data !== false) {
+        this.originalRows = [...success.data];
+        this.currentRows = [...success.data];
         this.reset();
       } else {
         this.showError();
@@ -336,6 +378,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
       deletedIds: this.getDeletedRowsId(),
       new: this.getNewRows(),
       currentState: this.currentRows,
+      action: ImAction.SaveAll,
       track: this.successSubject
     });
   }
@@ -397,11 +440,13 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
 
     return this.currentRows
       .map(row => row[column.key])
-      .filter((value, index, self) => value != null && self.indexOf(value) === index);
+      .filter((value, index, self) => value != null
+        && self.indexOf(value) === index);
   }
 
   public checkAll(value: boolean): void {
-    this.rows.filter(item => !item.disabled).forEach(item => (this.mapOfCheckedId[item[this.uniqueKey]] = value));
+    this.rows.filter(item => !item.disabled)
+      .forEach(item => (this.mapOfCheckedId[item[this.uniqueKey]] = value));
     this.refreshStatus();
   }
 
@@ -412,9 +457,11 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
         .every(item => this.mapOfCheckedId[item[this.uniqueKey]]);
     this.isIndeterminate = this.rows
       .filter(item => !item.disabled)
-      .some(item => this.mapOfCheckedId[item[this.uniqueKey]]) && !this.isAllDisplayDataChecked;
+      .some(item => this.mapOfCheckedId[item[this.uniqueKey]])
+      && !this.isAllDisplayDataChecked;
 
-    this.numberOfChecked = this.rows.filter(item => this.mapOfCheckedId[item[this.uniqueKey]]).length;
+    this.numberOfChecked = this.rows
+      .filter(item => this.mapOfCheckedId[item[this.uniqueKey]]).length;
     this.selectedIds.emit(this.mapOfCheckedId);
   }
 
@@ -427,13 +474,17 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
 
     if (this.editMode === EditMode.Direct) {
       this.successSubject.pipe(
+        filter(success =>
+          success.action === ImAction.Update
+          || success.action === ImAction.ADD
+        ),
         takeUntil(this.componentDestroyed$),
         take(1)
       ).subscribe(success => {
-        if (success !== false) {
-          value.isNew && value[this.uniqueKey] == null
-            ? this.addRow(success)
-            : this.saveEdit(success);
+        if (success.data !== false) {
+          success.action === ImAction.ADD
+            ? this.addRow(success.data)
+            : this.saveEdit(success.data);
           this.closeModal();
         } else {
           this.showError();
@@ -441,8 +492,16 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
       });
 
       value.isNew && value[this.uniqueKey] == null
-        ? this.created.emit({ row: value, track: this.successSubject })
-        : this.updated.emit({ row: value, track: this.successSubject });
+        ? this.created.emit({
+          row: value,
+          track: this.successSubject,
+          action: ImAction.ADD
+        })
+        : this.updated.emit({
+          row: value,
+          track: this.successSubject,
+          action: ImAction.Update
+        });
     } else {
       value.isNew && value[this.uniqueKey] == null
         ? this.addRow(value)
@@ -608,7 +667,10 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
         }
       }
 
-      if (column.fieldType === ImFieldType.Select && column.filter.selectValues === undefined) {
+      if (
+        column.fieldType === ImFieldType.Select
+        && column.filter.selectValues === undefined
+      ) {
         column.filter.selectValues = [];
       }
 
@@ -698,7 +760,11 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
 
   public showValueInModal(row: any, column: ImColumn): void {
     const content: string = this.formatService.format(row[column.key], column, true);
-    const viewMode = String(content).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const viewMode = String(content)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
 
     this.modal = this.modalService.create({
       nzTitle: column.title,
@@ -763,15 +829,20 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     if (this.editMode === EditMode.Direct) {
       this.successSubject.pipe(
         takeUntil(this.componentDestroyed$),
+        filter(success => success.action === ImAction.Delete),
         take(1)
       ).subscribe(success => {
-        if (success !== false) {
-          this.saveDelete(success);
+        if (success.data !== false) {
+          this.saveDelete(success.data);
         } else {
           this.showError();
         }
       });
-      this.deleted.emit({ row: value, track: this.successSubject });
+      this.deleted.emit({
+        row: value,
+        track: this.successSubject,
+        action: ImAction.Delete
+      });
     } else {
       this.saveDelete(value);
     }
@@ -797,7 +868,8 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
 
 
   private saveDelete(deletedRow: any): void {
-    this.currentRows = this.currentRows.filter(row => row[this.uniqueKey] !== deletedRow[this.uniqueKey]);
+    this.currentRows = this.currentRows
+      .filter(row => row[this.uniqueKey] !== deletedRow[this.uniqueKey]);
     this.editCache[deletedRow[this.uniqueKey]] = {
       edit: false,
       changed: true,
@@ -808,12 +880,16 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     this.filterRows();
     this.createMessage(
       'success',
-      this.settingsService.dynamicTranslate(dynamicTranslations.deletedSuccessfully, { '{count}': 1 })
+      this.settingsService.dynamicTranslate(
+        dynamicTranslations.deletedSuccessfully,
+        { '{count}': 1 }
+      )
     );
   }
 
   private saveEdit(editedRow: any): void {
-    const foundCurrentRowIndex = this.currentRows.findIndex(row => row[this.uniqueKey] === editedRow[this.uniqueKey]);
+    const foundCurrentRowIndex = this.currentRows
+      .findIndex(row => row[this.uniqueKey] === editedRow[this.uniqueKey]);
 
     this.currentRows[foundCurrentRowIndex] = editedRow;
 
@@ -849,7 +925,10 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  private validateAllFormFields = (formGroup: FormGroup, opts: { onlySelf?: boolean, emitEvent?: boolean } = {}): void => {
+  private validateAllFormFields = (
+    formGroup: FormGroup,
+    opts: { onlySelf?: boolean, emitEvent?: boolean } = {})
+    : void => {
     for (const control in formGroup.controls) {
       if (formGroup.controls.hasOwnProperty(control)) {
         const formControl = formGroup.controls[control];
@@ -862,7 +941,10 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private resetAllFormFields = (formGroup: FormGroup, opts: { onlySelf?: boolean, emitEvent?: boolean } = {}): void => {
+  private resetAllFormFields = (
+    formGroup: FormGroup,
+    opts: { onlySelf?: boolean, emitEvent?: boolean } = {}
+  ): void => {
     for (const control in formGroup.controls) {
       if (formGroup.controls.hasOwnProperty(control)) {
         const formControl = formGroup.controls[control];
@@ -870,7 +952,9 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
         if (!foundColumn) {
           return null;
         }
-        const resetValue = foundColumn.isUnique ? formGroup.get(control).value : foundColumn.defaultValue;
+        const resetValue = foundColumn.isUnique
+          ? formGroup.get(control).value
+          : foundColumn.defaultValue;
         formControl.reset(resetValue);
         formControl.markAsPristine(opts);
         formControl.updateValueAndValidity(opts);
@@ -882,7 +966,11 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     return item[this.uniqueKey];
   }
 
-  private orderElementsInArrayUsingKeys(array: any[], previousKey: string, newKey: string): any[] {
+  private orderElementsInArrayUsingKeys(
+    array: any[],
+    previousKey: string,
+    newKey: string
+  ): any[] {
     const prevIndex = array.findIndex(element => element.key === previousKey);
     const newIndex = array.findIndex(element => element.key === newKey);
 
@@ -947,12 +1035,14 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
 
       for (const column of filterColumns) {
 
-        filteredData = filteredData.filter(row => this.filterService.rowShouldBeFiltered(row, column));
+        filteredData = filteredData
+          .filter(row => this.filterService.rowShouldBeFiltered(row, column));
       }
       if (globalValue) {
-        filteredData = filteredData.filter((row, index) => {
+        filteredData = filteredData.filter(row => {
           return this.columns.find(column => {
-            const isExcluded = this.notIncludedColumns.find(notIncludedColumn => notIncludedColumn.key === column.key);
+            const isExcluded = this.notIncludedColumns
+              .find(notIncludedColumn => notIncludedColumn.key === column.key);
             if (isExcluded || row[column.key] == null) {
               return false;
             }
@@ -969,7 +1059,10 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
 
   public exportAsExcel() {
     this.excelService.exportAsExcelFile(this.rows, 'file',
-      this.columns.filter(column => column.visible && !column.hidden && !column.childrenConfig));
+      this.columns.filter(column => column.visible
+        && !column.hidden
+        && !column.childrenConfig
+      ));
   }
 
   private createMessage(type: string, message: Translation): void {
@@ -987,7 +1080,9 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   public clearFilters() {
-    this.columns.forEach(column => column.filter = { ...column.filter, values: [] });
+    this.columns.forEach(column => column.filter = {
+      ...column.filter, values: []
+    });
     this.mapOfSort = {};
     this.filterRows();
   }
@@ -995,7 +1090,10 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
   private getColumnsWithFilter(columns: ImColumn[]): ImColumn[] {
     columns.forEach(column => {
       const values = column.filter.values;
-      if (values.length > 0 && values.every((value: Date | string | number) => value == null || value === '')) {
+      if (
+        values.length > 0
+        && values.every((value: Date | string | number) => value == null || value === '')
+      ) {
         column.filter.values = [];
       }
     });
@@ -1024,20 +1122,31 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
         if (this.editMode === EditMode.Direct) {
           this.successSubject.pipe(
             takeUntil(this.componentDestroyed$),
+            filter(success => success.action === ImAction.Update),
             take(1)
           ).subscribe(success => {
-            changes.track.next(success[this.childrenKey]);
+            changes.track.next({
+              data: success.data[this.childrenKey],
+              action: ImAction.SaveAll
+            });
 
-            if (success !== false) {
-              this.saveEdit(success);
+            if (success.data !== false) {
+              this.saveEdit(success.data);
             } else {
               this.showError();
             }
           });
-          this.updated.emit({ row: updatedRow, track: this.successSubject });
+          this.updated.emit({
+            row: updatedRow,
+            track: this.successSubject,
+            action: ImAction.Update
+          });
         } else {
           this.saveEdit(updatedRow);
-          changes.track.next(changes.currentState);
+          changes.track.next({
+            data: changes.currentState,
+            action: changes.action
+          });
         }
       });
 

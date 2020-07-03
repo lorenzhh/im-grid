@@ -96,7 +96,8 @@ export enum SelectionMode {
 
 export interface ChangeEvent {
     row: any;
-    track: Subject<boolean | any>;
+    track: Subject<ImTrack>;
+    action: ImAction
 }
 
 export interface ChangesEvent {
@@ -104,7 +105,13 @@ export interface ChangesEvent {
     deletedIds: any[];
     new: any[];
     currentState: any[];
-    track: Subject<boolean | any>;
+    action: ImAction;
+    track: Subject<ImTrack>;
+}
+
+export interface ImTrack {
+    data: boolean | any,
+    action: ImAction
 }
 
 export interface CellCoordinates {
@@ -117,4 +124,12 @@ export enum ImDirection {
     RIGHT,
     TOP,
     Bottom
+}
+
+export enum ImAction {
+    CREATE,
+    ADD,
+    Update,
+    Delete,
+    SaveAll
 }

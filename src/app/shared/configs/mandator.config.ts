@@ -61,35 +61,4 @@ export const columns: ImColumn[] = [
         multiSelect: true,
         compareFn: (o1: Role, o2: Role) => o1 && o2 ? o1.id === o2.id : o1 === o2,
     },
-    // {
-    //     key: 'roless',
-    //     title: 'Roles',
-    //     columnType: ImColumnType.Array,
-    //     childrenConfig: {
-    //         columns: [
-
-    //             {
-    //                 key: 'id',
-    //                 title: 'Id',
-    //                 isUnique: true
-    //             },
-    //             {
-    //                 key: 'role',
-    //                 title: 'Role',
-    //                 selectValues: [
-    //                     { id: 1, role: 'admin' },
-    //                     { id: 2, role: 'user' }
-    //                 ],
-    //                 columnType: ImColumnType.Object,
-    //                 multiSelect: false,
-    //                 labelProperty: 'role',
-    //                 valueProperty: 'id',
-    //                 compareFn: (o1: Role, o2: Role) => o1 && o2 ? o1.id === o2.id : o1 === o2
-    //             },
-    //         ],
-    //         componentConfig: {
-    //             componentToPort: ChildTableComponent
-    //         }
-    //     }
-    // }
 ];
