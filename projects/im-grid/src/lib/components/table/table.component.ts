@@ -540,7 +540,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
       if (column.columnType === ImColumnType.Date) {
         const formControl = form.get(column.key);
         formControl.valueChanges.subscribe((value: Date) => {
-          if (value) {
+          if (value && value instanceof Date && !isNaN(value.valueOf())) {
             formControl.setValue(value.toISOString(), { emitEvent: false });
           }
         });
