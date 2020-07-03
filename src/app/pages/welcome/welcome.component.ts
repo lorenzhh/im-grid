@@ -80,16 +80,28 @@ export class WelcomeComponent implements OnInit {
     this.dataService
       .post(this.section.value, changeEvent.row)
       .subscribe(
-        (response) => changeEvent.track.next(response),
-        (error) => changeEvent.track.next(false));
+        (response) => changeEvent.track.next({
+          data: response,
+          action: changeEvent.action
+        }),
+        (error) => changeEvent.track.next({
+          data: false,
+          action: changeEvent.action
+        }));
   }
 
   deleted(changeEvent: ChangeEvent) {
     this.dataService
       .delete(this.section.value, changeEvent.row)
       .subscribe(
-        (response) => changeEvent.track.next(response),
-        (error) => changeEvent.track.next(false));
+        (response) => changeEvent.track.next({
+          data: response,
+          action: changeEvent.action
+        }),
+        (error) => changeEvent.track.next({
+          data: false,
+          action: changeEvent.action
+        }));
   }
 
   updated(changeEvent: ChangeEvent) {
@@ -98,11 +110,20 @@ export class WelcomeComponent implements OnInit {
     this.dataService
       .put(this.section.value, changeEvent.row, uniqueColumn.key)
       .subscribe(
-        (response) => changeEvent.track.next(response),
-        (error) => changeEvent.track.next(false));
+        (response) => changeEvent.track.next({
+          data: response,
+          action: changeEvent.action
+        }),
+        (error) => changeEvent.track.next({
+          data: false,
+          action: changeEvent.action
+        }));
   }
 
   save(event: ChangesEvent) {
-    event.track.next(event.currentState);
+    event.track.next({
+      data: event.currentState,
+      action: event.action
+    });
   }
 }
