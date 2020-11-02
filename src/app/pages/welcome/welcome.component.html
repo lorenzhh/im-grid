@@ -1,11 +1,11 @@
 <im-grid
-  [columns]="columns"
-  [dataSource$]="dataSource$"
-  [editMode]="EditMode.Cache"
-  [loading]="dataService.loading$ | async"
-  (created)="created($event)"
-  (deleted)="deleted($event)"
-  (save)="save($event)"
-  (updated)="updated($event)"
-  #table
+    [columns]="columns"
+    [dataSource$]="dataSource$"
+    [editMode]="EditMode.Cache"
+    [loading]="dataService.loading$ | async"
+    (created)="created($event)"
+    (deleted)="deleted($event)"
+    (save)="save($event)"
+    (updated)="updated($event)"
+    #table
 ></im-grid>

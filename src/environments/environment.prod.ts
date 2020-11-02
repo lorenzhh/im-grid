@@ -1,5 +1,5 @@
 export const environment = {
-  production: true,
-  apiHost: '/yourapiHost',
-  apiEndpoint: '/api/'
+    production: true,
+    apiHost: '/yourapiHost',
+    apiEndpoint: '/api/',
 };

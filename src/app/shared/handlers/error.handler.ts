@@ -4,5 +4,5 @@ import { ErrorHandler, Injectable } from '@angular/core';
 export class GlobalErrorHandler implements ErrorHandler {
     handleError = (error: Error): void => {
         throw error;
-    }
+    };
 }

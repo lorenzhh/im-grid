@@ -1,15 +1,10 @@
 import { NgModule } from '@angular/core';
+import { SharedModule } from 'src/app/shared/shared.module';
 import { WelcomeRoutingModule } from './welcome-routing.module';
 import { WelcomeComponent } from './welcome.component';
-import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
-  imports: [
-    WelcomeRoutingModule,
-    SharedModule
-  ],
-  declarations: [
-    WelcomeComponent
-  ],
+    imports: [WelcomeRoutingModule, SharedModule],
+    declarations: [WelcomeComponent],
 })
-export class WelcomeModule { }
+export class WelcomeModule {}

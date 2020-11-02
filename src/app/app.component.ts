@@ -2,27 +2,28 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Language, Locale, SettingsService } from 'im-grid';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
-  isCollapsed = false;
-  Language = Language;
-  Locale = Locale;
-  value: 0;
-  constructor(private settingsService: SettingsService) { }
+    isCollapsed = false;
+    Language = Language;
+    Locale = Locale;
+    value: 0;
 
-  changeLanguage(language: Language) {
-    this.settingsService.language = language;
-  }
+    constructor(private settingsService: SettingsService) {}
 
-  changeLocale(locale: Locale) {
-    this.settingsService.locale = locale;
-  }
+    changeLanguage(language: Language) {
+        this.settingsService.language = language;
+    }
 
-  changeTheme(value: number) {
-    document.querySelector('html').style.filter = `hue-rotate(${value}deg)`;
-  }
+    changeLocale(locale: Locale) {
+        this.settingsService.locale = locale;
+    }
+
+    changeTheme(value: number) {
+        document.querySelector('html').style.filter = `hue-rotate(${value}deg)`;
+    }
 }
