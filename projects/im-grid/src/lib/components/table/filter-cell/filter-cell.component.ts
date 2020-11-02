@@ -8,7 +8,6 @@ import { translations } from '../translations/default-translations';
   selector: 'im-filter-cell',
   templateUrl: './filter-cell.component.html',
   styleUrls: ['./filter-cell.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ImFilterCellComponent {
   @Input() column: ImColumn;
