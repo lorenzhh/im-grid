@@ -9,11 +9,11 @@
   "author": "Lawrence Nseir",
   "license": "MIT",
   "peerDependencies": {
-    "@angular/common": "^10.0.0",
-    "@angular/core": "^10.0.0",
-    "tslib": "^1.11.1",
-    "ng-zorro-antd": "^9.2.2",
-    "xlsx": "^0.16.2"
+    "@angular/common": "~10.2.1",
+    "@angular/core": "~10.2.1",
+    "tslib": "^2.0.3",
+    "ng-zorro-antd": "~10.2.1",
+    "xlsx": "^0.16.8"
   },
   "repository": {
     "type": "git",
