@@ -516,9 +516,6 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
                 )
                 .subscribe((success) => {
                     if (success.data !== false) {
-                        success.action === ImAction.ADD
-                            ? this.addRow(success.data)
-                            : this.saveEdit(success.data);
                         this.closeModal();
                     } else {
                         this.showError();
@@ -870,9 +867,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
                     take(1)
                 )
                 .subscribe((success) => {
-                    if (success.data !== false) {
-                        this.saveDelete(success.data);
-                    } else {
+                    if (success.data === false) {
                         this.showError();
                     }
                 });

@@ -12,7 +12,7 @@
     "@angular/common": "~10.2.1",
     "@angular/core": "~10.2.1",
     "tslib": "^2.0.3",
-    "ng-zorro-antd": "~10.2.1",
+    "ng-zorro-antd": "~10.1.0",
     "xlsx": "^0.16.8"
   },
   "repository": {
