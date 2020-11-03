@@ -12,6 +12,7 @@ import { ImGridComponent } from './components/table/table.component';
 import { ImToolbarComponent } from './components/table/toolbar/toolbar.component';
 import { NgZorroAntdModule } from './modules/ng-zorro.module';
 import { FilterPipe } from './pipes/filter.pipe';
+import { FirstPropertyPipe } from './pipes/first-property.pipe';
 import { FormatPipe } from './pipes/format.pipe';
 import { MapPipe } from './pipes/map.pipe';
 import { TranslatePipe } from './pipes/translate.pipe';
@@ -27,6 +28,7 @@ import { TypeofPipe } from './pipes/typeof.pipe';
     FormatPipe,
     FilterPipe,
     MapPipe,
+    FirstPropertyPipe,
     TranslatePipe,
     TypeofPipe,
     EditFormComponent,
@@ -49,7 +51,8 @@ import { TypeofPipe } from './pipes/typeof.pipe';
     DecimalPipe,
     CurrencyPipe,
     DatePipe,
-    MapPipe
+    MapPipe,
+    FirstPropertyPipe,
   ],
   exports: [
     ImGridComponent,
