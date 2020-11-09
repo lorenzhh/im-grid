@@ -1,4 +1,4 @@
-import { ValidatorFn } from '@angular/forms';
+import { AsyncValidatorFn, ValidatorFn } from '@angular/forms';
 import { Type } from '@angular/core';
 import { Subject } from 'rxjs';
 
@@ -48,6 +48,7 @@ export interface ImColumn {
     showModalOnClick?: boolean;
     defaultValue?: number | string | boolean;
     validators?: ValidatorFn[];
+    asyncValidators?: AsyncValidatorFn[];
     fieldType?: ImFieldType;
     selectValues?: string[] | number[] | boolean[] | ImSelectOption[];
     multiSelect?: boolean,

@@ -564,7 +564,8 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
                 row
                     ? { value: row[column.key], disabled: !column.editable }
                     : { value: column.defaultValue, disabled: !column.creatable },
-                column.validators
+                column.validators,
+                column.asyncValidators
             );
             form.addControl(column.key, newControl);
 
