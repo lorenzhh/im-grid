@@ -37,6 +37,12 @@ export enum ImFilterType {
     Rating
 }
 
+export interface ImButton {
+    label: string;
+    icon: string;
+    func(row: any): void;
+}
+
 export interface ImColumn {
     title: string;
     isUnique?: true;

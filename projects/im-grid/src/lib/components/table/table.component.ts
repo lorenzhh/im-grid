@@ -15,6 +15,7 @@ import {
     ViewChild,
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { NzResizeEvent } from 'ng-zorro-antd/resizable';
@@ -36,13 +37,14 @@ import {
     DynamicComponentConfig,
     EditMode,
     ImAction,
+    ImButton,
     ImColumn,
     ImColumnType,
     ImDirection,
     ImFieldType,
     ImFilterType,
     ImTrack,
-    SelectionMode,
+    SelectionMode
 } from '../../models/column.model';
 import { Translation } from '../../models/settings.model';
 import { ExcelService } from '../../services/excel.service';
@@ -74,6 +76,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     @ViewChild('virtualTable') table: NzTableComponent;
 
     @Input() columns: ImColumn[];
+    @Input() buttons: ImButton[];
     @Input() editMode = EditMode.Direct;
     @Input() selection = SelectionMode.Checkbox;
     @Input() dataSource$: Observable<any[]>;
@@ -139,6 +142,11 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     private clickedInsideOfBody = false;
     private arrowKeys = new Subject<KeyboardEvent>();
     public resizing = false;
+
+    /* context menu active row */
+    public activeRow: any;
+    public activeRowIndex = -1;
+
     constructor(
         private formBuilder: FormBuilder,
         private modalService: NzModalService,
@@ -147,7 +155,8 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
         private messageService: NzMessageService,
         private filterService: FilterService,
         private cd: ChangeDetectorRef,
-        public settingsService: SettingsService
+        public settingsService: SettingsService,
+        private nzContextMenuService: NzContextMenuService
     ) {
         this.arrowKeys
             .pipe(throttleTime(50), takeUntil(this.componentDestroyed$))
@@ -224,7 +233,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     ) {
         const allRows = Array.from<HTMLElement>(
             this.table.cdkVirtualScrollViewport._contentWrapper.nativeElement.firstChild[
-                'rows'
+            'rows'
             ]
         );
         const targetRow: HTMLElement = allRows.find(
@@ -524,15 +533,15 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
 
             value.isNew && value[this.uniqueKey] == null
                 ? this.created.emit({
-                      row: value,
-                      track: this.successSubject,
-                      action: ImAction.ADD,
-                  })
+                    row: value,
+                    track: this.successSubject,
+                    action: ImAction.ADD,
+                })
                 : this.updated.emit({
-                      row: value,
-                      track: this.successSubject,
-                      action: ImAction.Update,
-                  });
+                    row: value,
+                    track: this.successSubject,
+                    action: ImAction.Update,
+                });
         } else {
             value.isNew && value[this.uniqueKey] == null
                 ? this.addRow(value)
@@ -1243,5 +1252,12 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     public clickInside() {
         this.stillClickedInsideBodySubject.next(true);
         this.clickedInsideOfBody = true;
+    }
+
+    contextMenu(event: MouseEvent, menu: NzDropdownMenuComponent, row: any): void {
+        if (this.buttons.length > 0 && !event.shiftKey) {
+            this.activeRow = row;
+            this.nzContextMenuService.create(event, menu);
+        }
     }
 }

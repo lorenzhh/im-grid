@@ -217,8 +217,8 @@
             <tr
                 [attr.index]="index"
                 [class.even]="index % 2 === 0"
-                [class.highlighted]="index === (focusedCellSubject | async).rowIndex"
                 [class.odd]="index % 2 === 1"
+                (contextmenu)="contextMenu($event, menu, row)"
             >
                 <td
                     class="children-column"
@@ -387,3 +387,18 @@
     *ngIf="childrenKey"
 >
 </im-drawer>
+<nz-dropdown-menu #menu="nzDropdownMenu">
+    <ul nz-menu="">
+        <li
+            (click)="button.func(activeRow)"
+            *ngFor="let button of buttons"
+            nz-menu-item
+        >
+            <i
+                nz-icon
+                [nzType]="button.icon"
+            ></i>
+            {{ button.label }}
+        </li>
+    </ul>
+</nz-dropdown-menu>
