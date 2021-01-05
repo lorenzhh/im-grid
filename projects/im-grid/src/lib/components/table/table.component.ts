@@ -1255,7 +1255,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     contextMenu(event: MouseEvent, menu: NzDropdownMenuComponent, row: any): void {
-        if (this.buttons.length > 0 && !event.shiftKey) {
+        if (this.buttons && this.buttons.length > 0 && !event.shiftKey) {
             this.activeRow = row;
             this.nzContextMenuService.create(event, menu);
         }
