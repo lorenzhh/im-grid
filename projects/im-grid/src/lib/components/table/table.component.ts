@@ -44,7 +44,7 @@ import {
     ImFieldType,
     ImFilterType,
     ImTrack,
-    SelectionMode
+    SelectionMode,
 } from '../../models/column.model';
 import { Translation } from '../../models/settings.model';
 import { ExcelService } from '../../services/excel.service';
@@ -123,22 +123,22 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     private componentDestroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
     public objectKeys = Object.keys;
     public childrenKey: string;
-    public childrenTitle: string;
+    public childrenTitle: Translation | string;
     public componentConfig: DynamicComponentConfig;
     public drawerVisible = false;
     public columnsWidth: number;
 
     private successSubject: Subject<ImTrack> = new Subject<ImTrack>();
-    public focusedCellSubject: BehaviorSubject<CellCoordinates> = new BehaviorSubject<
-        CellCoordinates
-    >({
-        rowIndex: -1,
-        key: null,
-    });
+    public focusedCellSubject: BehaviorSubject<CellCoordinates> = new BehaviorSubject<CellCoordinates>(
+        {
+            rowIndex: -1,
+            key: null,
+        }
+    );
 
-    private stillClickedInsideBodySubject: BehaviorSubject<boolean> = new BehaviorSubject<
-        boolean
-    >(false);
+    private stillClickedInsideBodySubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
+        false
+    );
     private clickedInsideOfBody = false;
     private arrowKeys = new Subject<KeyboardEvent>();
     public resizing = false;
@@ -233,7 +233,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     ) {
         const allRows = Array.from<HTMLElement>(
             this.table.cdkVirtualScrollViewport._contentWrapper.nativeElement.firstChild[
-            'rows'
+                'rows'
             ]
         );
         const targetRow: HTMLElement = allRows.find(
@@ -533,15 +533,15 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
 
             value.isNew && value[this.uniqueKey] == null
                 ? this.created.emit({
-                    row: value,
-                    track: this.successSubject,
-                    action: ImAction.ADD,
-                })
+                      row: value,
+                      track: this.successSubject,
+                      action: ImAction.ADD,
+                  })
                 : this.updated.emit({
-                    row: value,
-                    track: this.successSubject,
-                    action: ImAction.Update,
-                });
+                      row: value,
+                      track: this.successSubject,
+                      action: ImAction.Update,
+                  });
         } else {
             value.isNew && value[this.uniqueKey] == null
                 ? this.addRow(value)

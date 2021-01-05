@@ -381,7 +381,7 @@
 </ng-template>
 <im-drawer
     [componentConfig]="componentConfig"
-    [title]="childrenTitle"
+    [title]="childrenTitle | translate | async"
     [visible]="drawerVisible"
     (closed)="closeDrawer()"
     *ngIf="childrenKey"
