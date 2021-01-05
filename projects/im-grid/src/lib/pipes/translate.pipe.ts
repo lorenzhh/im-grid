@@ -10,7 +10,7 @@ import { SettingsService } from '../services/settings.service';
 export class TranslatePipe implements PipeTransform {
     constructor(private settingsService: SettingsService) {}
 
-    transform(object: Translation): Observable<string> {
+    transform(object: string | Translation): Observable<string> {
         return this.settingsService.settings.pipe(
             map((settings) =>
                 typeof object === 'string' ? object : object[settings.language]
