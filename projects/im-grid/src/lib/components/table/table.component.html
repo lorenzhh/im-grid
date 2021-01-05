@@ -80,7 +80,7 @@
                 [style.maxWidth.px]="column.width"
                 [style.minWidth.px]="column.width"
                 [style.width.px]="column.width"
-                [title]="column.title"
+                [title]="column.title | translate | async"
                 (nzResize)="onResize($event, column)"
                 (nzResizeEnd)="resizeEnd()"
                 (nzResizeStart)="resizeStart()"
@@ -94,7 +94,7 @@
                     class="title"
                     cdkDragHandle
                 >
-                    {{ column.title }}
+                    {{ column.title | translate | async }}
                 </div>
                 <nz-resize-handle nzDirection="right">
                     <div class="right-handle-wrap">

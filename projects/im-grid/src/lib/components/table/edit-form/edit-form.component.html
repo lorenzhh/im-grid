@@ -8,7 +8,7 @@
             <nz-form-control
                 [ngSwitch]="column.fieldType"
                 [nzSpan]="12"
-                [nzErrorTip]="form.get(column.key).errors ? ((form.get(column.key).errors | firstProperty) | translate): ''"
+                [nzErrorTip]="form.get(column.key).errors ? ((form.get(column.key).errors | firstProperty) | translate | async): ''"
             >
                 <nz-select
                     [compareWith]="column.compareFn 
