@@ -12,7 +12,7 @@
     nzAllowClear
   >
     <nz-option
-      [nzLabel]="column.title"
+      [nzLabel]="column.title | translate | async"
       [nzValue]="column"
       *ngFor="let column of columns"
     ></nz-option>

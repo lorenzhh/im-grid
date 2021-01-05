@@ -4,7 +4,7 @@
 >
     <nz-form-item *ngFor="let column of columns">
         <ng-container *ngIf="column.fieldType !== ImFieldType.None">
-            <nz-form-label [nzSpan]="7">{{ column.title }}</nz-form-label>
+            <nz-form-label [nzSpan]="7">{{ column.title | translate | async }}</nz-form-label>
             <nz-form-control
                 [ngSwitch]="column.fieldType"
                 [nzSpan]="12"
@@ -18,7 +18,7 @@
                     [nzMode]="column.multiSelect 
             ? 'multiple'
             : 'default'"
-                    [nzPlaceHolder]="column.title + '...'"
+                    [nzPlaceHolder]="(column.title | translate | async) + '...'"
                     *ngSwitchCase="ImFieldType.Select"
                     nzAllowClear
                 >
@@ -36,7 +36,7 @@
                 </nz-select>
                 <nz-input-number
                     [formControlName]="column.key"
-                    [nzPlaceHolder]="column.title + '...'"
+                    [nzPlaceHolder]="(column.title | translate | async) + '...'"
                     [nzStep]="1"
                     [style.width.%]="100"
                     *ngSwitchCase="ImFieldType.Number"
@@ -59,7 +59,7 @@
                 >
                     <input
                         [formControlName]="column.key"
-                        [placeholder]="column.title + '...'"
+                        [placeholder]="(column.title | translate | async) + '...'"
                         type="text"
                         nz-input
                     >
@@ -67,14 +67,14 @@
                 <nz-date-picker
                     [formControlName]="column.key"
                     [nzFormat]="TimeFormats[locale]"
-                    [nzPlaceHolder]="column.title + '...'"
+                    [nzPlaceHolder]="(column.title | translate | async) + '...'"
                     [nzShowTime]="true"
                     [style.width.%]="100"
                     *ngSwitchCase="ImFieldType.Date"
                 ></nz-date-picker>
                 <textarea
                     [formControlName]="column.key"
-                    [placeholder]="column.title + '...'"
+                    [placeholder]="(column.title | translate | async) + '...'"
                     *ngSwitchCase="ImFieldType.Textarea"
                     width="700"
                     height="500"
@@ -83,7 +83,7 @@
                 ></textarea>
                 <input
                     [formControlName]="column.key"
-                    [placeholder]="column.title + '...'"
+                    [placeholder]="(column.title | translate | async) + '...'"
                     *ngSwitchDefault
                     nz-input
                 >
