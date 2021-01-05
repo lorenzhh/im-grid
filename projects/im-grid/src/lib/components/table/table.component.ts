@@ -811,7 +811,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
             .replace(/"/g, '&quot;');
 
         this.modal = this.modalService.create({
-            nzTitle: column.title,
+            nzTitle: column.title[this.settingsService.language],
             nzWidth: 1000,
             nzStyle: { 'max-width': '100%' },
             nzContent: `<pre>${viewMode}</pre>`,
