@@ -1,6 +1,6 @@
 {
   "name": "@lorenzhh/im-grid",
-  "version": "1.1.9",
+  "version": "1.2.0",
   "description": "Usage of a grid",
   "keywords": [
     "grid",
@@ -9,11 +9,11 @@
   "author": "Lawrence Nseir",
   "license": "MIT",
   "peerDependencies": {
-    "@angular/common": "~10.2.1",
-    "@angular/core": "~10.2.1",
+    "@angular/common": "~11.0.5",
+    "@angular/core": "~11.0.5",
     "tslib": "^2.0.3",
-    "ng-zorro-antd": "~10.1.0",
-    "xlsx": "^0.16.8"
+    "ng-zorro-antd": "~11.0.1",
+    "xlsx": "^0.16.9"
   },
   "repository": {
     "type": "git",
