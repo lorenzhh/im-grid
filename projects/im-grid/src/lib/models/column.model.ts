@@ -1,6 +1,7 @@
 import { AsyncValidatorFn, ValidatorFn } from '@angular/forms';
 import { Type } from '@angular/core';
 import { Subject } from 'rxjs';
+import { Translation } from './settings.model';
 
 export enum ImFieldType {
     None = 'None',
@@ -12,7 +13,7 @@ export enum ImFieldType {
     Textarea = 'Textarea',
     Select = 'Select',
     Rating = 'Rating',
-    Website = 'Website'
+    Website = 'Website',
 }
 
 export enum ImColumnType {
@@ -34,21 +35,21 @@ export enum ImFilterType {
     RangeDate,
     FreeText,
     RangeNumber,
-    Rating
+    Rating,
 }
 
 export interface ImButton {
-    label: string;
+    title: Translation | string;
     icon: string;
     func(row: any): void;
 }
 
 export interface ImColumn {
-    title: string;
+    title: Translation | string;
     isUnique?: true;
     childrenConfig?: {
         columns: ImColumn[];
-        componentConfig: DynamicComponentConfig
+        componentConfig: DynamicComponentConfig;
     };
     key: string;
     showModalOnClick?: boolean;
@@ -57,10 +58,10 @@ export interface ImColumn {
     asyncValidators?: AsyncValidatorFn[];
     fieldType?: ImFieldType;
     selectValues?: string[] | number[] | boolean[] | ImSelectOption[];
-    multiSelect?: boolean,
-    labelProperty?: string,
-    valueProperty?: string,
-    compareFn?: (option1: any, option2: any) => boolean
+    multiSelect?: boolean;
+    labelProperty?: string;
+    valueProperty?: string;
+    compareFn?: (option1: any, option2: any) => boolean;
     columnType?: ImColumnType;
     editable?: boolean;
     creatable?: boolean;
@@ -75,8 +76,8 @@ export interface ImColumn {
 }
 
 export interface ImSelectOption {
-    id: number,
-    [label: string]: string | number,
+    id: number | string;
+    [label: string]: string | number;
 }
 
 export interface ImFilter {
@@ -94,17 +95,17 @@ export interface DynamicComponentConfig {
 
 export enum EditMode {
     Direct = 'Direct',
-    Cache = 'Cache'
+    Cache = 'Cache',
 }
 
 export enum SelectionMode {
-    Checkbox = 'Checkbox'
+    Checkbox = 'Checkbox',
 }
 
 export interface ChangeEvent {
     row: any;
     track: Subject<ImTrack>;
-    action: ImAction
+    action: ImAction;
 }
 
 export interface ChangesEvent {
@@ -117,8 +118,8 @@ export interface ChangesEvent {
 }
 
 export interface ImTrack {
-    data: boolean | any,
-    action: ImAction
+    data: boolean | any;
+    action: ImAction;
 }
 
 export interface CellCoordinates {
@@ -130,7 +131,7 @@ export enum ImDirection {
     LEFT,
     RIGHT,
     TOP,
-    Bottom
+    Bottom,
 }
 
 export enum ImAction {
@@ -138,5 +139,5 @@ export enum ImAction {
     ADD,
     Update,
     Delete,
-    SaveAll
+    SaveAll,
 }

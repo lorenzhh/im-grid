@@ -398,7 +398,7 @@
                 nz-icon
                 [nzType]="button.icon"
             ></i>
-            {{ button.label }}
+            {{ button.title | translate | async }}
         </li>
     </ul>
 </nz-dropdown-menu>
