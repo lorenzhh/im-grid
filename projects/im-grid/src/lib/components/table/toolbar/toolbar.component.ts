@@ -11,6 +11,7 @@ export class ImToolbarComponent {
   @Input() numberOfChecked: number;
   @Input() allowCreate: boolean;
   @Input() loading: boolean;
+  @Input() label: string;
   @Input() size: Size;
   @Input() directMode: boolean;
   @Input() unsavedRowsLength: number;

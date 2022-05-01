@@ -80,6 +80,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     @Input() editMode = EditMode.Direct;
     @Input() selection = SelectionMode.Checkbox;
     @Input() dataSource$: Observable<any[]>;
+    @Input() label: string;
     @Input() loading = false;
     @Input() showRowIndex = true;
     @Input() allowDelete = true;

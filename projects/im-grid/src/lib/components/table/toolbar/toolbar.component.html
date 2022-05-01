@@ -1,4 +1,10 @@
 <div>
+  <div
+    *ngIf="label"
+    class="label"
+  >
+    {{ label }}
+  </div>
   <button
     (click)="deleteRows.emit(numberOfChecked > 1000)"
     *ngIf="numberOfChecked > 0 && !directMode"
