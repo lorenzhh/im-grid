@@ -48,7 +48,7 @@ export class WelcomeComponent implements OnInit {
                 delay(1000)
             )
             .subscribe(() => {
-                this.dataSource$.next(generate(1000, this.columns));
+                this.dataSource$.next(generate(100, this.columns));
                 this.dataService.updateLoading(false);
             });
 

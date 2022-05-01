@@ -73,7 +73,7 @@ export interface Edit {
 export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     @ViewChild('createEditModal') createEditModal: TemplateRef<any>;
     @ViewChild('modalFooter') modalFooter: TemplateRef<any>;
-    @ViewChild('virtualTable') table: NzTableComponent;
+    @ViewChild('virtualTable') table: NzTableComponent<any>;
 
     @Input() columns: ImColumn[];
     @Input() buttons: ImButton[];

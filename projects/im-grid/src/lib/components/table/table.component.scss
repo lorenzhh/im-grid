@@ -47,7 +47,7 @@ nz-table {
 
             span:not(.ant-table-column-sorter) {
                 width: calc(100% - 11px);
-
+                position: unset !important;
                 .title {
                     white-space: nowrap;
                     width: 100%;
