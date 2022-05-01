@@ -99,7 +99,6 @@ nz-table {
 
         th {
             font-weight: bold;
-            background-color: inherit !important;
         }
 
         th.table-cell-row-index,
@@ -113,12 +112,7 @@ nz-table {
             z-index: 2 !important;
         }
 
-        tr:not(:hover) {
-            .ant-table-cell-fix-left,
-            .ant-table-cell-fix-right {
-                background-color: inherit !important;
-            }
-        }
+     
 
         .ant-table-thead {
             background-color: #f2f2f2;

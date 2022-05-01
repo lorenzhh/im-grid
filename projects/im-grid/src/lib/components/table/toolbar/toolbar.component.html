@@ -27,7 +27,7 @@
       nz-icon
       nzType="file-excel"
     ></i>
-    {{ translations.excel | translate | async }}
+    {{ translations.excel | translate }}
   </button>
   <nz-divider nzType="vertical"></nz-divider>
   <nz-radio-group
@@ -36,7 +36,7 @@
     (ngModelChange)="changeSize.emit($event)"
   >
     <label
-      [title]="translations.large | translate | async"
+      [title]="translations.large | translate"
       nz-radio-button
       nzValue="default"
     >
@@ -46,7 +46,7 @@
       ></i>
     </label>
     <label
-      [title]="translations.medium | translate | async"
+      [title]="translations.medium | translate"
       nz-radio-button
       nzValue="middle"
     >
@@ -57,7 +57,7 @@
       ></i>
     </label>
     <label
-      [title]="translations.small | translate | async"
+      [title]="translations.small | translate"
       nz-radio-button
       nzValue="small"
     >
@@ -73,7 +73,7 @@
   ></nz-divider>
   <button
     [disabled]="unsavedRowsLength + deletedRowsLength + newRowsLength === 0"
-    [title]="translations.discardChanges | translate | async"
+    [title]="translations.discardChanges | translate"
     (click)="resetRows.emit()"
     *ngIf="!directMode"
     nz-button
@@ -88,7 +88,7 @@
     nzType="vertical"
   ></nz-divider>
   <button
-    [title]="translations.createNew | translate | async"
+    [title]="translations.createNew | translate"
     (click)="addRow.emit()"
     *ngIf="allowCreate"
     nz-button
@@ -114,6 +114,6 @@
       nz-icon
       nzType="save"
     ></i>
-    {{ translations.save | translate | async }}
+    {{ translations.save | translate }}
   </button>
 </div>

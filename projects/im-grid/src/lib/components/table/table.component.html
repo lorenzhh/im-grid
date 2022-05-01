@@ -81,7 +81,7 @@
                 [style.maxWidth.px]="column.width"
                 [style.minWidth.px]="column.width"
                 [style.width.px]="column.width"
-                [title]="column.title | translate | async"
+                [title]="column.title | translate"
                 (nzResize)="onResize($event, column)"
                 (nzResizeEnd)="resizeEnd()"
                 (nzResizeStart)="resizeStart()"
@@ -95,7 +95,7 @@
                     class="title"
                     cdkDragHandle
                 >
-                    {{ column.title | translate | async }}
+                    {{ column.title | translate }}
                 </div>
                 <nz-resize-handle nzDirection="right">
                     <div class="right-handle-wrap">
@@ -194,7 +194,7 @@
                 [style.minWidth.px]="70"
                 [style.paddingLeft.px]="2"
                 [style.width.px]="70"
-                [title]="translations.clearFilters | translate | async"
+                [title]="translations.clearFilters | translate"
                 nzWidth="70px"
                 nzRight
             >
@@ -305,8 +305,8 @@
                             nzType="vertical"
                         ></nz-divider>
                         <a
-                            [nzOkText]="translations.delete | translate | async"
-                            [nzPopconfirmTitle]="translations.areYouSure | translate | async"
+                            [nzOkText]="translations.delete | translate"
+                            [nzPopconfirmTitle]="translations.areYouSure | translate"
                             (nzOnConfirm)="deleteRow(row)"
                             *ngIf="allowDelete"
                             nz-popconfirm
@@ -333,7 +333,7 @@
                 *ngIf="!form.get('isNew') && editMode !== EditMode.Direct"
                 nz-button
             >
-                {{ translations.discardChanges | translate | async }}
+                {{ translations.discardChanges | translate }}
             </button>
         </div>
         <div>
@@ -343,21 +343,21 @@
                 nz-button
                 nzType="primary"
             >
-                {{ translations.submit | translate | async }}
+                {{ translations.submit | translate }}
             </button>
             <nz-divider nzType="vertical"></nz-divider>
             <button
                 (click)="resetForm($event)"
                 nz-button
             >
-                {{ translations.reset | translate | async }}
+                {{ translations.reset | translate }}
             </button>
             <nz-divider nzType="vertical"></nz-divider>
             <button
                 (click)="closeModal()"
                 nz-button
             >
-                {{ translations.cancel | translate | async }}
+                {{ translations.cancel | translate }}
             </button>
         </div>
     </div>
@@ -382,7 +382,7 @@
 </ng-template>
 <im-drawer
     [componentConfig]="componentConfig"
-    [title]="childrenTitle | translate | async"
+    [title]="childrenTitle | translate"
     [visible]="drawerVisible"
     (closed)="closeDrawer()"
     *ngIf="childrenKey"
@@ -399,7 +399,7 @@
                 nz-icon
                 [nzType]="button.icon"
             ></i>
-            {{ button.title | translate | async }}
+            {{ button.title | translate }}
         </li>
     </ul>
 </nz-dropdown-menu>
