@@ -54,7 +54,12 @@ export class ExcelService {
                 const value = this.formatValue(column, row[column.key]);
                 const type = this.getType(column, value);
 
-                toFormatRow[column.title[this.settingsService.language]] = {
+                const title =
+                    typeof column.title === 'string'
+                        ? column.title
+                        : column.title[this.settingsService.language];
+
+                toFormatRow[title] = {
                     v: value,
                     t: type,
                 };
