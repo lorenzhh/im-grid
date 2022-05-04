@@ -1,8 +1,8 @@
 // tslint:disable:max-line-length
 import {
     ChangeDetectionStrategy,
+    ChangeDetectorRef,
     Component,
-    ComponentFactoryResolver,
     ComponentRef,
     EventEmitter,
     Input,
@@ -26,17 +26,16 @@ export class ImDrawerComponent implements OnChanges {
     @Input() visible: boolean;
     @Input() title: string;
     @Output() closed = new EventEmitter<void>();
-    @ViewChild('content', {
-        read: ViewContainerRef,
-    })
-    public viewport: ViewContainerRef;
+    @ViewChild('content', { read: ViewContainerRef })
+    viewport: ViewContainerRef;
     private componentRef: ComponentRef<any> = null;
     id = -1;
     width = 1000;
-    constructor(private componentFactoryResolver: ComponentFactoryResolver) {}
 
+    constructor(private cd: ChangeDetectorRef) {}
     ngOnChanges(changes: SimpleChanges) {
         if (changes.visible) {
+            this.cd.detectChanges();
             this.buildComponent();
         }
     }
@@ -55,9 +54,7 @@ export class ImDrawerComponent implements OnChanges {
 
         if (this.componentConfig) {
             this.componentRef = this.viewport.createComponent(
-                this.componentFactoryResolver.resolveComponentFactory(
-                    this.componentConfig.componentToPort
-                )
+                this.componentConfig.componentToPort
             );
 
             const inputs = this.componentConfig.inputs;
