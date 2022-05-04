@@ -161,12 +161,8 @@ nz-table {
     transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
-.odd {
-    background-color: white;
-}
-
 .even {
-    background-color: whitesmoke;
+    background-color: rgba(0, 0, 0, 0.09);
 }
 
 .inherit {

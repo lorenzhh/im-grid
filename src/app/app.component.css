@@ -37,7 +37,6 @@
     padding-left: 24px;
     overflow: hidden;
     line-height: 64px;
-    background: #001529;
     transition: all 0.3s;
 }
 
@@ -71,7 +70,6 @@ nz-header {
     justify-content: space-between;
     height: 64px;
     padding: 20px;
-    background: #fff;
     box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
 }
 
@@ -81,7 +79,6 @@ nz-content {
 
 .inner-content {
     padding: 5px;
-    background: #fff;
     height: 100%;
     overflow: auto;
 }
