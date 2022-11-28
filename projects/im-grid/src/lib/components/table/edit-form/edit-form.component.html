@@ -8,6 +8,7 @@
             <nz-form-control
                 [ngSwitch]="column.fieldType"
                 [nzSpan]="12"
+                *ngIf="!column.hiddenForm"
                 [nzErrorTip]="form.get(column.key).errors ? ((form.get(column.key).errors | firstProperty) | translate): ''"
             >
                 <nz-select
