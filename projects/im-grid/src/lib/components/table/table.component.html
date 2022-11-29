@@ -64,7 +64,7 @@
             <th
                 class="table-cell-row-index"
                 [innerHtml]="numberOfChecked ? numberOfChecked: '#'"
-                [nzLeft]="childrenKey ? '70px' : selection ? '35px' : '0px'"
+                [nzLeft]="childrenKey && selection ? '70px' :  !childrenKey && !selection ? '0px' : '35px'"
                 [style.maxWidth.px]="70"
                 [style.minWidth.px]="70"
                 [style.width.px]="70"
@@ -155,7 +155,7 @@
             </th>
             <th
                 class="filter-cell"
-                [nzLeft]="childrenKey ? '70px' : selection ? '35px' : '0px'"
+                [nzLeft]="childrenKey && selection ? '70px' :  !childrenKey && !selection ? '0px' : '35px'"
                 [style.maxWidth.px]="70"
                 [style.minWidth.px]="70"
                 [style.paddingLeft.px]="3"
@@ -227,6 +227,7 @@
                     [style.width.px]="35"
                     *ngIf="childrenKey"
                     nzLeft="0px"
+                    [style.padding.px]="0"
                 >
                     <a (click)="openDrawer(row)">
                         <i
@@ -248,7 +249,7 @@
                 ></td>
                 <td
                     class="table-cell-row-index"
-                    [nzLeft]="childrenKey ? '70px' : selection ? '35px' : '0px'"
+                    [nzLeft]="childrenKey && selection ? '70px' :  !childrenKey && !selection ? '0px' : '35px'"
                     [style.maxWidth.px]="70"
                     [style.minWidth.px]="70"
                     [style.width.px]="70"

@@ -86,6 +86,7 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     @Input() allowDelete = true;
     @Input() allowEdit = true;
     @Input() allowCreate = true;
+    @Input() clearSearchOnChanges = true;
 
     @Output() selectedIds = new EventEmitter<{ [key: string]: boolean }>();
     @Output() save = new EventEmitter<ChangesEvent>();
@@ -130,16 +131,14 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     public columnsWidth: number;
 
     private successSubject: Subject<ImTrack> = new Subject<ImTrack>();
-    public focusedCellSubject: BehaviorSubject<CellCoordinates> = new BehaviorSubject<CellCoordinates>(
-        {
+    public focusedCellSubject: BehaviorSubject<CellCoordinates> =
+        new BehaviorSubject<CellCoordinates>({
             rowIndex: -1,
             key: null,
-        }
-    );
+        });
 
-    private stillClickedInsideBodySubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
-        false
-    );
+    private stillClickedInsideBodySubject: BehaviorSubject<boolean> =
+        new BehaviorSubject<boolean>(false);
     private clickedInsideOfBody = false;
     private arrowKeys = new Subject<KeyboardEvent>();
     public resizing = false;
@@ -147,6 +146,9 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     /* context menu active row */
     public activeRow: any;
     public activeRowIndex = -1;
+
+    private sortKey: string;
+    private sortAsc = false;
 
     constructor(
         private formBuilder: FormBuilder,
@@ -243,8 +245,8 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
         if (targetRow != null) {
             if (direction === ImDirection.TOP || direction === ImDirection.Bottom) {
                 const cdkScrollEelemnt = this.table.cdkVirtualScrollViewport.elementRef;
-                const cdkScrollEelemntTop = cdkScrollEelemnt.nativeElement.getBoundingClientRect()
-                    .top;
+                const cdkScrollEelemntTop =
+                    cdkScrollEelemnt.nativeElement.getBoundingClientRect().top;
                 const cdkScrollOffsetTop = cdkScrollEelemntTop;
                 const rowElementTopWidthOffset = targetRow.getBoundingClientRect().top;
                 const rowElementTop = rowElementTopWidthOffset - cdkScrollOffsetTop;
@@ -442,8 +444,17 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     private reset() {
         this.resetEditCache();
         this.mapOfCheckedId = {};
-        this.filterForm.get('search').setValue('');
+
+        if (this.clearSearchOnChanges) {
+            this.filterForm.get('search').setValue('');
+        }
+
         this.filterRows();
+
+        if (this.sortKey) {
+            this.sort(this.sortKey, this.sortAsc ? 'ascend' : 'descend');
+        }
+
         this.updateCounters();
         this.setUniqueValues();
     }
@@ -757,6 +768,8 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     public sort(sortKey: string, event: string) {
         const isSortAscending = event === 'ascend';
         if (event) {
+            this.sortKey = sortKey;
+            this.sortAsc = isSortAscending;
             this.rows = [
                 ...this.rows.sort((a, b) => {
                     const firstValue = a[sortKey];
@@ -799,6 +812,8 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
                 }),
             ];
         } else {
+            this.sortKey = null;
+            this.sortAsc = false;
             this.filterRows();
         }
     }
@@ -1260,5 +1275,9 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
             this.activeRow = row;
             this.nzContextMenuService.create(event, menu);
         }
+    }
+
+    trackByRow(_: number, row: any): any {
+        return row[this.uniqueKey];
     }
 }

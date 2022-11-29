@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ImColumn, ImColumnType, ImFilterType } from '../../../models/column.model';
 import { DateFormats } from '../../../models/settings.model';
 import { SettingsService } from '../../../services/settings.service';
