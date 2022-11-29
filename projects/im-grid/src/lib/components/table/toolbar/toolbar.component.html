@@ -1,7 +1,7 @@
 <div>
   <div
-    *ngIf="label"
     class="label"
+    *ngIf="label"
   >
     {{ label }}
   </div>
@@ -21,6 +21,7 @@
 <div class="toolbar-buttons">
   <button
     (click)="exportAsExcel.emit()"
+    *ngIf="allowExcel"
     nz-button
   >
     <i

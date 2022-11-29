@@ -1,208 +1,222 @@
 :host {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .table-cell {
-    position: relative;
+  position: relative;
 
-    &.searchHighlight {
-        background: rgba(24, 144, 255, 0.3);
-    }
+  &.searchHighlight {
+    background: rgba(24, 144, 255, 0.3);
+  }
 }
 
 pre {
-    white-space: pre-wrap;
+  white-space: pre-wrap;
 }
 
 nz-table {
-    height: 100% !important;
+  height: 100% !important;
 
-    ::ng-deep {
-        .ant-table table {
-            table-layout: auto !important;
-        }
-
-        tr {
-            .ant-table-selection-column,
-            .children-column,
-            .clear {
-                text-align: center;
-            }
-            th {
-                border-right: 0 !important;
-            }
-        }
-
-        .ant-table-thead th.ant-table-column-has-sorters {
-            transition: unset;
-        }
-
-        .ant-table-header-column,
-        .ant-table-column-sorters {
-            display: flex !important;
-            align-items: center;
-            justify-content: space-between;
-
-            span:not(.ant-table-column-sorter) {
-                width: calc(100% - 11px);
-                position: unset !important;
-                .title {
-                    white-space: nowrap;
-                    width: 100%;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                }
-            }
-        }
-
-        .ant-table-placeholder td {
-            border: none;
-        }
-
-        .ant-spin-nested-loading > div > .ant-spin {
-            max-height: unset;
-            z-index: 2000;
-        }
-
-        .ant-table-title,
-        .ant-table-footer {
-            display: flex;
-            justify-content: space-between;
-            padding: 3px !important;
-            align-items: center;
-            overflow-x: auto;
-            overflow-y: hidden;
-
-            nz-input-group {
-                width: 180px;
-                min-width: 180px;
-            }
-
-            .table-filter-footer {
-                max-width: calc(100% - 73px);
-                display: flex;
-                align-items: center;
-            }
-
-            nz-select {
-                min-width: 200px;
-            }
-        }
-
-        cdk-virtual-scroll-viewport {
-            height: auto !important;
-            overflow-y: scroll;
-            flex: 1;
-        }
-
-        th {
-            font-weight: bold;
-        }
-
-        th.table-cell-row-index,
-        td.table-cell-row-index {
-            padding: 10px;
-            text-align: center;
-        }
-
-        .ant-table-cell-fix-left,
-        .ant-table-cell-fix-right {
-            z-index: 2 !important;
-        }
-
-        .ant-table-header {
-            min-height: fit-content;
-        }
-
-        nz-table-inner-scroll,
-        .ant-table-scroll,
-        .ant-table-content,
-        .ant-table,
-        .ant-spin-nested-loading,
-        .ant-spin-container {
-            height: 100% !important;
-            display: flex;
-            flex-direction: column;
-        }
+  ::ng-deep {
+    .ant-table table {
+      table-layout: auto !important;
     }
+
+    tr {
+      &.even {
+        background-color: black;
+      }
+      &.odd {
+        background-color: #181818;
+      }
+      &:hover {
+        background-color: #3c3c3c;
+      }
+      .ant-table-selection-column,
+      .children-column,
+      .clear {
+        text-align: center;
+      }
+      th {
+        border-right: 0 !important;
+      }
+      td {
+        background: inherit !important;
+        transition: unset;
+
+        &.ant-table-cell-fix-left,
+        &.ant-table-cell-fix-right {
+          background: inherit;
+        }
+      }
+    }
+
+    .ant-table-thead th.ant-table-column-has-sorters {
+      transition: unset;
+    }
+
+    .ant-table-header-column,
+    .ant-table-column-sorters {
+      display: flex !important;
+      align-items: center;
+      justify-content: space-between;
+
+      span:not(.ant-table-column-sorter) {
+        width: calc(100% - 11px);
+        position: unset !important;
+        .title {
+          white-space: nowrap;
+          width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+
+    .ant-table-placeholder td {
+      border: none;
+    }
+
+    .ant-spin-nested-loading > div > .ant-spin {
+      max-height: unset;
+      z-index: 2000;
+    }
+
+    .ant-table-title,
+    .ant-table-footer {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px !important;
+      align-items: center;
+      overflow-x: auto;
+      overflow-y: hidden;
+
+      nz-input-group {
+        width: 180px;
+        min-width: 180px;
+      }
+
+      .table-filter-footer {
+        max-width: calc(100% - 73px);
+        display: flex;
+        align-items: center;
+      }
+
+      nz-select {
+        min-width: 200px;
+      }
+    }
+
+    cdk-virtual-scroll-viewport {
+      height: auto !important;
+      overflow-y: scroll;
+      flex: 1;
+    }
+
+    th {
+      font-weight: bold;
+    }
+
+    th.table-cell-row-index,
+    td.table-cell-row-index {
+      padding: 10px;
+      text-align: center !important;
+    }
+
+    .ant-table-cell-fix-left,
+    .ant-table-cell-fix-right {
+      z-index: 2 !important;
+      transition: unset;
+    }
+
+    .ant-table-header {
+      min-height: fit-content;
+    }
+
+    nz-table-inner-scroll,
+    .ant-table-scroll,
+    .ant-table-content,
+    .ant-table,
+    .ant-spin-nested-loading,
+    .ant-spin-container {
+      height: 100% !important;
+      display: flex;
+      flex-direction: column;
+    }
+  }
 }
 
 .modal-footer-buttons {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .cdk-drag-preview {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: inherit;
-    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14),
-        0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: inherit;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
 
-    nz-resize-handle,
-    .ant-table-column-sorter {
-        display: none;
-    }
+  nz-resize-handle,
+  .ant-table-column-sorter {
+    display: none;
+  }
 }
 
 .cdk-drag-placeholder {
-    opacity: 0;
+  opacity: 0;
 }
 
 .cdk-drag-animating {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 .cdk-drop-list-dragging th:not(.cdk-drag-placeholder) {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-}
-
-.even {
-    background-color: #fafafa;
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 .inherit {
-    background: inherit !important;
+  background: inherit !important;
 }
 
 .filter-cell {
-    position: relative;
-    line-height: 0px;
-    padding: 0px 2px !important;
-    &.sticky {
-        z-index: 2;
-    }
+  position: relative;
+  line-height: 0px;
+  padding: 0px 2px !important;
+  &.sticky {
+    z-index: 2;
+  }
 }
 
 .focused {
-    box-shadow: inset 0px 0px 0px 1px #1890ff;
+  box-shadow: inset 0px 0px 0px 1px #1890ff;
 }
 
 .clear-icon {
-    font-size: large;
+  font-size: large;
 }
 
 .right-handle-wrap {
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .right-handle {
-    background: #fff;
-    color: #1890ff;
-    border: 1px solid #ddd;
-    text-align: center;
-    font-size: 12px;
-    height: 20px;
-    line-height: 20px;
+  background: #fff;
+  color: #1890ff;
+  border: 1px solid #ddd;
+  text-align: center;
+  font-size: 12px;
+  height: 20px;
+  line-height: 20px;
 }
 
 nz-resize-handle {
-    z-index: 1;
+  z-index: 1;
 }

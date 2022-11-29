@@ -1,67 +1,73 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { de_DE, en_US, NzI18nService } from 'ng-zorro-antd/i18n';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject, takeUntil } from 'rxjs';
 import { Language, Locale, Translation } from '../models/settings.model';
 
 export interface Settings {
-    language: Language;
-    locale: Locale;
+  language: Language;
+  locale: Locale;
 }
 @Injectable({
-    providedIn: 'root',
+  providedIn: 'root',
 })
-export class SettingsService {
-    settings = new BehaviorSubject<Settings>({
-        language: Language.en,
-        locale: Locale.de,
+export class SettingsService implements OnDestroy {
+  destroyed$ = new Subject<void>();
+
+  settings = new BehaviorSubject<Settings>({
+    language: Language.en,
+    locale: Locale.de,
+  });
+  private languages = { de: de_DE, en: en_US };
+
+  constructor(private nzI18n: NzI18nService) {
+    this.settings.pipe(takeUntil(this.destroyed$)).subscribe((settings) => {
+      this.nzI18n.setLocale(this.languages[settings.language]);
     });
-    private languages = { de: de_DE, en: en_US };
+  }
 
-    constructor(private nzI18n: NzI18nService) {
-        this.settings.subscribe((settings) => {
-            this.nzI18n.setLocale(this.languages[settings.language]);
-        });
-    }
+  set language(language: Language) {
+    this.settings.next({ ...this.settings.value, language });
+  }
 
-    set language(language: Language) {
-        this.settings.next({ ...this.settings.value, language });
-    }
+  get language() {
+    return this.settings.value.language;
+  }
 
-    get language() {
-        return this.settings.value.language;
-    }
+  set locale(locale: Locale) {
+    this.settings.next({ ...this.settings.value, locale });
+  }
 
-    set locale(locale: Locale) {
-        this.settings.next({ ...this.settings.value, locale });
-    }
+  get locale() {
+    return this.settings.value.locale;
+  }
 
-    get locale() {
-        return this.settings.value.locale;
-    }
+  dynamicTranslate(
+    translation: Translation,
+    subjects: { [key: string]: Translation | string | number }
+  ): Translation {
+    const newWording: Translation = { ...translation };
 
-    dynamicTranslate(
-        translation: Translation,
-        subjects: { [key: string]: Translation | string | number }
-    ): Translation {
-        const newWording: Translation = { ...translation };
+    return Object.keys(subjects).reduce((result: Translation, key: string) => {
+      const subjectValue = subjects[key];
+      const type = typeof subjectValue;
 
-        return Object.keys(subjects).reduce((result: Translation, key: string) => {
-            const subjectValue = subjects[key];
-            const type = typeof subjectValue;
+      if (type === 'string' || type === 'number' || subjectValue === null) {
+        const value = subjectValue || subjectValue === 0 ? subjectValue : '';
+        Object.keys(newWording).forEach(
+          (language) => (result[language] = result.de.split(key).join(value.toString()))
+        );
+      } else if (type === 'object') {
+        const value = subjectValue as Translation;
+        Object.keys(newWording).forEach(
+          (language) => (result[language] = result.en.split(key).join(value.en))
+        );
+      }
+      return result;
+    }, newWording);
+  }
 
-            if (type === 'string' || type === 'number' || subjectValue === null) {
-                const value = subjectValue || subjectValue === 0 ? subjectValue : '';
-                Object.keys(newWording).forEach(
-                    (language) =>
-                        (result[language] = result.de.split(key).join(value.toString()))
-                );
-            } else if (type === 'object') {
-                const value = subjectValue as Translation;
-                Object.keys(newWording).forEach(
-                    (language) => (result[language] = result.en.split(key).join(value.en))
-                );
-            }
-            return result;
-        }, newWording);
-    }
+  public ngOnDestroy(): void {
+    this.destroyed$.next();
+    this.destroyed$.complete();
+  }
 }

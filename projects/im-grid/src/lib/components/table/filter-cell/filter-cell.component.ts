@@ -17,5 +17,5 @@ export class ImFilterCellComponent {
   translations = translations;
   DateFormats = DateFormats;
 
-  constructor(public settingsService: SettingsService) { }
+  constructor(public settingsService: SettingsService) {}
 }

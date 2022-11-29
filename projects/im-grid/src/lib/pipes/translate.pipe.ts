@@ -3,14 +3,21 @@ import { Translation } from '../models/settings.model';
 import { SettingsService } from '../services/settings.service';
 
 @Pipe({
-    name: 'translate',
+  name: 'translate',
 })
 export class TranslatePipe implements PipeTransform {
-    constructor(private settingsService: SettingsService) {}
+  constructor(private settingsService: SettingsService) {}
 
-    transform(translation: Translation | string): string {
-        return typeof translation === 'string'
-            ? translation
-            : translation[this.settingsService.language];
+  transform(translation: Translation | string): string {
+    if (!translation) {
+      return '';
     }
+
+    if (typeof translation === 'string') {
+      return translation;
+    }
+
+    console.log('here', translation);
+    return translation[this.settingsService.language];
+  }
 }

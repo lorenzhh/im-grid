@@ -18,6 +18,7 @@ export class ChildTableComponent {
   @Input() columns: ImColumn[] = [];
   @Input() dataSource$: Observable<any> = of([]);
   @Input() enableNotifications = true;
+  @Input() childAllowExcel = true;
   @Input() allowCreate = true;
   @Input() allowEdit = true;
   @Input() allowDelete = true;

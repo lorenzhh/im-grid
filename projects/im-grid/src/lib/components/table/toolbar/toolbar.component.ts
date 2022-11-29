@@ -1,17 +1,24 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+} from '@angular/core';
+import { Size } from '../../../models/column.model';
 import { translations } from '../translations/default-translations';
-export type Size = 'small' | 'middle' | 'default';
 @Component({
   selector: 'im-toolbar',
   templateUrl: './toolbar.component.html',
   styleUrls: ['./toolbar.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ImToolbarComponent {
   @Input() numberOfChecked: number;
   @Input() allowCreate: boolean;
   @Input() loading: boolean;
   @Input() label: string;
+  @Input() allowExcel: boolean = true;
   @Input() size: Size;
   @Input() directMode: boolean;
   @Input() unsavedRowsLength: number;
