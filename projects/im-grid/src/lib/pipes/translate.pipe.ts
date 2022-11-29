@@ -17,7 +17,6 @@ export class TranslatePipe implements PipeTransform {
       return translation;
     }
 
-    console.log('here', translation);
     return translation[this.settingsService.language];
   }
 }
