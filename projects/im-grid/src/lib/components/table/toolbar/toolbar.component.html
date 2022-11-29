@@ -30,7 +30,10 @@
     ></i>
     {{ translations.excel | translate }}
   </button>
-  <nz-divider nzType="vertical"></nz-divider>
+  <nz-divider
+    *ngIf="allowExcel"
+    nzType="vertical"
+  ></nz-divider>
   <nz-radio-group
     name="size"
     [(ngModel)]="size"
