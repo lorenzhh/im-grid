@@ -1,6 +1,10 @@
 <im-grid
+  [allowCreate]="allowCreate"
+  [allowDelete]="allowDelete"
+  [allowEdit]="allowEdit"
   [columns]="columns"
   [dataSource$]="dataSource$"
   [editMode]="EditMode.Cache"
+  [enableNotifications]="enableNotifications"
   (save)="save($event)"
 ></im-grid>

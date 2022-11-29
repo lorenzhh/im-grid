@@ -87,6 +87,10 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     @Input() allowEdit = true;
     @Input() allowCreate = true;
     @Input() clearSearchOnChanges = true;
+    @Input() enableNotifications = true;
+    @Input() childAllowCreate = true;
+    @Input() childAllowEdit = true;
+    @Input() childAllowDelete = true;
 
     @Output() selectedIds = new EventEmitter<{ [key: string]: boolean }>();
     @Output() save = new EventEmitter<ChangesEvent>();
@@ -1128,7 +1132,9 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     private createMessage(type: string, message: Translation): void {
-        this.messageService.create(type, message[this.settingsService.language]);
+        if (this.enableNotifications) {
+            this.messageService.create(type, message[this.settingsService.language]);
+        }
     }
 
     public hasUnsavedChanges = () => {
@@ -1180,6 +1186,10 @@ export class ImGridComponent implements OnInit, OnChanges, OnDestroy {
             foundColumn.childrenConfig.componentConfig.inputs = {
                 dataSource$: of(row[this.childrenKey]),
                 columns: this.childColumns,
+                enableNotifications: this.enableNotifications,
+                allowCreate: this.childAllowCreate,
+                allowEdit: this.childAllowEdit,
+                allowDelete: this.childAllowDelete,
             };
             const event = new EventEmitter<ChangesEvent>();
             foundColumn.childrenConfig.componentConfig.outputs = {
