@@ -1,4 +1,4 @@
-<ng-container [ngSwitch]="columnType">
+<ng-container [ngSwitch]="column.columnType">
   <nz-rate
     [ngModel]="value"
     *ngSwitchCase="ImColumnType.Rating"
@@ -6,6 +6,12 @@
     nzDisabled
   >
   </nz-rate>
+  <nz-avatar
+    [nzShape]="column.avatarShape"
+    [nzSize]="'large'"
+    [nzSrc]="rawValue"
+    *ngSwitchCase="ImColumnType.Avatar"
+  ></nz-avatar>
   <a
     [href]="value"
     [style.width.%]="100"
@@ -32,7 +38,7 @@
   <div>
     <a
       (click)="zoomed.emit()"
-      *ngIf="zoom"
+      *ngIf="column.zoom"
     >
       <i
         class="zoom-icon"
@@ -45,7 +51,7 @@
     <p
       class="copy-icon"
       [nzCopyText]="value.toString()"
-      *ngIf="copy"
+      *ngIf="column.copy"
       nz-paragraph
       nzCopyable
     >

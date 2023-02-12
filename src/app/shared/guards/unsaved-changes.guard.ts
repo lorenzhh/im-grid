@@ -5,28 +5,28 @@ import { Observable } from 'rxjs';
 import { ConfirmationService } from '../services/confirmation.service';
 
 export interface DirtyComponent {
-    customValidation?: () => Observable<boolean>;
-    form?: FormGroup;
+  customValidation?: () => Observable<boolean>;
+  form?: FormGroup;
 }
 
 @Injectable()
 export class UnsavedChangesGuard implements CanDeactivate<DirtyComponent> {
-    constructor(private confirmationService: ConfirmationService) {}
+  constructor(private confirmationService: ConfirmationService) {}
 
-    isClean(component: DirtyComponent) {
-        if (component.customValidation) {
-            return component.customValidation();
-        } else {
-            if (component.form) {
-                return !component.form.dirty;
-            }
-        }
-        return true;
+  isClean(component: DirtyComponent) {
+    if (component.customValidation) {
+      return component.customValidation();
+    } else {
+      if (component.form) {
+        return !component.form.dirty;
+      }
     }
+    return true;
+  }
 
-    canDeactivate(component: DirtyComponent): boolean | Observable<boolean> {
-        return this.isClean(component)
-            ? true
-            : this.confirmationService.confirm('You have unsaved changes, are you sure?');
-    }
+  canDeactivate(component: DirtyComponent): boolean | Observable<boolean> {
+    return this.isClean(component)
+      ? true
+      : this.confirmationService.confirm('You have unsaved changes, are you sure?');
+  }
 }

@@ -19,7 +19,7 @@ import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd/dro
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { NzResizeEvent } from 'ng-zorro-antd/resizable';
-import { NzTableComponent } from 'ng-zorro-antd/table';
+import { NzTableComponent, NzTableSortOrder } from 'ng-zorro-antd/table';
 import { BehaviorSubject, fromEvent, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import {
   debounceTime,
@@ -84,6 +84,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   @Input() selection = SelectionMode.Checkbox;
   @Input() dataSource$: Observable<T[]>;
   @Input() label: string;
+  @Input() showToolbar = true;
   @Input() loading = false;
   @Input() showRowIndex = true;
   @Input() allowDelete = true;
@@ -120,7 +121,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   public isAllDisplayDataChecked = false;
   public isIndeterminate = false;
   public mapOfCheckedId: { [key: string]: boolean } = {};
-  public mapOfSort: { [key: string]: boolean } = {};
+  public mapOfSort: { [key: number]: NzTableSortOrder } = {};
   public numberOfChecked = 0;
   public unsavedRowsLength = 0;
   public deletedRowsLength = 0;
@@ -463,7 +464,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
     });
   }
 
-  private getUniqueSelectFilterValues(column: ImColumn): string[] | number[] {
+  private getUniqueSelectFilterValues(column: ImColumn): unknown[] {
     if (column.columnType === ImColumnType.Array) {
       const uniques = [];
       this.currentRows.forEach((row) => {
@@ -627,6 +628,9 @@ export class ImGridComponent<T extends { isNew?: boolean }>
       }
       if (column.zoom === undefined) {
         column.zoom = true;
+      }
+      if (column.resizable === undefined) {
+        column.resizable = true;
       }
       if (column.showModalOnClick === true) {
         column.zoom = false;

@@ -25,7 +25,7 @@
   [nzScroll]="{ x: columnsWidth + 'px', y: '100%' }"
   [nzShowPagination]="false"
   [nzSize]="size"
-  [nzTitle]="toolbarTemplate"
+  [nzTitle]="showToolbar ? toolbarTemplate : null"
   [nzVirtualForTrackBy]="trackByUnique"
   [nzVirtualItemSize]="height"
   #virtualTable
@@ -98,7 +98,10 @@
         >
           {{ column.title | translate }}
         </div>
-        <nz-resize-handle nzDirection="right">
+        <nz-resize-handle
+          *ngIf="column.resizable"
+          nzDirection="right"
+        >
           <div class="right-handle-wrap">
             <i
               class="right-handle"
@@ -262,20 +265,19 @@
           class="table-cell"
           [class.focused]="column.key === (focusedCell$ | async).key && index === (focusedCell$ | async).rowIndex"
           [class.searchHighlight]="(this.filterForm.get('search').valueChanges | async) && row[column.key]?.toString().includes(this.filterForm.get('search').value)"
+          [ngStyle]="column.ngStyle"
           [style.maxWidth.px]="column.width"
           [style.minWidth.px]="column.width"
           [style.width.px]="column.width"
-          [title]="row[column.key] | format: column: (settingsService.settings | async)"
+          [title]="row[column.key] | format: column: (settingsService.settings$ | async)"
           (click)="handleClick(column, row, index)"
           *ngFor="let column of columns | filter: { visible: true, hidden: false }"
         >
           <im-cell
-            [columnType]="column.columnType"
-            [copy]="column.copy"
+            [column]="column"
             [focused]="column.key === (focusedCell$ | async).key && index === (focusedCell$ | async).rowIndex"
             [rawValue]="row[column.key]"
-            [value]="row[column.key] | format: column: (settingsService.settings | async)"
-            [zoom]="column.zoom"
+            [value]="row[column.key] | format: column: (settingsService.settings$ | async)"
             (zoomed)="showValueInModal(row, column)"
           ></im-cell>
         </td>

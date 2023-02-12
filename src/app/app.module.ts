@@ -16,27 +16,27 @@ registerLocaleData(en);
 registerLocaleData(de);
 
 @NgModule({
-    declarations: [AppComponent],
-    imports: [SharedModule.forRoot(), AppRoutingModule, BrowserAnimationsModule],
-    providers: [
-        DatePipe,
-        CurrencyPipe,
-        DecimalPipe,
-        UnsavedChangesGuard,
-        {
-            provide: NZ_I18N,
-            useValue: en_US,
-        },
-        {
-            provide: HTTP_INTERCEPTORS,
-            useClass: DefaultInterceptor,
-            multi: true,
-        },
-        {
-            provide: ErrorHandler,
-            useClass: GlobalErrorHandler,
-        },
-    ],
-    bootstrap: [AppComponent],
+  declarations: [AppComponent],
+  imports: [SharedModule.forRoot(), AppRoutingModule, BrowserAnimationsModule],
+  providers: [
+    DatePipe,
+    CurrencyPipe,
+    DecimalPipe,
+    UnsavedChangesGuard,
+    {
+      provide: NZ_I18N,
+      useValue: en_US,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: DefaultInterceptor,
+      multi: true,
+    },
+    {
+      provide: ErrorHandler,
+      useClass: GlobalErrorHandler,
+    },
+  ],
+  bootstrap: [AppComponent],
 })
 export class AppModule {}

@@ -27,6 +27,7 @@ export enum ImColumnType {
   Website = 'Website',
   Array = 'Array',
   Object = 'Object',
+  Avatar = 'Avatar',
 }
 
 export enum ImFilterType {
@@ -57,7 +58,7 @@ export interface ImColumn {
   validators?: ValidatorFn[];
   asyncValidators?: AsyncValidatorFn[];
   fieldType?: ImFieldType;
-  selectValues?: string[] | number[] | boolean[] | ImSelectOption[];
+  selectValues?: unknown[];
   multiSelect?: boolean;
   labelProperty?: string;
   valueProperty?: string;
@@ -71,9 +72,12 @@ export interface ImColumn {
   maxWidth?: number;
   visible?: boolean;
   hidden?: boolean;
+  ngStyle?: object;
   filter?: ImFilter;
   zoom?: boolean;
+  resizable?: boolean;
   copy?: boolean;
+  avatarShape?: 'circle' | 'square';
   drawerTitle?: (row: any) => string | Translation;
 }
 
@@ -84,7 +88,7 @@ export interface ImSelectOption {
 
 export interface ImFilter {
   values?: any[];
-  selectValues?: string[] | number[];
+  selectValues?: unknown[];
   multiSelect?: boolean;
   type?: ImFilterType;
 }

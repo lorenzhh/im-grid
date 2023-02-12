@@ -34,7 +34,7 @@
       [nzLabel]="(option | typeof) === 'object' 
         ? option[column.labelProperty] 
         : (option | typeof) !== 'null'
-          ? (option | format: column: (settingsService.settings | async)) 
+          ? (option | format: column: (settingsService.settings$ | async)) 
           : ''"
       [nzValue]="column.columnType === ImColumnType.Array && !column.multiSelect 
         ? [option] 
