@@ -89,6 +89,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   @Input() showRowIndex = true;
   @Input() allowDelete = true;
   @Input() allowEdit = true;
+  @Input() customEdit = false;
   @Input() allowCreate = true;
   @Input() clearSearchOnChanges = true;
   @Input() enableNotifications = true;
@@ -104,6 +105,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   @Output() deleted = new EventEmitter<ChangeEvent>();
   @Output() created = new EventEmitter<ChangeEvent>();
   @Output() updated = new EventEmitter<ChangeEvent>();
+  @Output() customUpdatedRow = new EventEmitter<T>();
 
   public childColumns: ImColumn[];
   public rows: T[] = [];

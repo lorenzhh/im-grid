@@ -294,7 +294,7 @@
             [style.marginLeft.px]="3"
           >
             <a
-              (click)="openCreateOrEditModal(row)"
+              (click)="customEdit ? customUpdatedRow.emit(row) : openCreateOrEditModal(row)"
               *ngIf="allowEdit"
             >
               <i
