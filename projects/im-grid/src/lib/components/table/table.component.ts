@@ -15,6 +15,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { ThemeType } from '@ant-design/icons-angular';
 import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
@@ -84,12 +85,17 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   @Input() selection = SelectionMode.Checkbox;
   @Input() dataSource$: Observable<T[]>;
   @Input() label: string;
+  @Input() editIcon: string;
+  @Input() editTheme: ThemeType;
+  @Input() deleteIcon: string;
+  @Input() deleteTheme: ThemeType;
   @Input() showToolbar = true;
   @Input() loading = false;
   @Input() showRowIndex = true;
   @Input() allowDelete = true;
   @Input() allowEdit = true;
   @Input() customEdit = false;
+  @Input() customDelete = false;
   @Input() allowCreate = true;
   @Input() clearSearchOnChanges = true;
   @Input() enableNotifications = true;
@@ -106,6 +112,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   @Output() created = new EventEmitter<ChangeEvent>();
   @Output() updated = new EventEmitter<ChangeEvent>();
   @Output() customUpdatedRow = new EventEmitter<T>();
+  @Output() customDeletedRow = new EventEmitter<T>();
 
   public childColumns: ImColumn[];
   public rows: T[] = [];

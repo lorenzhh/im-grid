@@ -299,8 +299,8 @@
             >
               <i
                 nz-icon
-                nzType="edit"
-                nzTheme="fill"
+                [nzType]="editIcon ?? 'edit'"
+                [nzTheme]="editTheme ?? 'fill'"
               ></i>
             </a>
             <nz-divider
@@ -311,12 +311,22 @@
               [nzOkText]="translations.delete | translate"
               [nzPopconfirmTitle]="translations.areYouSure | translate"
               (nzOnConfirm)="deleteRow(row)"
-              *ngIf="allowDelete"
+              *ngIf="allowDelete && customDelete === false"
               nz-popconfirm
             >
               <i
                 nz-icon
                 nzType="delete"
+              ></i>
+            </a>
+            <a
+              (click)="customDeletedRow.emit(row)"
+              *ngIf="allowDelete && customDelete === true"
+            >
+              <i
+                nz-icon
+                [nzType]="deleteIcon ?? 'delete'"
+                [nzTheme]="deleteTheme ?? 'outline'"
               ></i>
             </a>
           </div>
