@@ -626,6 +626,12 @@ export class ImGridComponent<T extends { isNew?: boolean }>
         }
       }
 
+      if (column.showSeconds === undefined) {
+        column.showSeconds = true;
+      }
+      if (column.nzShowTime === undefined) {
+        column.nzShowTime = true;
+      }
       if (column.minWidth === undefined) {
         column.minWidth = 60;
       }

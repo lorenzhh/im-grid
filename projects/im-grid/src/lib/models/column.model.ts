@@ -1,5 +1,7 @@
-import { AsyncValidatorFn, ValidatorFn } from '@angular/forms';
 import { Type } from '@angular/core';
+import { AsyncValidatorFn, ValidatorFn } from '@angular/forms';
+import { BooleanInput } from 'ng-zorro-antd/core/types';
+import { SupportTimeOptions } from 'ng-zorro-antd/date-picker';
 import { Subject } from 'rxjs';
 import { Translation } from './settings.model';
 
@@ -77,6 +79,8 @@ export interface ImColumn {
   zoom?: boolean;
   resizable?: boolean;
   copy?: boolean;
+  showSeconds?: boolean;
+  nzShowTime?: BooleanInput | SupportTimeOptions | null | undefined;
   avatarShape?: 'circle' | 'square';
   drawerTitle?: (row: any) => string | Translation;
 }

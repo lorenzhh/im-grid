@@ -15,6 +15,10 @@ export const columns: ImColumn[] = [
         key: 'invoiceDate',
         title: 'Invoice Date',
         columnType: ImColumnType.Date,
+        showSeconds: false,
+        nzShowTime: {  
+            nzFormat: 'HH:mm',
+    }
     },
     {
         key: 'performanceDate',

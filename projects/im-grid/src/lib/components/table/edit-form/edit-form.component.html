@@ -8,8 +8,8 @@
         <nz-form-label [nzSpan]="7">{{ column.title | translate }}</nz-form-label>
         <nz-form-control
           [ngSwitch]="column.fieldType"
-          [nzSpan]="12"
           [nzErrorTip]="form.get(column.key).errors ? ((form.get(column.key).errors | firstProperty) | translate): ''"
+          [nzSpan]="12"
         >
           <nz-select
             [compareWith]="column.compareFn 
@@ -67,9 +67,9 @@
           </nz-input-group>
           <nz-date-picker
             [formControlName]="column.key"
-            [nzFormat]="TimeFormats[locale]"
+            [nzFormat]="column.showSeconds ? TimeFormats[locale] : TimeFormats[locale].replace(':ss', '') "
             [nzPlaceHolder]="(column.title | translate) + '...'"
-            [nzShowTime]="true"
+            [nzShowTime]="column.nzShowTime"
             [style.width.%]="100"
             *ngSwitchCase="ImFieldType.Date"
           ></nz-date-picker>

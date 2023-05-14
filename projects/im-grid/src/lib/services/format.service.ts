@@ -6,18 +6,18 @@ import { TimeFormats } from '../models/settings.model';
 import { SettingsService } from './settings.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FormatService {
-  ISO8601_DATE_REGEX
-    = /^(\d{4})-?(\d\d)-?(\d\d)(?:T(\d\d)(?::?(\d\d)(?::?(\d\d)(?:\.(\d+))?)?)?(Z|([+-])(\d\d):?(\d\d))?)?$/;
+  ISO8601_DATE_REGEX =
+    /^(\d{4})-?(\d\d)-?(\d\d)(?:T(\d\d)(?::?(\d\d)(?::?(\d\d)(?:\.(\d+))?)?)?(Z|([+-])(\d\d):?(\d\d))?)?$/;
 
   constructor(
     private datePipe: DatePipe,
     private decimalPipe: DecimalPipe,
     private currencyPipe: CurrencyPipe,
     private settingsService: SettingsService
-  ) { }
+  ) {}
 
   format(value: any, column: ImColumn, optional = false) {
     if (value == null) {
@@ -27,11 +27,13 @@ export class FormatService {
       case ImColumnType.Xml:
         return optional ? this.formattedXml(value) : value;
       case ImColumnType.Date:
-        return ((typeof value === 'string') && value.match(this.ISO8601_DATE_REGEX))
+        return typeof value === 'string' && value.match(this.ISO8601_DATE_REGEX)
           ? this.datePipe.transform(
-            value,
-            this.getTimeFormat()
-          )
+              value,
+              column.showSeconds
+                ? this.getTimeFormat()
+                : this.getTimeFormat().replace(':ss', '')
+            )
           : value;
       case ImColumnType.Boolean: {
         return this.translateLanguage(value);
@@ -40,10 +42,10 @@ export class FormatService {
         return this.currencyPipe.transform(value, 'EUR', 'symbol-narrow');
       }
       case ImColumnType.Array: {
-        return this.mapKeys(value, column.labelProperty)
+        return this.mapKeys(value, column.labelProperty);
       }
       case ImColumnType.Object: {
-        return value[column.labelProperty]
+        return value[column.labelProperty];
       }
       case ImColumnType.Decimal: {
         return this.decimalPipe.transform(value, '1.2-2', this.settingsService.locale);
@@ -60,14 +62,13 @@ export class FormatService {
   }
 
   private mapKeys(array: any[], property: string) {
-    return array.map((item, index) => item && typeof (item) === 'object'
-      ? item[property]
-      : item
+    return array.map((item) =>
+      item && typeof item === 'object' ? item[property] : item
     );
   }
 
   private isTrue(value: any): boolean {
-    return (value === 1 || value === '1' || value === true || value === 'true');
+    return value === 1 || value === '1' || value === true || value === 'true';
   }
 
   private getTimeFormat(): string {
@@ -78,7 +79,7 @@ export class FormatService {
     let formatted = '';
     let indent = '';
     const tab = '\t';
-    xml.split(/>\s*</).forEach(node => {
+    xml.split(/>\s*</).forEach((node) => {
       if (node.match(/^\/\w/)) {
         indent = indent.substring(tab.length);
       }
