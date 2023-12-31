@@ -86,7 +86,7 @@
         (nzResize)="onResize($event, column)"
         (nzResizeEnd)="resizeEnd()"
         (nzResizeStart)="resizeStart()"
-        (nzSortOrderChange)="sort(column.key, $event)"
+        (nzSortOrderChange)="sort(column.sortKey ?? column.key, $event)"
         *ngFor="let column of columns | filter: { visible: true, hidden: false }"
         nz-resizable
         nzShowSort

@@ -69,6 +69,7 @@ export interface ImColumn {
   editable?: boolean;
   creatable?: boolean;
   width?: number;
+  sortKey?: string;
   hiddenForm?: boolean;
   minWidth?: number;
   maxWidth?: number;

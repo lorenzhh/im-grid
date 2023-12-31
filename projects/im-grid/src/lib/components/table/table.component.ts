@@ -776,9 +776,9 @@ export class ImGridComponent<T extends { isNew?: boolean }>
       this.sortKey = sortKey;
       this.sortAsc = isSortAscending;
       this.rows = [
-        ...this.rows.sort((a, b) => {
-          const firstValue = a[sortKey];
-          const secondValue = b[sortKey];
+        ...this.rows.sort((rowA, rowB) => {
+          const firstValue = rowA[sortKey];
+          const secondValue = rowB[sortKey];
 
           if (firstValue === secondValue) {
             return 0;
