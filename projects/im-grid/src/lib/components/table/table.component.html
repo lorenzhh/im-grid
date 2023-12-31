@@ -223,7 +223,6 @@
         [class.even]="index % 2 === 0"
         [class.odd]="index % 2 === 1"
         [style.height.px]="height"
-
         (contextmenu)="contextMenu($event, menu, row)"
       >
         <td
@@ -300,9 +299,9 @@
               *ngIf="allowEdit"
             >
               <i
-                nz-icon
-                [nzType]="editIcon ?? 'edit'"
                 [nzTheme]="editTheme ?? 'fill'"
+                [nzType]="editIcon ?? 'edit'"
+                nz-icon
               ></i>
             </a>
             <nz-divider
@@ -326,9 +325,9 @@
               *ngIf="allowDelete && customDelete === true"
             >
               <i
-                nz-icon
-                [nzType]="deleteIcon ?? 'delete'"
                 [nzTheme]="deleteTheme ?? 'outline'"
+                [nzType]="deleteIcon ?? 'delete'"
+                nz-icon
               ></i>
             </a>
           </div>
