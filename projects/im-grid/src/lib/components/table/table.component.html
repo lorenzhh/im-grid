@@ -222,6 +222,8 @@
         [attr.index]="index"
         [class.even]="index % 2 === 0"
         [class.odd]="index % 2 === 1"
+        [style.height.px]="height"
+
         (contextmenu)="contextMenu($event, menu, row)"
       >
         <td

@@ -7,7 +7,25 @@ import {
 } from '@angular/core';
 import { Size } from '../../../models/column.model';
 import { translations } from '../translations/default-translations';
+import { TranslatePipe } from '../../../pipes/translate.pipe';
+import { NzRadioModule } from 'ng-zorro-antd/radio';
+import { NzDividerModule } from 'ng-zorro-antd/divider';
+import { FormsModule } from '@angular/forms';
+import { NgFor, NgIf } from '@angular/common';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzButtonModule } from 'ng-zorro-antd/button';
 @Component({
+  standalone: true,
+  imports: [
+    TranslatePipe,
+    NzRadioModule,
+    NzDividerModule,
+    FormsModule,
+    NgIf,
+    NzButtonModule,
+    NzIconModule,
+    NgFor,
+  ],
   selector: 'im-toolbar',
   templateUrl: './toolbar.component.html',
   styleUrls: ['./toolbar.component.css'],

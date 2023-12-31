@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChangeEvent, ChangesEvent, EditMode, ImColumn, ImGridComponent } from 'im-grid';
 import { BehaviorSubject, ReplaySubject } from 'rxjs';
@@ -16,9 +17,12 @@ export enum Entries {
 }
 
 @Component({
+  standalone: true,
+  imports: [ImGridComponent, AsyncPipe],
   selector: 'app-welcome',
   templateUrl: './welcome.component.html',
   styleUrls: ['./welcome.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WelcomeComponent implements OnInit {
   @ViewChild('table') table: ImGridComponent<any>;

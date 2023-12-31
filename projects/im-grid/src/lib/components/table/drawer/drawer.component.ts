@@ -12,10 +12,13 @@ import {
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
-import { NzResizeEvent } from 'ng-zorro-antd/resizable';
+import { NzResizableModule, NzResizeEvent } from 'ng-zorro-antd/resizable';
 import { DynamicComponentConfig } from '../../../models/column.model';
+import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 
 @Component({
+  standalone: true,
+  imports: [NzDrawerModule, NzResizableModule],
   selector: 'im-drawer',
   templateUrl: './drawer.component.html',
   styleUrls: ['./drawer.component.scss'],

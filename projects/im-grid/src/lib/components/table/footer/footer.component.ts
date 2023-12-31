@@ -5,11 +5,28 @@ import {
   Input,
   Output,
 } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ImColumn } from '../../../models/column.model';
 import { translations } from '../translations/default-translations';
+import { TranslatePipe } from '../../../pipes/translate.pipe';
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import { NzDividerModule } from 'ng-zorro-antd/divider';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
+import { NgFor } from '@angular/common';
 
 @Component({
+  standalone: true,
+  imports: [
+    TranslatePipe,
+    NzSelectModule,
+    FormsModule,
+    NzDividerModule,
+    NgFor,
+    ReactiveFormsModule,
+    NzInputModule,
+    NzPopconfirmModule,
+  ],
   selector: 'im-footer',
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.css'],

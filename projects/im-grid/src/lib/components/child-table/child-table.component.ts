@@ -7,8 +7,11 @@ import {
 } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { ChangesEvent, EditMode, ImColumn } from '../../models/column.model';
+import { ImGridComponent } from '../table/table.component';
 
 @Component({
+  standalone: true,
+  imports: [ImGridComponent],
   selector: 'im-child-table',
   templateUrl: './child-table.component.html',
   styleUrls: ['./child-table.component.css'],

@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-const routes: Routes = [
+export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
@@ -10,7 +10,7 @@ const routes: Routes = [
   {
     path: 'welcome',
     loadChildren: () =>
-      import('./pages/welcome/welcome.module').then((m) => m.WelcomeModule),
+      import('./pages/welcome/welcome-routing.module').then((m) => m.routes),
   },
   {
     path: '**',

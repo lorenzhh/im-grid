@@ -3,6 +3,7 @@ import { Translation } from '../models/settings.model';
 import { SettingsService } from '../services/settings.service';
 
 @Pipe({
+  standalone: true,
   name: 'translate',
 })
 export class TranslatePipe implements PipeTransform {

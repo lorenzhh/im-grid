@@ -1,4 +1,4 @@
-import { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -14,13 +14,17 @@ import {
   TemplateRef,
   ViewChild,
 } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, FormsModule } from '@angular/forms';
 import { ThemeType } from '@ant-design/icons-angular';
-import { NzContextMenuService, NzDropdownMenuComponent } from 'ng-zorro-antd/dropdown';
+import {
+  NzContextMenuService,
+  NzDropDownModule,
+  NzDropdownMenuComponent,
+} from 'ng-zorro-antd/dropdown';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
-import { NzResizeEvent } from 'ng-zorro-antd/resizable';
-import { NzTableComponent, NzTableSortOrder } from 'ng-zorro-antd/table';
+import { NzResizableModule, NzResizeEvent } from 'ng-zorro-antd/resizable';
+import { NzTableComponent, NzTableModule, NzTableSortOrder } from 'ng-zorro-antd/table';
 import { BehaviorSubject, fromEvent, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import {
   debounceTime,
@@ -55,6 +59,23 @@ import { FormatService } from '../../services/format.service';
 import { SettingsService } from '../../services/settings.service';
 import { translations } from './translations/default-translations';
 import { dynamicTranslations } from './translations/dynamic-translations';
+import { CellComponent } from './cell/cell.component';
+import { AsyncPipe, NgFor, NgIf, NgStyle } from '@angular/common';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { ImToolbarComponent } from './toolbar/toolbar.component';
+import { NzSwitchModule } from 'ng-zorro-antd/switch';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { ImFilterCellComponent } from './filter-cell/filter-cell.component';
+import { EditFormComponent } from './edit-form/edit-form.component';
+import { FormatPipe } from '../../pipes/format.pipe';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzDividerModule } from 'ng-zorro-antd/divider';
+import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
+import { ImFooterComponent } from './footer/footer.component';
+import { ImDrawerComponent } from './drawer/drawer.component';
+import { FilterPipe } from '../../pipes/filter.pipe';
+import { NgZorroAntdModule } from '../../modules/ng-zorro.module';
 
 export interface Edit<T> {
   [key: number]: {
@@ -67,6 +88,34 @@ export interface Edit<T> {
 }
 
 @Component({
+  standalone: true,
+  imports: [
+    ImToolbarComponent,
+    NzSwitchModule,
+    FormsModule,
+    NzIconModule,
+    NzButtonModule,
+    ImFilterCellComponent,
+    EditFormComponent,
+    FilterPipe,
+    NgIf,
+    NgFor,
+    NzDropDownModule,
+    NzInputModule,
+    NzDividerModule,
+    NzPopconfirmModule,
+    NgZorroAntdModule,
+    ImFooterComponent,
+    ImDrawerComponent,
+    FormatPipe,
+    AsyncPipe,
+    CellComponent,
+    DragDropModule,
+    NzTableModule,
+    NgStyle,
+    TranslatePipe,
+    NzResizableModule,
+  ],
   selector: 'im-grid',
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.scss'],

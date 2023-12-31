@@ -1,10 +1,11 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-    name: 'firstProperty',
+  standalone: true,
+  name: 'firstProperty',
 })
 export class FirstPropertyPipe implements PipeTransform {
-    public transform(value: any): any {
-        return value[Object.keys(value)[0]];
-    }
+  public transform(value: any): any {
+    return value[Object.keys(value)[0]];
+  }
 }

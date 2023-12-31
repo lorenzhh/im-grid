@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { de_DE, en_US, NzI18nInterface, NzI18nService } from 'ng-zorro-antd/i18n';
-import { BehaviorSubject, combineLatest, Subject, takeUntil } from 'rxjs';
+import { NzI18nInterface, NzI18nService, de_DE, en_US } from 'ng-zorro-antd/i18n';
+import { BehaviorSubject, Subject, combineLatest, takeUntil } from 'rxjs';
 import { Locale, Translation } from '../models/settings.model';
 
 export interface Settings {
