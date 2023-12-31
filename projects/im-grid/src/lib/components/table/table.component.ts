@@ -871,7 +871,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
       .replace(/"/g, '&quot;');
 
     this.modal = this.modalService.create({
-      nzTitle: 'nul',
+      nzTitle: '-',
       nzWidth: 1000,
       nzStyle: { 'max-width': '100%' },
       nzContent: `<pre>${viewMode}</pre>`,
