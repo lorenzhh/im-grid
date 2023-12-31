@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { CanDeactivate } from '@angular/router';
+
 import { Observable } from 'rxjs';
 import { ConfirmationService } from '../services/confirmation.service';
 
@@ -10,7 +10,7 @@ export interface DirtyComponent {
 }
 
 @Injectable()
-export class UnsavedChangesGuard implements CanDeactivate<DirtyComponent> {
+export class UnsavedChangesGuard  {
   constructor(private confirmationService: ConfirmationService) {}
 
   isClean(component: DirtyComponent) {
