@@ -10,7 +10,7 @@
     "e2e": "ng e2e",
     "build-grid": "ng build --configuration production im-grid && npm run copy",
     "copy": "copyfiles --flat projects/im-grid/styles.css ./dist/im-grid",
-    "publish-grid": "npm publish --access=public \\Users\\\\\"Lawrence Nseir\"\\projects\\im-grid\\dist\\im-grid"
+    "publish-grid": "npm publish --access=public ./dist/im-grid"
   },
   "private": true,
   "dependencies": {
