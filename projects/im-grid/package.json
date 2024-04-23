@@ -1,6 +1,6 @@
 {
   "name": "@lorenzhh/im-grid",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Angular Ng-Zorro Table with a lot of features",
   "keywords": [
     "grid",
@@ -8,13 +8,6 @@
   ],
   "author": "Lawrence Nseir",
   "license": "MIT",
-  "peerDependencies": {
-    "@angular/common": "~15.0.1",
-    "@angular/core": "~15.0.1",
-    "tslib": "^2.4.1",
-    "ng-zorro-antd": "~14.2.1",
-    "xlsx": "^0.16.9"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lorenzhh/im-grid.git"
