@@ -1,4 +1,5 @@
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
+import { AsyncPipe, NgFor, NgIf, NgStyle } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -16,16 +17,22 @@ import {
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule } from '@angular/forms';
 import { ThemeType } from '@ant-design/icons-angular';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzDividerModule } from 'ng-zorro-antd/divider';
 import {
   NzContextMenuService,
   NzDropDownModule,
   NzDropdownMenuComponent,
 } from 'ng-zorro-antd/dropdown';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
+import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzResizableModule, NzResizeEvent } from 'ng-zorro-antd/resizable';
+import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzTableComponent, NzTableModule, NzTableSortOrder } from 'ng-zorro-antd/table';
-import { BehaviorSubject, fromEvent, Observable, of, ReplaySubject, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, fromEvent, of } from 'rxjs';
 import {
   debounceTime,
   distinctUntilChanged,
@@ -54,28 +61,21 @@ import {
   Size,
 } from '../../models/column.model';
 import { Translation } from '../../models/settings.model';
+import { NgZorroAntdModule } from '../../modules/ng-zorro.module';
+import { FilterPipe } from '../../pipes/filter.pipe';
+import { FormatPipe } from '../../pipes/format.pipe';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import { ExcelService } from '../../services/excel.service';
 import { FormatService } from '../../services/format.service';
 import { SettingsService } from '../../services/settings.service';
+import { CellComponent } from './cell/cell.component';
+import { ImDrawerComponent } from './drawer/drawer.component';
+import { EditFormComponent } from './edit-form/edit-form.component';
+import { ImFilterCellComponent } from './filter-cell/filter-cell.component';
+import { ImFooterComponent } from './footer/footer.component';
+import { ImToolbarComponent } from './toolbar/toolbar.component';
 import { translations } from './translations/default-translations';
 import { dynamicTranslations } from './translations/dynamic-translations';
-import { CellComponent } from './cell/cell.component';
-import { AsyncPipe, NgFor, NgIf, NgStyle } from '@angular/common';
-import { TranslatePipe } from '../../pipes/translate.pipe';
-import { ImToolbarComponent } from './toolbar/toolbar.component';
-import { NzSwitchModule } from 'ng-zorro-antd/switch';
-import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { ImFilterCellComponent } from './filter-cell/filter-cell.component';
-import { EditFormComponent } from './edit-form/edit-form.component';
-import { FormatPipe } from '../../pipes/format.pipe';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzDividerModule } from 'ng-zorro-antd/divider';
-import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
-import { ImFooterComponent } from './footer/footer.component';
-import { ImDrawerComponent } from './drawer/drawer.component';
-import { FilterPipe } from '../../pipes/filter.pipe';
-import { NgZorroAntdModule } from '../../modules/ng-zorro.module';
 
 export interface Edit<T> {
   [key: number]: {
@@ -1145,7 +1145,10 @@ export class ImGridComponent<T extends { isNew?: boolean }>
             if (isExcluded || row[column.key] == null) {
               return false;
             }
-            return row[column.key].toString().includes(globalValue);
+            return row[column.key]
+              .toString()
+              .toLowerCase()
+              .includes(globalValue.toString().toLowerCase());
           });
         });
       }
