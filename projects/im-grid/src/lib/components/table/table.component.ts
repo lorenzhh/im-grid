@@ -144,6 +144,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   @Input() allowDelete = true;
   @Input() allowEdit = true;
   @Input() customEdit = false;
+  @Input() disableSearch = true;
   @Input() customDelete = false;
   @Input() allowCreate = true;
   @Input() clearSearchOnChanges = true;
@@ -384,7 +385,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
     this.resizing = true;
   }
   resizeEnd() {
-    this.resizing = false;
+    setTimeout(() => (this.resizing = false), 100);
     this.calculateColumnsWidth();
   }
   public calculateColumnsWidth() {
