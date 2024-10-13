@@ -1,5 +1,5 @@
 import { CurrencyPipe, DatePipe, DecimalPipe, registerLocaleData } from '@angular/common';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import ar from '@angular/common/locales/ar';
 import de from '@angular/common/locales/de';
 import en from '@angular/common/locales/en';
@@ -20,13 +20,7 @@ registerLocaleData(de);
 registerLocaleData(ar);
 
 @NgModule({
-  imports: [
-    NgZorroAntdModule,
-    NzModalModule,
-    HttpClientModule,
-    BrowserModule,
-    BrowserAnimationsModule,
-  ],
+  imports: [NgZorroAntdModule, NzModalModule, BrowserModule, BrowserAnimationsModule],
   providers: [
     provideRouter(routes),
     DatePipe,

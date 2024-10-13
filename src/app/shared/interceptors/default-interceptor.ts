@@ -14,7 +14,7 @@ export class DefaultInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next
       .handle(this.addHeaders(request))
-      .pipe(catchError((error) => throwError(error)));
+      .pipe(catchError(error => throwError(() => error)));
   }
 
   addHeaders(request: HttpRequest<any>): HttpRequest<any> {
