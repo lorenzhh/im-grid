@@ -257,8 +257,8 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   }
 
   private getNeighborColumn(key: string, forward: boolean): ImColumn {
-    const columns = this.columns.filter((column) => column.visible && !column.hidden);
-    const currentColumnIndex = columns.findIndex((column) => column.key === key);
+    const columns = this.columns.filter(column => column.visible && !column.hidden);
+    const currentColumnIndex = columns.findIndex(column => column.key === key);
     return columns.find((_, index) =>
       forward ? index > currentColumnIndex : index === currentColumnIndex - 1
     );
@@ -325,7 +325,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
         }
       } else {
         const cdkScrollEelemnt = this.table.cdkVirtualScrollViewport.elementRef;
-        const nextColumnIndex = this.columns.findIndex((column) => column.key === key);
+        const nextColumnIndex = this.columns.findIndex(column => column.key === key);
 
         const width = this.columns
           .filter(
@@ -352,7 +352,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
     this.normalizeConfig();
     this.calculateColumnsWidth();
     this.mapOfSort = {};
-    this.dataSource$.pipe(takeUntil(this.destroyed$)).subscribe((rows) => {
+    this.dataSource$.pipe(takeUntil(this.destroyed$)).subscribe(rows => {
       this.originalRows = [...rows];
       this.currentRows = [...rows];
       this.reset();
@@ -389,7 +389,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   }
   public calculateColumnsWidth() {
     this.columnsWidth = this.columns
-      .filter((column) => column.visible && !column.hidden && !column.childrenConfig)
+      .filter(column => column.visible && !column.hidden && !column.childrenConfig)
       .reduce(
         (accumulator, currentValue) => accumulator + currentValue.width,
         this.childrenKey ? 210 : 175
@@ -406,10 +406,10 @@ export class ImGridComponent<T extends { isNew?: boolean }>
 
   public resetRow() {
     const foundIndex = this.currentRows.findIndex(
-      (row) => row[this.uniqueKey] === this.form.getRawValue()[this.uniqueKey]
+      row => row[this.uniqueKey] === this.form.getRawValue()[this.uniqueKey]
     );
     const originalRow = this.originalRows.find(
-      (row) => row[this.uniqueKey] === this.form.getRawValue()[this.uniqueKey]
+      row => row[this.uniqueKey] === this.form.getRawValue()[this.uniqueKey]
     );
 
     if (foundIndex > -1 && originalRow) {
@@ -433,7 +433,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
       ...this.dragEndEvent(
         event,
         this.columns,
-        this.columns.filter((column) => column.visible && !column.hidden)
+        this.columns.filter(column => column.visible && !column.hidden)
       ),
     ];
   }
@@ -449,11 +449,11 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   public saveRows() {
     this.successSubject$
       .pipe(
-        filter((success) => success.action === ImAction.SaveAll),
+        filter(success => success.action === ImAction.SaveAll),
         takeUntil(this.destroyed$),
         take(1)
       )
-      .subscribe((success) => {
+      .subscribe(success => {
         if (success.data !== false) {
           this.originalRows = [...success.data];
           this.currentRows = [...success.data];
@@ -476,24 +476,24 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   private getUnsavedRows() {
     return Object.keys(this.editCache)
       .filter(
-        (uniqueKey) =>
+        uniqueKey =>
           this.editCache[uniqueKey].changed &&
           !this.editCache[uniqueKey].deleted &&
           !this.editCache[uniqueKey].new
       )
-      .map((uniqueKey) => this.editCache[uniqueKey].row);
+      .map(uniqueKey => this.editCache[uniqueKey].row);
   }
 
   private getDeletedRowsId() {
     return Object.keys(this.editCache).filter(
-      (uniqueKey) => this.editCache[uniqueKey].deleted
+      uniqueKey => this.editCache[uniqueKey].deleted
     );
   }
 
   private getNewRows() {
     return Object.keys(this.editCache)
-      .filter((id) => this.editCache[id].new && !this.editCache[id].deleted)
-      .map((id) => this.editCache[id].row);
+      .filter(id => this.editCache[id].new && !this.editCache[id].deleted)
+      .map(id => this.editCache[id].row);
   }
 
   private reset() {
@@ -515,7 +515,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   }
 
   private setUniqueValues() {
-    this.columns.forEach((column) => {
+    this.columns.forEach(column => {
       if (column.filter && column.filter.type === ImFilterType.Select) {
         column.filter.selectValues = this.getUniqueSelectFilterValues(column);
       }
@@ -525,9 +525,9 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   private getUniqueSelectFilterValues(column: ImColumn): unknown[] {
     if (column.columnType === ImColumnType.Array) {
       const uniques = [];
-      this.currentRows.forEach((row) => {
+      this.currentRows.forEach(row => {
         row[column.key].forEach((item: unknown) => {
-          const foundItem = uniques.find((unique) =>
+          const foundItem = uniques.find(unique =>
             unique && typeof unique === 'object'
               ? unique[column.valueProperty] === item[column.valueProperty]
               : unique === item
@@ -541,25 +541,25 @@ export class ImGridComponent<T extends { isNew?: boolean }>
     }
 
     return this.currentRows
-      .map((row) => row[column.key])
+      .map(row => row[column.key])
       .filter((value, index, self) => value != null && self.indexOf(value) === index);
   }
 
   public checkAll(value: boolean): void {
-    this.rows.forEach((item) => (this.mapOfCheckedId[item[this.uniqueKey]] = value));
+    this.rows.forEach(item => (this.mapOfCheckedId[item[this.uniqueKey]] = value));
     this.refreshStatus();
   }
 
   public refreshStatus(): void {
     this.isAllDisplayDataChecked =
       this.rows.length !== 0 &&
-      this.rows.every((item) => this.mapOfCheckedId[item[this.uniqueKey]]);
+      this.rows.every(item => this.mapOfCheckedId[item[this.uniqueKey]]);
     this.isIndeterminate =
-      this.rows.some((item) => this.mapOfCheckedId[item[this.uniqueKey]]) &&
+      this.rows.some(item => this.mapOfCheckedId[item[this.uniqueKey]]) &&
       !this.isAllDisplayDataChecked;
 
     this.numberOfChecked = this.rows.filter(
-      (item) => this.mapOfCheckedId[item[this.uniqueKey]]
+      item => this.mapOfCheckedId[item[this.uniqueKey]]
     ).length;
     this.selectedIds.emit(this.mapOfCheckedId);
   }
@@ -575,13 +575,13 @@ export class ImGridComponent<T extends { isNew?: boolean }>
       this.successSubject$
         .pipe(
           filter(
-            (success) =>
+            success =>
               success.action === ImAction.Update || success.action === ImAction.ADD
           ),
           takeUntil(this.destroyed$),
           take(1)
         )
-        .subscribe((success) => {
+        .subscribe(success => {
           if (success.data !== false) {
             this.closeModal();
           } else {
@@ -654,7 +654,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   }
 
   private normalizeConfig() {
-    this.columns.forEach((column) => {
+    this.columns.forEach(column => {
       if (column.isUnique === true) {
         column.editable = false;
         column.creatable = false;
@@ -788,7 +788,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
         this.childColumns = column.childrenConfig.columns;
         this.childrenKey = column.key;
         column.fieldType = ImFieldType.None;
-        this.childColumns.forEach((childColumn) => {
+        this.childColumns.forEach(childColumn => {
           if (childColumn.title === undefined) {
             childColumn.title = childColumn.key;
           }
@@ -802,8 +802,8 @@ export class ImGridComponent<T extends { isNew?: boolean }>
       }
     });
 
-    const uniqueColumn = this.columns.find((column) => column.isUnique);
-    const childrenColumn = this.columns.find((column) => column.childrenConfig);
+    const uniqueColumn = this.columns.find(column => column.isUnique);
+    const childrenColumn = this.columns.find(column => column.childrenConfig);
     if (uniqueColumn) {
       this.uniqueKey = uniqueColumn.key;
     } else {
@@ -903,10 +903,10 @@ export class ImGridComponent<T extends { isNew?: boolean }>
     );
 
     this.currentRows = this.currentRows.filter(
-      (row) => deletedRowIds.indexOf(row[this.uniqueKey].toString()) === -1
+      row => deletedRowIds.indexOf(row[this.uniqueKey].toString()) === -1
     );
 
-    deletedRowIds.forEach((deletedRowId) => {
+    deletedRowIds.forEach(deletedRowId => {
       delete this.mapOfCheckedId[deletedRowId];
 
       this.editCache[deletedRowId] = {
@@ -931,10 +931,10 @@ export class ImGridComponent<T extends { isNew?: boolean }>
       this.successSubject$
         .pipe(
           takeUntil(this.destroyed$),
-          filter((success) => success.action === ImAction.Delete),
+          filter(success => success.action === ImAction.Delete),
           take(1)
         )
-        .subscribe((success) => {
+        .subscribe(success => {
           if (success.data === false) {
             this.showError();
           }
@@ -968,7 +968,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
 
   private saveDelete(deletedRow: T): void {
     this.currentRows = this.currentRows.filter(
-      (row) => row[this.uniqueKey] !== deletedRow[this.uniqueKey]
+      row => row[this.uniqueKey] !== deletedRow[this.uniqueKey]
     );
     this.editCache[deletedRow[this.uniqueKey]] = {
       edit: false,
@@ -988,7 +988,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
 
   private saveEdit(editedRow: T): void {
     const foundCurrentRowIndex = this.currentRows.findIndex(
-      (row) => row[this.uniqueKey] === editedRow[this.uniqueKey]
+      row => row[this.uniqueKey] === editedRow[this.uniqueKey]
     );
 
     this.currentRows[foundCurrentRowIndex] = editedRow;
@@ -1018,7 +1018,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
 
   private resetEditCache(): void {
     this.editCache = {};
-    this.currentRows.forEach((row) => {
+    this.currentRows.forEach(row => {
       this.editCache[row[this.uniqueKey]] = {
         edit: false,
       };
@@ -1048,7 +1048,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
     for (const control in formGroup.controls) {
       if (formGroup.controls.hasOwnProperty(control)) {
         const formControl = formGroup.controls[control];
-        const foundColumn = this.columns.find((column) => column.key === control);
+        const foundColumn = this.columns.find(column => column.key === control);
         if (!foundColumn) {
           return null;
         }
@@ -1071,8 +1071,8 @@ export class ImGridComponent<T extends { isNew?: boolean }>
     previousKey: string,
     newKey: string
   ): ImColumn[] {
-    const prevIndex = array.findIndex((element) => element.key === previousKey);
-    const newIndex = array.findIndex((element) => element.key === newKey);
+    const prevIndex = array.findIndex(element => element.key === previousKey);
+    const newIndex = array.findIndex(element => element.key === newKey);
 
     if (newIndex > prevIndex) {
       const movedColumn = array[prevIndex];
@@ -1134,13 +1134,13 @@ export class ImGridComponent<T extends { isNew?: boolean }>
       let filteredData = [...this.currentRows];
 
       for (const column of filterColumns) {
-        filteredData = filteredData.filter((row) => rowShouldBeFiltered(row, column));
+        filteredData = filteredData.filter(row => rowShouldBeFiltered(row, column));
       }
       if (globalValue) {
-        filteredData = filteredData.filter((row) => {
-          return this.columns.find((column) => {
+        filteredData = filteredData.filter(row => {
+          return this.columns.find(column => {
             const isExcluded = this.notIncludedColumns.find(
-              (notIncludedColumn) => notIncludedColumn.key === column.key
+              notIncludedColumn => notIncludedColumn.key === column.key
             );
             if (isExcluded || row[column.key] == null) {
               return false;
@@ -1164,7 +1164,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
       this.rows,
       'file',
       this.columns.filter(
-        (column) => column.visible && !column.hidden && !column.childrenConfig
+        column => column.visible && !column.hidden && !column.childrenConfig
       )
     );
   }
@@ -1188,7 +1188,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
 
   public clearFilters() {
     this.columns.forEach(
-      (column) =>
+      column =>
         (column.filter = {
           ...column.filter,
           values: [],
@@ -1199,7 +1199,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   }
 
   private getColumnsWithFilter(columns: ImColumn[]): ImColumn[] {
-    columns.forEach((column) => {
+    columns.forEach(column => {
       const values = column.filter.values;
       if (
         values.length > 0 &&
@@ -1209,11 +1209,11 @@ export class ImGridComponent<T extends { isNew?: boolean }>
       }
     });
 
-    return columns.filter((column) => column.filter && column.filter.values.length > 0);
+    return columns.filter(column => column.filter && column.filter.values.length > 0);
   }
 
   openDrawer(row: T): void {
-    const foundColumn = this.columns.find((column) => column.key === this.childrenKey);
+    const foundColumn = this.columns.find(column => column.key === this.childrenKey);
     if (foundColumn) {
       this.childrenTitle = foundColumn.drawerTitle
         ? foundColumn.drawerTitle(row)
@@ -1243,10 +1243,10 @@ export class ImGridComponent<T extends { isNew?: boolean }>
           this.successSubject$
             .pipe(
               takeUntil(this.destroyed$),
-              filter((success) => success.action === ImAction.Update),
+              filter(success => success.action === ImAction.Update),
               take(1)
             )
-            .subscribe((success) => {
+            .subscribe(success => {
               changes.track.next({
                 data: success.data[this.childrenKey],
                 action: ImAction.SaveAll,

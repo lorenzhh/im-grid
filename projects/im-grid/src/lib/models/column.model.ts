@@ -30,6 +30,7 @@ export enum ImColumnType {
   Array = 'Array',
   Object = 'Object',
   Avatar = 'Avatar',
+  Color = 'Color',
 }
 
 export enum ImFilterType {

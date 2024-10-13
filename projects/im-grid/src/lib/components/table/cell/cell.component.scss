@@ -6,6 +6,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
 
+  .color {
+    height: 32px;
+    width: 32px;
+    border-radius: 50%;
+    margin: 0 auto;
+  }
+
   .boolean-icon {
     font-size: medium;
   }
@@ -25,7 +32,6 @@
 
       ::ng-deep nz-text-copy .anticon {
         font-size: x-small;
-
       }
     }
 
@@ -40,8 +46,8 @@
     ::ng-deep .ant-rate-star {
       font-size: large;
 
-      >div:hover,
-      >div:focus {
+      > div:hover,
+      > div:focus {
         transform: scale(1);
       }
     }

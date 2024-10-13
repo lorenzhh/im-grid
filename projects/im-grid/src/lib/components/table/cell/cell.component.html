@@ -4,8 +4,13 @@
     *ngSwitchCase="ImColumnType.Rating"
     nzAllowHalf
     nzDisabled
-  >
-  </nz-rate>
+  ></nz-rate>
+  <div
+    class="color"
+    *ngSwitchCase="ImColumnType.Color"
+    [style.backgroundColor]="value"
+  ></div>
+
   <nz-avatar
     [nzShape]="column.avatarShape"
     [nzSize]="'large'"
@@ -24,12 +29,11 @@
   </a>
   <i
     class="boolean-icon"
-    [nzType]="rawValue === 1 || rawValue === '1' || rawValue === true || rawValue === 'true' ? 'check': 'close'"
+    [nzType]="rawValue === 1 || rawValue === '1' || rawValue === true || rawValue === 'true' ? 'check' : 'close'"
     *ngSwitchCase="ImColumnType.Boolean"
     nz-icon
-  >
-  </i>
-  <ng-container *ngSwitchDefault>{{value}}</ng-container>
+  ></i>
+  <ng-container *ngSwitchDefault>{{ value }}</ng-container>
 </ng-container>
 <div
   class="footer-icons"
@@ -54,7 +58,6 @@
       *ngIf="column.copy"
       nz-paragraph
       nzCopyable
-    >
-    </p>
+    ></p>
   </div>
 </div>

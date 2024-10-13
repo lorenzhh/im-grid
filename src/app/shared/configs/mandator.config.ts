@@ -12,6 +12,12 @@ export const columns: ImColumn[] = [
     isUnique: true,
   },
   {
+    key: 'color',
+    title: 'Color',
+    columnType: ImColumnType.Color,
+    width: 50
+  },
+  {
     key: 'shortName',
     title: 'Short Name',
     filter: {
