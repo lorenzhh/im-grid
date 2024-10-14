@@ -13,7 +13,7 @@ import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
-import { NgFor } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 
 @Component({
   standalone: true,
@@ -23,6 +23,7 @@ import { NgFor } from '@angular/common';
     FormsModule,
     NzDividerModule,
     NgFor,
+    NgIf,
     ReactiveFormsModule,
     NzInputModule,
     NzPopconfirmModule,
@@ -36,6 +37,7 @@ export class ImFooterComponent {
   @Input() notIncludedColumns: ImColumn[];
   @Input() columns: ImColumn[];
   @Input() filterForm: FormGroup;
+  @Input() showExclude: boolean = true;
   @Input() rowsLength: number;
   @Output() filterRows = new EventEmitter<ImColumn[]>();
 

@@ -1,9 +1,10 @@
 <div>
-  {{ translations.records | translate}}:
+  {{ translations.records | translate }}:
   <b>{{ rowsLength }}</b>
 </div>
 <div class="table-filter-footer">
   <nz-select
+    *ngIf="showExclude"
     [(ngModel)]="notIncludedColumns"
     [nzPlaceHolder]="translations.excludeColumns | translate"
     (ngModelChange)="filterRows.emit($event)"
@@ -27,7 +28,7 @@
       type="text"
       nz-input
       formControlName="search"
-    >
+    />
   </nz-input-group>
   <ng-template #suffixIconSearch>
     <i
