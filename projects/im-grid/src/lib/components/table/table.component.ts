@@ -163,7 +163,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   @Output() updated = new EventEmitter<ChangeEvent>();
   @Output() customUpdatedRow = new EventEmitter<T>();
   @Output() customDeletedRow = new EventEmitter<T>();
-  @Output() customCreateRow = new EventEmitter<void>();
+  @Output() customCreatedRow = new EventEmitter<void>();
 
   public childColumns: ImColumn[];
   public rows: T[] = [];
@@ -884,7 +884,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
 
   public openCreateOrEditModal(row?: T): void {
     if (!row && this.customCreate) {
-      this.customCreateRow.emit();
+      this.customCreatedRow.emit();
       return;
     }
 
