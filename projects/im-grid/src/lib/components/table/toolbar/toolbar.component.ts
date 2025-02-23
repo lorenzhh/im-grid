@@ -1,3 +1,4 @@
+import { NgIf } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -5,15 +6,14 @@ import {
   Input,
   Output,
 } from '@angular/core';
-import { Size } from '../../../models/column.model';
-import { translations } from '../translations/default-translations';
-import { TranslatePipe } from '../../../pipes/translate.pipe';
-import { NzRadioModule } from 'ng-zorro-antd/radio';
-import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { FormsModule } from '@angular/forms';
-import { NgFor, NgIf } from '@angular/common';
-import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzDividerModule } from 'ng-zorro-antd/divider';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzRadioModule } from 'ng-zorro-antd/radio';
+import { Size } from '../../../models/column.model';
+import { TranslatePipe } from '../../../pipes/translate.pipe';
+import { translations } from '../translations/default-translations';
 @Component({
   standalone: true,
   imports: [
@@ -24,7 +24,6 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
     NgIf,
     NzButtonModule,
     NzIconModule,
-    NgFor,
   ],
   selector: 'im-toolbar',
   templateUrl: './toolbar.component.html',
