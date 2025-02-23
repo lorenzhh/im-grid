@@ -16,7 +16,6 @@ import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NgFor, NgIf } from '@angular/common';
 
 @Component({
-  standalone: true,
   imports: [
     TranslatePipe,
     NzSelectModule,

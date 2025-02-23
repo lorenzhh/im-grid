@@ -15,7 +15,6 @@ import { Size } from '../../../models/column.model';
 import { TranslatePipe } from '../../../pipes/translate.pipe';
 import { translations } from '../translations/default-translations';
 @Component({
-  standalone: true,
   imports: [
     TranslatePipe,
     NzRadioModule,

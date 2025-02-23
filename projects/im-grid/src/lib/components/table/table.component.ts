@@ -88,7 +88,6 @@ export interface Edit<T> {
 }
 
 @Component({
-  standalone: true,
   imports: [
     ImToolbarComponent,
     NzSwitchModule,

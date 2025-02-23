@@ -17,7 +17,6 @@ export enum Entries {
 }
 
 @Component({
-  standalone: true,
   imports: [ImGridComponent, AsyncPipe],
   selector: 'app-welcome',
   templateUrl: './welcome.component.html',
@@ -45,9 +44,9 @@ export class WelcomeComponent implements OnInit {
 
     this.section
       .pipe(
-        filter((section) => !!section),
+        filter(section => !!section),
         tap(() => this.dataSource$.next([])),
-        tap((section) => this.setColumns(section)),
+        tap(section => this.setColumns(section)),
         tap(() => this.dataService.updateLoading(true)),
         delay(1000)
       )
@@ -56,7 +55,7 @@ export class WelcomeComponent implements OnInit {
         this.dataService.updateLoading(false);
       });
 
-    this.route.paramMap.subscribe((params) => {
+    this.route.paramMap.subscribe(params => {
       this.section.next(params.get('section'));
     });
   }
@@ -81,12 +80,12 @@ export class WelcomeComponent implements OnInit {
 
   created(changeEvent: ChangeEvent) {
     this.dataService.post(this.section.value, changeEvent.row).subscribe(
-      (response) =>
+      response =>
         changeEvent.track.next({
           data: response,
           action: changeEvent.action,
         }),
-      (error) =>
+      error =>
         changeEvent.track.next({
           data: false,
           action: changeEvent.action,
@@ -96,12 +95,12 @@ export class WelcomeComponent implements OnInit {
 
   deleted(changeEvent: ChangeEvent) {
     this.dataService.delete(this.section.value, changeEvent.row).subscribe(
-      (response) =>
+      response =>
         changeEvent.track.next({
           data: response,
           action: changeEvent.action,
         }),
-      (error) =>
+      error =>
         changeEvent.track.next({
           data: false,
           action: changeEvent.action,
@@ -110,15 +109,15 @@ export class WelcomeComponent implements OnInit {
   }
 
   updated(changeEvent: ChangeEvent) {
-    const uniqueColumn = this.columns.find((column) => column.isUnique);
+    const uniqueColumn = this.columns.find(column => column.isUnique);
 
     this.dataService.put(this.section.value, changeEvent.row, uniqueColumn.key).subscribe(
-      (response) =>
+      response =>
         changeEvent.track.next({
           data: response,
           action: changeEvent.action,
         }),
-      (error) =>
+      error =>
         changeEvent.track.next({
           data: false,
           action: changeEvent.action,

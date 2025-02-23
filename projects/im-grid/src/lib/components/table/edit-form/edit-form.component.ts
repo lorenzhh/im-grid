@@ -16,7 +16,6 @@ import { NzRateModule } from 'ng-zorro-antd/rate';
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 
 @Component({
-  standalone: true,
   imports: [
     NzInputModule,
     ReactiveFormsModule,

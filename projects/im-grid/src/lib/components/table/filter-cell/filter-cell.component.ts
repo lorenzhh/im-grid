@@ -22,7 +22,6 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzRateModule } from 'ng-zorro-antd/rate';
 
 @Component({
-  standalone: true,
   imports: [
     TranslatePipe,
     NgSwitch,

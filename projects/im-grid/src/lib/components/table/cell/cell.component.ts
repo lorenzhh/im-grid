@@ -14,7 +14,6 @@ import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { ImColumn, ImColumnType } from '../../../models/column.model';
 
 @Component({
-  standalone: true,
   imports: [
     NzIconModule,
     NgIf,

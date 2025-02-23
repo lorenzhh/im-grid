@@ -9,7 +9,6 @@ import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzSliderModule } from 'ng-zorro-antd/slider';
 
 @Component({
-  standalone: true,
   imports: [
     NzDividerModule,
     NzLayoutModule,

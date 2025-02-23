@@ -17,7 +17,6 @@ import { DynamicComponentConfig } from '../../../models/column.model';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 
 @Component({
-  standalone: true,
   imports: [NzDrawerModule, NzResizableModule],
   selector: 'im-drawer',
   templateUrl: './drawer.component.html',
