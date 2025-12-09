@@ -1,4 +1,4 @@
-import { NgIf } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -20,10 +20,9 @@ import { translations } from '../translations/default-translations';
     NzRadioModule,
     NzDividerModule,
     FormsModule,
-    NgIf,
     NzButtonModule,
-    NzIconModule,
-  ],
+    NzIconModule
+],
   selector: 'im-toolbar',
   templateUrl: './toolbar.component.html',
   styleUrls: ['./toolbar.component.css'],

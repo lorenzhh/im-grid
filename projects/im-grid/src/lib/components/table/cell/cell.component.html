@@ -1,63 +1,73 @@
-<ng-container [ngSwitch]="column.columnType">
-  <nz-rate
-    [ngModel]="value"
-    *ngSwitchCase="ImColumnType.Rating"
-    nzAllowHalf
-    nzDisabled
-  ></nz-rate>
-  <div
-    class="color"
-    *ngSwitchCase="ImColumnType.Color"
-    [style.backgroundColor]="value"
-  ></div>
 
-  <nz-avatar
-    [nzShape]="column.avatarShape"
-    [nzSize]="'large'"
-    [nzSrc]="rawValue"
-    *ngSwitchCase="ImColumnType.Avatar"
-  ></nz-avatar>
-  <a
-    [href]="value"
-    [style.width.%]="100"
-    *ngSwitchCase="ImColumnType.Website"
-  >
-    <i
-      nz-icon
-      nzType="arrow-right"
-    ></i>
-  </a>
-  <i
-    class="boolean-icon"
-    [nzType]="rawValue === 1 || rawValue === '1' || rawValue === true || rawValue === 'true' ? 'check' : 'close'"
-    *ngSwitchCase="ImColumnType.Boolean"
-    nz-icon
-  ></i>
-  <ng-container *ngSwitchDefault>{{ value }}</ng-container>
-</ng-container>
-<div
-  class="footer-icons"
-  *ngIf="focused && value != null"
->
-  <div>
+@switch (column.columnType) {
+  @case (ImColumnType.Rating) {
+    <nz-rate
+      [ngModel]="value"
+      nzAllowHalf
+      nzDisabled
+    ></nz-rate>
+  }
+  @case (ImColumnType.Color) {
+    <div
+      class="color"
+      [style.backgroundColor]="value"
+    ></div>
+  }
+  @case (ImColumnType.Avatar) {
+    <nz-avatar
+      [nzShape]="column.avatarShape"
+      [nzSize]="'large'"
+      [nzSrc]="rawValue"
+    ></nz-avatar>
+  }
+  @case (ImColumnType.Website) {
     <a
-      (click)="zoomed.emit()"
-      *ngIf="column.zoom"
-    >
+      [href]="value"
+      [style.width.%]="100"
+      >
       <i
-        class="zoom-icon"
         nz-icon
-        nzType="zoom-in"
+        nzType="arrow-right"
       ></i>
     </a>
+  }
+  @case (ImColumnType.Boolean) {
+    <i
+      class="boolean-icon"
+      [nzType]="rawValue === 1 || rawValue === '1' || rawValue === true || rawValue === 'true' ? 'check' : 'close'"
+      nz-icon
+    ></i>
+  }
+  @default {
+    {{ value }}
+  }
+}
+@if (focused && value != null) {
+  <div
+    class="footer-icons"
+    >
+    <div>
+      @if (column.zoom) {
+        <a
+          (click)="zoomed.emit()"
+          >
+          <i
+            class="zoom-icon"
+            nz-icon
+            nzType="zoom-in"
+          ></i>
+        </a>
+      }
+    </div>
+    <div>
+      @if (column.copy) {
+        <p
+          class="copy-icon"
+          [nzCopyText]="value.toString()"
+          nz-paragraph
+          nzCopyable
+        ></p>
+      }
+    </div>
   </div>
-  <div>
-    <p
-      class="copy-icon"
-      [nzCopyText]="value.toString()"
-      *ngIf="column.copy"
-      nz-paragraph
-      nzCopyable
-    ></p>
-  </div>
-</div>
+}

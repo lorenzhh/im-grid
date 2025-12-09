@@ -1,26 +1,27 @@
 <form
   [formGroup]="form"
   nz-form
->
-  <ng-container *ngFor="let column of columns">
-    <ng-container *ngIf="column.fieldType !== ImFieldType.None">
-      <ng-container *ngIf="!column.hiddenForm">
+  >
+  @for (column of columns; track column) {
+    @if (column.fieldType !== ImFieldType.None) {
+      @if (!column.hiddenForm) {
         <nz-form-item>
           <nz-form-label [nzSpan]="7">{{ column.title | translate }}</nz-form-label>
           <nz-form-control
-            [ngSwitch]="column.fieldType"
             [nzErrorTip]="form.get(column.key).errors ? (form.get(column.key).errors | firstProperty | translate) : ''"
             [nzSpan]="12"
-          >
-            <nz-select
-              [compareWith]="column.compareFn ? column.compareFn : defaultCompareWith"
-              [formControlName]="column.key"
-              [nzMode]="column.multiSelect ? 'multiple' : 'default'"
-              [nzPlaceHolder]="(column.title | translate) + '...'"
-              *ngSwitchCase="ImFieldType.Select"
-              nzAllowClear
             >
-              <nz-option
+            @switch (column.fieldType) {
+              @case (ImFieldType.Select) {
+                <nz-select
+                  [compareWith]="column.compareFn ? column.compareFn : defaultCompareWith"
+                  [formControlName]="column.key"
+                  [nzMode]="column.multiSelect ? 'multiple' : 'default'"
+                  [nzPlaceHolder]="(column.title | translate) + '...'"
+                  nzAllowClear
+                  >
+                  @for (option of column.selectValues; track option) {
+                    <nz-option
                 [nzLabel]="
                   (option | typeof) === 'object'
                     ? option[column.labelProperty]
@@ -28,64 +29,73 @@
                     ? (option | format : column)
                     : ''
                 "
-                [nzValue]="column.columnType === ImColumnType.Array && !column.multiSelect ? [option] : option"
-                *ngFor="let option of column.selectValues"
-              ></nz-option>
-            </nz-select>
-            <nz-input-number
-              [formControlName]="column.key"
-              [nzPlaceHolder]="(column.title | translate) + '...'"
-              [nzStep]="1"
-              [style.width.%]="100"
-              *ngSwitchCase="ImFieldType.Number"
-            ></nz-input-number>
-            <label
-              [formControlName]="column.key"
-              *ngSwitchCase="ImFieldType.Checkbox"
-              nz-checkbox
-            ></label>
-            <nz-rate
-              [formControlName]="column.key"
-              *ngSwitchCase="ImFieldType.Rating"
-              nzAllowHalf
-            ></nz-rate>
-            <nz-input-group
-              [nzAddOnAfterIcon]="'global'"
-              *ngSwitchCase="ImFieldType.Website"
-            >
-              <input
-                [formControlName]="column.key"
-                [placeholder]="(column.title | translate) + '...'"
-                type="text"
-                nz-input
-              />
-            </nz-input-group>
-            <nz-date-picker
-              [formControlName]="column.key"
-              [nzFormat]="column.showSeconds ? TimeFormats[locale] : TimeFormats[locale].replace(':ss', '')"
-              [nzPlaceHolder]="(column.title | translate) + '...'"
-              [nzShowTime]="column.nzShowTime"
-              [style.width.%]="100"
-              *ngSwitchCase="ImFieldType.Date"
-            ></nz-date-picker>
-            <textarea
-              [formControlName]="column.key"
-              [placeholder]="(column.title | translate) + '...'"
-              *ngSwitchCase="ImFieldType.Textarea"
-              width="700"
-              height="500"
-              nz-input
-              rows="5"
-            ></textarea>
-            <input
-              [formControlName]="column.key"
-              [placeholder]="(column.title | translate) + '...'"
-              *ngSwitchDefault
-              nz-input
-            />
-          </nz-form-control>
-        </nz-form-item>
-      </ng-container>
-    </ng-container>
-  </ng-container>
-</form>
+                      [nzValue]="column.columnType === ImColumnType.Array && !column.multiSelect ? [option] : option"
+                    ></nz-option>
+                  }
+                </nz-select>
+              }
+              @case (ImFieldType.Number) {
+                <nz-input-number
+                  [formControlName]="column.key"
+                  [nzPlaceHolder]="(column.title | translate) + '...'"
+                  [nzStep]="1"
+                  [style.width.%]="100"
+                ></nz-input-number>
+              }
+              @case (ImFieldType.Checkbox) {
+                <label
+                  [formControlName]="column.key"
+                  nz-checkbox
+                ></label>
+              }
+              @case (ImFieldType.Rating) {
+                <nz-rate
+                  [formControlName]="column.key"
+                  nzAllowHalf
+                ></nz-rate>
+              }
+              @case (ImFieldType.Website) {
+                <nz-input-group
+                  [nzAddOnAfterIcon]="'global'"
+                  >
+                  <input
+                    [formControlName]="column.key"
+                    [placeholder]="(column.title | translate) + '...'"
+                    type="text"
+                    nz-input
+                    />
+                  </nz-input-group>
+                }
+                @case (ImFieldType.Date) {
+                  <nz-date-picker
+                    [formControlName]="column.key"
+                    [nzFormat]="column.showSeconds ? TimeFormats[locale] : TimeFormats[locale].replace(':ss', '')"
+                    [nzPlaceHolder]="(column.title | translate) + '...'"
+                    [nzShowTime]="column.nzShowTime"
+                    [style.width.%]="100"
+                  ></nz-date-picker>
+                }
+                @case (ImFieldType.Textarea) {
+                  <textarea
+                    [formControlName]="column.key"
+                    [placeholder]="(column.title | translate) + '...'"
+                    width="700"
+                    height="500"
+                    nz-input
+                    rows="5"
+                  ></textarea>
+                }
+                @default {
+                  <input
+                    [formControlName]="column.key"
+                    [placeholder]="(column.title | translate) + '...'"
+                    nz-input
+                    />
+                }
+              }
+            </nz-form-control>
+          </nz-form-item>
+        }
+      }
+    }
+  </form>

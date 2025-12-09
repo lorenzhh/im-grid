@@ -1,4 +1,4 @@
-import { NgFor, NgIf, NgSwitch, NgSwitchCase, NgSwitchDefault } from '@angular/common';
+
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { NzFormModule } from 'ng-zorro-antd/form';
@@ -23,19 +23,14 @@ import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
     NzSelectModule,
     NzFormModule,
     TranslatePipe,
-    NgSwitch,
-    NgSwitchCase,
-    NgSwitchDefault,
     FirstPropertyPipe,
     TypeofPipe,
     NzDatePickerModule,
-    NgIf,
-    NgFor,
     FormatPipe,
     NzRateModule,
     NzCheckboxModule,
-    NzInputNumberModule,
-  ],
+    NzInputNumberModule
+],
   selector: 'im-edit-form',
   templateUrl: './edit-form.component.html',
   styleUrls: ['./edit-form.component.css'],

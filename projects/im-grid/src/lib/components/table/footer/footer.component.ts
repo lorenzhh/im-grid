@@ -13,7 +13,7 @@ import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
-import { NgFor, NgIf } from '@angular/common';
+
 
 @Component({
   imports: [
@@ -21,12 +21,10 @@ import { NgFor, NgIf } from '@angular/common';
     NzSelectModule,
     FormsModule,
     NzDividerModule,
-    NgFor,
-    NgIf,
     ReactiveFormsModule,
     NzInputModule,
-    NzPopconfirmModule,
-  ],
+    NzPopconfirmModule
+],
   selector: 'im-footer',
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.css'],

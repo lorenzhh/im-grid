@@ -1,5 +1,5 @@
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
-import { AsyncPipe, NgFor, NgIf, NgStyle } from '@angular/common';
+import { AsyncPipe, NgStyle } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -96,8 +96,6 @@ export interface Edit<T> {
     ImFilterCellComponent,
     EditFormComponent,
     FilterPipe,
-    NgIf,
-    NgFor,
     NzDropDownModule,
     NzInputModule,
     NzDividerModule,
@@ -112,8 +110,8 @@ export interface Edit<T> {
     NzTableModule,
     NgStyle,
     TranslatePipe,
-    NzResizableModule,
-  ],
+    NzResizableModule
+],
   selector: 'im-grid',
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.scss'],
@@ -154,7 +152,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   @Input() allowExcel = false;
   @Input() childAllowExcel = false;
   @Input() size: Size = 'default';
-
+  
   @Output() selectedIds = new EventEmitter<{ [key: string]: boolean }>();
   @Output() save = new EventEmitter<ChangesEvent>();
   @Output() deleted = new EventEmitter<ChangeEvent>();

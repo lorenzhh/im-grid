@@ -1,4 +1,4 @@
-import { NgIf, NgSwitch, NgSwitchCase, NgSwitchDefault } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -16,15 +16,11 @@ import { ImColumn, ImColumnType } from '../../../models/column.model';
 @Component({
   imports: [
     NzIconModule,
-    NgIf,
-    NgSwitch,
     NzRateModule,
     FormsModule,
     NzAvatarModule,
-    NgSwitchCase,
-    NgSwitchDefault,
-    NzTypographyModule,
-  ],
+    NzTypographyModule
+],
   selector: 'im-cell',
   templateUrl: './cell.component.html',
   styleUrls: ['./cell.component.scss'],
