@@ -1,5 +1,11 @@
 import { AsyncPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  inject,
+  viewChild,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChangeEvent, ChangesEvent, EditMode, ImColumn, ImGridComponent } from 'im-grid';
 import { BehaviorSubject, ReplaySubject } from 'rxjs';
@@ -24,13 +30,14 @@ export enum Entries {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WelcomeComponent implements OnInit {
-  @ViewChild('table') table: ImGridComponent<any>;
+  private route = inject(ActivatedRoute);
+  dataService = inject(DataService);
+
+  readonly table = viewChild<ImGridComponent<any>>('table');
   public columns: ImColumn[];
   public dataSource$: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
   EditMode = EditMode;
   private section = new BehaviorSubject('');
-
-  constructor(private route: ActivatedRoute, public dataService: DataService) {}
 
   ngOnInit() {
     // this.section.pipe(
@@ -75,7 +82,7 @@ export class WelcomeComponent implements OnInit {
   }
 
   customValidation = () => {
-    return !this.table.hasUnsavedChanges();
+    return !this.table().hasUnsavedChanges();
   };
 
   created(changeEvent: ChangeEvent) {

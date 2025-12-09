@@ -1,8 +1,8 @@
 <nz-drawer
   [nzBodyStyle]="{ height: 'calc(100% - 55px)', padding: '0px' }"
   [nzPlacement]="'right'"
-  [nzTitle]="title"
-  [nzVisible]="visible"
+  [nzTitle]="title()"
+  [nzVisible]="visible()"
   [nzWidth]="width"
   (nzOnClose)="closed.emit()"
 >

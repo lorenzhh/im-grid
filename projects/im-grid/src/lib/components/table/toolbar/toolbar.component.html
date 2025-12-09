@@ -1,21 +1,21 @@
 <div>
-  @if (label) {
+  @if (label()) {
     <div
       class="label"
       >
-      {{ label }}
+      {{ label() }}
     </div>
   }
-  @if (numberOfChecked > 0 && !directMode) {
+  @if (numberOfChecked() > 0 && !directMode()) {
     <button
-      (click)="deleteRows.emit(numberOfChecked > 1000)"
+      (click)="deleteRows.emit(numberOfChecked() > 1000)"
       nz-button
       >
       <i
         nz-icon
         nzType="delete"
       ></i>
-      @if (numberOfChecked > 1000) {
+      @if (numberOfChecked() > 1000) {
         Delete first 1000
       } @else {
         Delete
@@ -24,7 +24,7 @@
   }
 </div>
 <div class="toolbar-buttons">
-  @if (allowExcel) {
+  @if (allowExcel()) {
     <button
       (click)="exportAsExcel.emit()"
       nz-button
@@ -36,7 +36,7 @@
       {{ translations.excel | translate }}
     </button>
   }
-  @if (allowExcel) {
+  @if (allowExcel()) {
     <nz-divider
       nzType="vertical"
     ></nz-divider>
@@ -78,14 +78,14 @@
       ></i>
     </label>
   </nz-radio-group>
-  @if (!directMode) {
+  @if (!directMode()) {
     <nz-divider
       nzType="vertical"
     ></nz-divider>
   }
-  @if (!directMode) {
+  @if (!directMode()) {
     <button
-      [disabled]="unsavedRowsLength + deletedRowsLength + newRowsLength === 0"
+      [disabled]="unsavedRowsLength() + deletedRowsLength() + newRowsLength() === 0"
       [title]="translations.discardChanges | translate"
       (click)="resetRows.emit()"
       nz-button
@@ -96,12 +96,12 @@
       ></i>
     </button>
   }
-  @if (allowCreate) {
+  @if (allowCreate()) {
     <nz-divider
       nzType="vertical"
     ></nz-divider>
   }
-  @if (allowCreate) {
+  @if (allowCreate()) {
     <button
       [title]="translations.createNew | translate"
       (click)="addRow.emit()"
@@ -113,16 +113,16 @@
       ></i>
     </button>
   }
-  @if (!directMode) {
+  @if (!directMode()) {
     <nz-divider
       nzType="vertical"
     ></nz-divider>
   }
-  @if (!directMode) {
+  @if (!directMode()) {
     <button
-      [class.saveButton]="!loading && (unsavedRowsLength + deletedRowsLength + newRowsLength !== 0)"
-      [disabled]="loading || (unsavedRowsLength + deletedRowsLength + newRowsLength) === 0"
-      [title]="'New rows: ' + newRowsLength + ' - Updated rows: ' + unsavedRowsLength + ' - Deleted rows: ' + deletedRowsLength"
+      [class.saveButton]="!loading() && (unsavedRowsLength() + deletedRowsLength() + newRowsLength() !== 0)"
+      [disabled]="loading() || (unsavedRowsLength() + deletedRowsLength() + newRowsLength()) === 0"
+      [title]="'New rows: ' + newRowsLength() + ' - Updated rows: ' + unsavedRowsLength() + ' - Deleted rows: ' + deletedRowsLength()"
       (click)="saveRows.emit()"
       nz-button
       >

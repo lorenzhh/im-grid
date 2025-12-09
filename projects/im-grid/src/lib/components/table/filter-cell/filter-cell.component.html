@@ -1,6 +1,6 @@
-<ng-container [ngSwitch]="column.filter.type">
+<ng-container [ngSwitch]="column().filter.type">
   <nz-select
-    [(ngModel)]="column.filter.values[0]"
+    [(ngModel)]="column().filter.values[0]"
     [style.width.%]="100"
     (ngModelChange)="filterRows.emit()"
     *ngSwitchCase="ImFilterType.Boolean"
@@ -19,10 +19,10 @@
     ></nz-option>
   </nz-select>
   <nz-select
-    [(ngModel)]="column.filter.values"
+    [(ngModel)]="column().filter.values"
     [nzMaxTagCount]="0"
     [nzMaxTagPlaceholder]="selectListTagPlaceholder"
-    [nzMode]="column.filter.multiSelect ? 'multiple': 'default'"
+    [nzMode]="column().filter.multiSelect ? 'multiple': 'default'"
     [style.width.%]="100"
     (ngModelChange)="filterRows.emit()"
     *ngSwitchCase="ImFilterType.Select"
@@ -32,14 +32,14 @@
   >
     <nz-option
       [nzLabel]="(option | typeof) === 'object' 
-        ? option[column.labelProperty] 
+        ? option[column().labelProperty] 
         : (option | typeof) !== 'null'
-          ? (option | format: column: (settingsService.settings$ | async)) 
+          ? (option | format: column(): (settingsService.settings$ | async)) 
           : ''"
-      [nzValue]="column.columnType === ImColumnType.Array && !column.multiSelect 
+      [nzValue]="column().columnType === ImColumnType.Array && !column().multiSelect 
         ? [option] 
         : option"
-      *ngFor="let option of column.filter.selectValues"
+      *ngFor="let option of column().filter.selectValues"
     ></nz-option>
   </nz-select>
   <ng-template
@@ -55,8 +55,8 @@
   >
     <input
       class="filter-input-from"
-      [(ngModel)]="column.filter.values[0]"
-      [max]="column.filter.values[1]"
+      [(ngModel)]="column().filter.values[0]"
+      [max]="column().filter.values[1]"
       (ngModelChange)="filterRows.emit()"
       type="number"
       nz-input
@@ -70,15 +70,15 @@
     >
     <input
       class="filter-input-until"
-      [(ngModel)]="column.filter.values[1]"
-      [min]="column.filter.values[0]"
+      [(ngModel)]="column().filter.values[1]"
+      [min]="column().filter.values[0]"
       (ngModelChange)="filterRows.emit()"
       type="number"
       nz-input
     >
   </nz-input-group>
   <input
-    [(ngModel)]="column.filter.values[0]"
+    [(ngModel)]="column().filter.values[0]"
     (ngModelChange)="filterRows.emit()"
     *ngSwitchCase="ImFilterType.FreeText"
     nz-input
@@ -86,13 +86,13 @@
     nzSize="small"
   >
   <nz-rate
-    [(ngModel)]="column.filter.values[0]"
+    [(ngModel)]="column().filter.values[0]"
     (ngModelChange)="filterRows.emit()"
     *ngSwitchCase="ImFilterType.Rating"
     nzAllowHalf
   ></nz-rate>
   <nz-range-picker
-    [(ngModel)]="column.filter.values"
+    [(ngModel)]="column().filter.values"
     [nzFormat]="DateFormats[settingsService.locale]"
     [style.width.%]="100"
     (ngModelChange)="filterRows.emit()"

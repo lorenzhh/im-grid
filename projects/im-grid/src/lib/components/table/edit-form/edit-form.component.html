@@ -1,14 +1,14 @@
 <form
-  [formGroup]="form"
+  [formGroup]="form()"
   nz-form
   >
-  @for (column of columns; track column) {
+  @for (column of columns(); track column.key) {
     @if (column.fieldType !== ImFieldType.None) {
       @if (!column.hiddenForm) {
         <nz-form-item>
           <nz-form-label [nzSpan]="7">{{ column.title | translate }}</nz-form-label>
           <nz-form-control
-            [nzErrorTip]="form.get(column.key).errors ? (form.get(column.key).errors | firstProperty | translate) : ''"
+            [nzErrorTip]="form().get(column.key).errors ? (form().get(column.key).errors | firstProperty | translate) : ''"
             [nzSpan]="12"
             >
             @switch (column.fieldType) {
@@ -69,7 +69,7 @@
                 @case (ImFieldType.Date) {
                   <nz-date-picker
                     [formControlName]="column.key"
-                    [nzFormat]="column.showSeconds ? TimeFormats[locale] : TimeFormats[locale].replace(':ss', '')"
+                    [nzFormat]="column.showSeconds ? TimeFormats[locale()] : TimeFormats[locale()].replace(':ss', '')"
                     [nzPlaceHolder]="(column.title | translate) + '...'"
                     [nzShowTime]="column.nzShowTime"
                     [style.width.%]="100"

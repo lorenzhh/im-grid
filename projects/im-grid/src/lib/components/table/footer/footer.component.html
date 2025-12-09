@@ -1,9 +1,9 @@
 <div>
   {{ translations.records | translate }}:
-  <b>{{ rowsLength }}</b>
+  <b>{{ rowsLength() }}</b>
 </div>
 <div class="table-filter-footer">
-  @if (showExclude) {
+  @if (showExclude()) {
     <nz-select
       [(ngModel)]="notIncludedColumns"
       [nzPlaceHolder]="translations.excludeColumns | translate"
@@ -12,7 +12,7 @@
       nzMode="multiple"
       nzAllowClear
       >
-      @for (column of columns; track column) {
+      @for (column of columns(); track column.key) {
         <nz-option
           [nzLabel]="column.title | translate"
           [nzValue]="column"
@@ -22,7 +22,7 @@
   }
   <nz-divider nzType="vertical"></nz-divider>
   <nz-input-group
-    [formGroup]="filterForm"
+    [formGroup]="filterForm()"
     [nzSuffix]="suffixIconSearch"
     >
     <input

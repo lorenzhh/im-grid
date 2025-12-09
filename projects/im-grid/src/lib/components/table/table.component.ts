@@ -6,14 +6,16 @@ import {
   Component,
   EventEmitter,
   HostListener,
-  Input,
   OnChanges,
   OnDestroy,
   OnInit,
-  Output,
   SimpleChanges,
   TemplateRef,
-  ViewChild,
+  inject,
+  input,
+  model,
+  output,
+  viewChild,
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule } from '@angular/forms';
 import { ThemeType } from '@ant-design/icons-angular';
@@ -110,8 +112,8 @@ export interface Edit<T> {
     NzTableModule,
     NgStyle,
     TranslatePipe,
-    NzResizableModule
-],
+    NzResizableModule,
+  ],
   selector: 'im-grid',
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.scss'],
@@ -120,47 +122,57 @@ export interface Edit<T> {
 export class ImGridComponent<T extends { isNew?: boolean }>
   implements OnInit, OnChanges, OnDestroy
 {
-  @ViewChild('createEditModal', { static: true }) createEditModal: TemplateRef<any>;
-  @ViewChild('modalFooter', { static: true }) modalFooter: TemplateRef<any>;
-  @ViewChild('virtualTable', { static: true }) table: NzTableComponent<T>;
+  private formBuilder = inject(FormBuilder);
+  private modalService = inject(NzModalService);
+  private formatService = inject(FormatService);
+  private messageService = inject(NzMessageService);
+  private cd = inject(ChangeDetectorRef);
+  settingsService = inject(SettingsService);
+  private nzContextMenuService = inject(NzContextMenuService);
 
-  @Input() columns: ImColumn[];
-  @Input() buttons: ImButton[];
-  @Input() editMode = EditMode.Direct;
-  @Input() selection = SelectionMode.Checkbox;
-  @Input() dataSource$: Observable<T[]>;
-  @Input() label: string;
-  @Input() editIcon: string;
-  @Input() editTheme: ThemeType;
-  @Input() deleteIcon: string;
-  @Input() deleteTheme: ThemeType;
-  @Input() showToolbar = true;
-  @Input() loading = false;
-  @Input() showRowIndex = true;
-  @Input() allowDelete = true;
-  @Input() allowEdit = true;
-  @Input() customEdit = false;
-  @Input() disableSearch = true;
-  @Input() customCreate = false;
-  @Input() customDelete = false;
-  @Input() allowCreate = true;
-  @Input() clearSearchOnChanges = true;
-  @Input() enableNotifications = true;
-  @Input() childAllowCreate = true;
-  @Input() childAllowEdit = true;
-  @Input() childAllowDelete = true;
-  @Input() allowExcel = false;
-  @Input() childAllowExcel = false;
-  @Input() size: Size = 'default';
-  
-  @Output() selectedIds = new EventEmitter<{ [key: string]: boolean }>();
-  @Output() save = new EventEmitter<ChangesEvent>();
-  @Output() deleted = new EventEmitter<ChangeEvent>();
-  @Output() created = new EventEmitter<ChangeEvent>();
-  @Output() updated = new EventEmitter<ChangeEvent>();
-  @Output() customUpdatedRow = new EventEmitter<T>();
-  @Output() customDeletedRow = new EventEmitter<T>();
-  @Output() customCreatedRow = new EventEmitter<void>();
+  readonly createEditModal = viewChild<TemplateRef<any>>('createEditModal');
+  readonly modalFooter = viewChild<TemplateRef<any>>('modalFooter');
+  readonly table = viewChild<NzTableComponent<T>>('virtualTable');
+
+  readonly columns = model<ImColumn[]>(undefined);
+  readonly buttons = input<ImButton[]>(undefined);
+  readonly editMode = input(EditMode.Direct);
+  readonly selection = input(SelectionMode.Checkbox);
+  readonly dataSource$ = input<Observable<T[]>>(undefined);
+  readonly label = input<string>(undefined);
+  readonly editIcon = input<string>(undefined);
+  readonly editTheme = input<ThemeType>(undefined);
+  readonly deleteIcon = input<string>(undefined);
+  readonly deleteTheme = input<ThemeType>(undefined);
+  readonly showToolbar = input(true);
+  readonly loading = input(false);
+  readonly showRowIndex = input(true);
+  readonly allowDelete = input(true);
+  readonly allowEdit = input(true);
+  readonly customEdit = input(false);
+  readonly disableSearch = input(true);
+  readonly customCreate = input(false);
+  readonly customDelete = input(false);
+  readonly allowCreate = input(true);
+  readonly clearSearchOnChanges = input(true);
+  readonly enableNotifications = input(true);
+  readonly childAllowCreate = input(true);
+  readonly childAllowEdit = input(true);
+  readonly childAllowDelete = input(true);
+  readonly allowExcel = input(false);
+  readonly childAllowExcel = input(false);
+  readonly size = model<Size>('default');
+
+  readonly selectedIds = output<{
+    [key: string]: boolean;
+  }>();
+  readonly save = output<ChangesEvent>();
+  readonly deleted = output<ChangeEvent>();
+  readonly created = output<ChangeEvent>();
+  readonly updated = output<ChangeEvent>();
+  readonly customUpdatedRow = output<T>();
+  readonly customDeletedRow = output<T>();
+  readonly customCreatedRow = output<void>();
 
   public childColumns: ImColumn[];
   public rows: T[] = [];
@@ -219,15 +231,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   private sortKey: string;
   private sortAsc = false;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private modalService: NzModalService,
-    private formatService: FormatService,
-    private messageService: NzMessageService,
-    private cd: ChangeDetectorRef,
-    public settingsService: SettingsService,
-    private nzContextMenuService: NzContextMenuService
-  ) {
+  constructor() {
     this.arrowKeys
       .pipe(throttleTime(50), takeUntil(this.destroyed$))
       .subscribe((event: KeyboardEvent) => this.handleArrowKeyboardEvent(event));
@@ -235,7 +239,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
     fromEvent(window, 'resize')
       .pipe(debounceTime(500), takeUntil(this.destroyed$))
       .subscribe(() => {
-        this.table.cdkVirtualScrollViewport.checkViewportSize();
+        this.table().cdkVirtualScrollViewport.checkViewportSize();
       });
 
     this.filterForm = this.formBuilder.group({
@@ -255,7 +259,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   }
 
   private getNeighborColumn(key: string, forward: boolean): ImColumn {
-    const columns = this.columns.filter(column => column.visible && !column.hidden);
+    const columns = this.columns().filter(column => column.visible && !column.hidden);
     const currentColumnIndex = columns.findIndex(column => column.key === key);
     return columns.find((_, index) =>
       forward ? index > currentColumnIndex : index === currentColumnIndex - 1
@@ -298,14 +302,16 @@ export class ImGridComponent<T extends { isNew?: boolean }>
 
   private scrollToRowElement(targetIndex: number, direction: ImDirection, key?: string) {
     const allRows = Array.from<HTMLElement>(
-      this.table.cdkVirtualScrollViewport._contentWrapper.nativeElement.firstChild['rows']
+      this.table().cdkVirtualScrollViewport._contentWrapper.nativeElement.firstChild[
+        'rows'
+      ]
     );
     const targetRow: HTMLElement = allRows.find(
       (row: HTMLElement) => row.getAttribute('index') === targetIndex.toString()
     );
     if (targetRow != null) {
       if (direction === ImDirection.TOP || direction === ImDirection.Bottom) {
-        const cdkScrollEelemnt = this.table.cdkVirtualScrollViewport.elementRef;
+        const cdkScrollEelemnt = this.table().cdkVirtualScrollViewport.elementRef;
         const cdkScrollEelemntTop =
           cdkScrollEelemnt.nativeElement.getBoundingClientRect().top;
         const cdkScrollOffsetTop = cdkScrollEelemntTop;
@@ -322,10 +328,10 @@ export class ImGridComponent<T extends { isNew?: boolean }>
           cdkScrollEelemnt.nativeElement.scrollTop = currentScroll + scrollAmount;
         }
       } else {
-        const cdkScrollEelemnt = this.table.cdkVirtualScrollViewport.elementRef;
-        const nextColumnIndex = this.columns.findIndex(column => column.key === key);
+        const cdkScrollEelemnt = this.table().cdkVirtualScrollViewport.elementRef;
+        const nextColumnIndex = this.columns().findIndex(column => column.key === key);
 
-        const width = this.columns
+        const width = this.columns()
           .filter(
             (column, index) => column.visible && !column.hidden && index < nextColumnIndex
           )
@@ -343,18 +349,20 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   }
 
   scrollToIndex(index: number): void {
-    this.table.cdkVirtualScrollViewport.scrollToIndex(+index);
+    this.table().cdkVirtualScrollViewport.scrollToIndex(+index);
   }
 
   ngOnInit() {
     this.normalizeConfig();
     this.calculateColumnsWidth();
     this.mapOfSort = {};
-    this.dataSource$.pipe(takeUntil(this.destroyed$)).subscribe(rows => {
-      this.originalRows = [...rows];
-      this.currentRows = [...rows];
-      this.reset();
-    });
+    this.dataSource$()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(rows => {
+        this.originalRows = [...rows];
+        this.currentRows = [...rows];
+        this.reset();
+      });
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -386,7 +394,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
     this.calculateColumnsWidth();
   }
   public calculateColumnsWidth() {
-    this.columnsWidth = this.columns
+    this.columnsWidth = this.columns()
       .filter(column => column.visible && !column.hidden && !column.childrenConfig)
       .reduce(
         (accumulator, currentValue) => accumulator + currentValue.width,
@@ -427,13 +435,13 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   }
 
   public drop(event: CdkDragDrop<string[]>): void {
-    this.columns = [
+    this.columns.update(columns => [
       ...this.dragEndEvent(
         event,
-        this.columns,
-        this.columns.filter(column => column.visible && !column.hidden)
+        columns,
+        columns.filter(column => column.visible && !column.hidden)
       ),
-    ];
+    ]);
   }
 
   onResize({ width }: NzResizeEvent, column: ImColumn): void {
@@ -498,7 +506,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
     this.resetEditCache();
     this.mapOfCheckedId = {};
 
-    if (this.clearSearchOnChanges) {
+    if (this.clearSearchOnChanges()) {
       this.filterForm.get('search').setValue('');
     }
 
@@ -513,7 +521,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   }
 
   private setUniqueValues() {
-    this.columns.forEach(column => {
+    this.columns().forEach(column => {
       if (column.filter && column.filter.type === ImFilterType.Select) {
         column.filter.selectValues = this.getUniqueSelectFilterValues(column);
       }
@@ -569,7 +577,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
       return;
     }
 
-    if (this.editMode === EditMode.Direct) {
+    if (this.editMode() === EditMode.Direct) {
       this.successSubject$
         .pipe(
           filter(
@@ -622,7 +630,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
 
   private initForm(row?: T) {
     const form = this.formBuilder.group({});
-    this.columns.forEach((column: ImColumn) => {
+    this.columns().forEach((column: ImColumn) => {
       const newControl = new FormControl(
         row
           ? { value: row[column.key], disabled: !column.editable }
@@ -652,7 +660,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   }
 
   private normalizeConfig() {
-    this.columns.forEach(column => {
+    this.columns().forEach(column => {
       if (column.isUnique === true) {
         column.editable = false;
         column.creatable = false;
@@ -800,8 +808,8 @@ export class ImGridComponent<T extends { isNew?: boolean }>
       }
     });
 
-    const uniqueColumn = this.columns.find(column => column.isUnique);
-    const childrenColumn = this.columns.find(column => column.childrenConfig);
+    const uniqueColumn = this.columns().find(column => column.isUnique);
+    const childrenColumn = this.columns().find(column => column.childrenConfig);
     if (uniqueColumn) {
       this.uniqueKey = uniqueColumn.key;
     } else {
@@ -879,7 +887,8 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   }
 
   public openCreateOrEditModal(row?: T): void {
-    if (!row && this.customCreate) {
+    if (!row && this.customCreate()) {
+      // TODO: The 'emit' function requires a mandatory void argument
       this.customCreatedRow.emit();
       return;
     }
@@ -891,8 +900,8 @@ export class ImGridComponent<T extends { isNew?: boolean }>
         : translations.edit[this.settingsService.language],
       nzWidth: 1000,
       nzStyle: { 'max-width': '100%' },
-      nzContent: this.createEditModal,
-      nzFooter: this.modalFooter,
+      nzContent: this.createEditModal(),
+      nzFooter: this.modalFooter(),
     });
   }
 
@@ -930,7 +939,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   }
 
   public deleteRow(value: T): void {
-    if (this.editMode === EditMode.Direct) {
+    if (this.editMode() === EditMode.Direct) {
       this.successSubject$
         .pipe(
           takeUntil(this.destroyed$),
@@ -1051,7 +1060,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
     for (const control in formGroup.controls) {
       if (formGroup.controls.hasOwnProperty(control)) {
         const formControl = formGroup.controls[control];
-        const foundColumn = this.columns.find(column => column.key === control);
+        const foundColumn = this.columns().find(column => column.key === control);
         if (!foundColumn) {
           return null;
         }
@@ -1107,7 +1116,8 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   }
 
   public updateRowHeight(size: Size) {
-    this.size = size;
+    this.size.set(size);
+
     switch (size) {
       case 'small':
         this.height = 37;
@@ -1131,7 +1141,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   }
 
   public filter(globalValue: string) {
-    const filterColumns = this.getColumnsWithFilter(this.columns);
+    const filterColumns = this.getColumnsWithFilter(this.columns());
 
     if (globalValue || filterColumns.length > 0) {
       let filteredData = [...this.currentRows];
@@ -1141,7 +1151,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
       }
       if (globalValue) {
         filteredData = filteredData.filter(row => {
-          return this.columns.find(column => {
+          return this.columns().find(column => {
             const isExcluded = this.notIncludedColumns.find(
               notIncludedColumn => notIncludedColumn.key === column.key
             );
@@ -1173,7 +1183,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   }
 
   private createMessage(type: string, message: Translation): void {
-    if (this.enableNotifications) {
+    if (this.enableNotifications()) {
       this.messageService.create(type, message[this.settingsService.language]);
     }
   }
@@ -1190,7 +1200,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   };
 
   public clearFilters() {
-    this.columns.forEach(
+    this.columns().forEach(
       column =>
         (column.filter = {
           ...column.filter,
@@ -1216,7 +1226,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   }
 
   openDrawer(row: T): void {
-    const foundColumn = this.columns.find(column => column.key === this.childrenKey);
+    const foundColumn = this.columns().find(column => column.key === this.childrenKey);
     if (foundColumn) {
       this.childrenTitle = foundColumn.drawerTitle
         ? foundColumn.drawerTitle(row)
@@ -1225,11 +1235,11 @@ export class ImGridComponent<T extends { isNew?: boolean }>
       foundColumn.childrenConfig.componentConfig.inputs = {
         dataSource$: of(row[this.childrenKey]),
         columns: this.childColumns,
-        enableNotifications: this.enableNotifications,
-        allowCreate: this.childAllowCreate,
-        allowEdit: this.childAllowEdit,
-        allowDelete: this.childAllowDelete,
-        childAllowExcel: this.childAllowExcel,
+        enableNotifications: this.enableNotifications(),
+        allowCreate: this.childAllowCreate(),
+        allowEdit: this.childAllowEdit(),
+        allowDelete: this.childAllowDelete(),
+        childAllowExcel: this.childAllowExcel(),
       };
       const event = new EventEmitter<ChangesEvent>();
       foundColumn.childrenConfig.componentConfig.outputs = {
@@ -1242,7 +1252,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
           [this.childrenKey]: changes.currentState,
         };
 
-        if (this.editMode === EditMode.Direct) {
+        if (this.editMode() === EditMode.Direct) {
           this.successSubject$
             .pipe(
               takeUntil(this.destroyed$),
@@ -1322,7 +1332,8 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   }
 
   contextMenu(event: MouseEvent, menu: NzDropdownMenuComponent, row: T): void {
-    if (this.buttons && this.buttons.length > 0 && !event.shiftKey) {
+    const buttons = this.buttons();
+    if (buttons && buttons.length > 0 && !event.shiftKey) {
       this.activeRow = row;
       this.nzContextMenuService.create(event, menu);
     }

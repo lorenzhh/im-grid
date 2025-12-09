@@ -8,8 +8,8 @@ describe('ImFooterComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ImFooterComponent ]
-    })
+    imports: [ImFooterComponent]
+})
     .compileComponents();
   }));
 

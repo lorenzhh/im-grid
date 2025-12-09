@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
@@ -7,10 +7,10 @@ import { finalize } from 'rxjs/operators';
   providedIn: 'root',
 })
 export abstract class DataService {
+  private http = inject(HttpClient);
+
   public loadingSubject = new BehaviorSubject<boolean>(false);
   public loading$ = this.loadingSubject.asObservable();
-
-  constructor(private http: HttpClient) {}
 
   public getAll<T>(section: string): Observable<T[]> {
     this.updateLoading(true);

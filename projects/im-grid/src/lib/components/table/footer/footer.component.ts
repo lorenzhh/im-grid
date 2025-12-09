@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, model, output } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ImColumn } from '../../../models/column.model';
 import { translations } from '../translations/default-translations';
@@ -14,7 +8,6 @@ import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 
-
 @Component({
   imports: [
     TranslatePipe,
@@ -23,20 +16,20 @@ import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
     NzDividerModule,
     ReactiveFormsModule,
     NzInputModule,
-    NzPopconfirmModule
-],
+    NzPopconfirmModule,
+  ],
   selector: 'im-footer',
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ImFooterComponent {
-  @Input() notIncludedColumns: ImColumn[];
-  @Input() columns: ImColumn[];
-  @Input() filterForm: FormGroup;
-  @Input() showExclude: boolean = true;
-  @Input() rowsLength: number;
-  @Output() filterRows = new EventEmitter<ImColumn[]>();
+  readonly notIncludedColumns = model<ImColumn[]>(undefined);
+  readonly columns = input<ImColumn[]>(undefined);
+  readonly filterForm = input<FormGroup>(undefined);
+  readonly showExclude = input<boolean>(true);
+  readonly rowsLength = input<number>(undefined);
+  readonly filterRows = output<ImColumn[]>();
 
   public translations = translations;
 }

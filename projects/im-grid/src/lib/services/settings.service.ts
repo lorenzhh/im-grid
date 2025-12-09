@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, inject } from '@angular/core';
 import { NzI18nInterface, NzI18nService, de_DE, en_US } from 'ng-zorro-antd/i18n';
 import { BehaviorSubject, Subject, combineLatest, takeUntil } from 'rxjs';
 import { Locale, Translation } from '../models/settings.model';
@@ -11,6 +11,8 @@ export interface Settings {
   providedIn: 'root',
 })
 export class SettingsService implements OnDestroy {
+  private nzI18n = inject(NzI18nService);
+
   destroyed$ = new Subject<void>();
 
   private settingsSubject$ = new BehaviorSubject<Settings>({
@@ -37,7 +39,7 @@ export class SettingsService implements OnDestroy {
 
   public languages$ = this.languagesSubject$.asObservable();
 
-  constructor(private nzI18n: NzI18nService) {
+  constructor() {
     combineLatest([this.settings$, this.languages$])
       .pipe(takeUntil(this.destroyed$))
       .subscribe(([settings, languages]) => {
@@ -78,12 +80,12 @@ export class SettingsService implements OnDestroy {
       if (type === 'string' || type === 'number' || subjectValue === null) {
         const value = subjectValue || subjectValue === 0 ? subjectValue : '';
         Object.keys(newWording).forEach(
-          (language) => (result[language] = result.de.split(key).join(value.toString()))
+          language => (result[language] = result.de.split(key).join(value.toString()))
         );
       } else if (type === 'object') {
         const value = subjectValue as Translation;
         Object.keys(newWording).forEach(
-          (language) => (result[language] = result.en.split(key).join(value.en))
+          language => (result[language] = result.en.split(key).join(value.en))
         );
       }
       return result;

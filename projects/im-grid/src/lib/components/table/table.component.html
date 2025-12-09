@@ -1,13 +1,13 @@
 <ng-template #toolbarTemplate>
   <im-toolbar
-    [allowCreate]="allowCreate"
-    [allowExcel]="allowExcel"
+    [allowCreate]="allowCreate()"
+    [allowExcel]="allowExcel()"
     [deletedRowsLength]="deletedRowsLength"
-    [directMode]="editMode === EditMode.Direct"
-    [label]="label"
+    [directMode]="editMode() === EditMode.Direct"
+    [label]="label()"
     [newRowsLength]="newRowsLength"
     [numberOfChecked]="numberOfChecked"
-    [size]="size"
+    [size]="size()"
     [unsavedRowsLength]="unsavedRowsLength"
     (addRow)="openCreateOrEditModal()"
     (changeSize)="updateRowHeight($event)"
@@ -21,11 +21,11 @@
   [nzData]="rows"
   [nzFooter]="footerTemplate"
   [nzFrontPagination]="false"
-  [nzLoading]="loading"
+  [nzLoading]="loading()"
   [nzScroll]="{ x: columnsWidth + 'px', y: '100%' }"
   [nzShowPagination]="false"
-  [nzSize]="size"
-  [nzTitle]="showToolbar ? toolbarTemplate : null"
+  [nzSize]="size()"
+  [nzTitle]="showToolbar() ? toolbarTemplate : null"
   [nzVirtualForTrackBy]="trackByUnique"
   [nzVirtualItemSize]="height"
   #virtualTable
@@ -49,7 +49,7 @@
           nzLeft="0px"
         ></th>
       }
-      @if (selection === SelectionMode.Checkbox) {
+      @if (selection() === SelectionMode.Checkbox) {
         <th
           [(nzChecked)]="isAllDisplayDataChecked"
           [nzIndeterminate]="isIndeterminate"
@@ -62,18 +62,18 @@
           nzShowCheckbox
         ></th>
       }
-      @if (showRowIndex) {
+      @if (showRowIndex()) {
         <th
           class="table-cell-row-index"
           [innerHtml]="numberOfChecked ? numberOfChecked : '#'"
-          [nzLeft]="childrenKey && selection ? '70px' : !childrenKey && !selection ? '0px' : '35px'"
+          [nzLeft]="childrenKey && selection() ? '70px' : !childrenKey && !selection() ? '0px' : '35px'"
           [style.maxWidth.px]="70"
           [style.minWidth.px]="70"
           [style.width.px]="70"
           nzWidth="70px"
         ></th>
       }
-      @for (column of columns | filter : { visible: true, hidden: false }; track column) {
+      @for (column of columns() | filter : { visible: true, hidden: false }; track column.key) {
         <th
           [(nzSortOrder)]="mapOfSort[column.key]"
           [ngStyle]="{ 'pointer-events': resizing ? 'none' : 'unset' }"
@@ -121,7 +121,7 @@
         nzWidth="70px"
         nzRight
         >
-        @if (disableSearch === false) {
+        @if (disableSearch() === false) {
           <nz-switch
             [(ngModel)]="allowSearch"
             [nzCheckedChildren]="checkedTemplate"
@@ -151,7 +151,7 @@
           nzLeft="0px"
         ></th>
       }
-      @if (selection) {
+      @if (selection()) {
         <th
           class="filter-cell"
           [nzLeft]="childrenKey ? '35px' : '0px'"
@@ -161,10 +161,10 @@
           nzWidth="35px"
         ></th>
       }
-      @if (showRowIndex) {
+      @if (showRowIndex()) {
         <th
           class="filter-cell"
-          [nzLeft]="childrenKey && selection ? '70px' : !childrenKey && !selection ? '0px' : '35px'"
+          [nzLeft]="childrenKey && selection() ? '70px' : !childrenKey && !selection() ? '0px' : '35px'"
           [style.maxWidth.px]="70"
           [style.minWidth.px]="70"
           [style.paddingLeft.px]="3"
@@ -184,7 +184,7 @@
             />
         </th>
       }
-      @for (column of columns | filter : { visible: true, hidden: false }; track column) {
+      @for (column of columns() | filter : { visible: true, hidden: false }; track column.key) {
         <th
           class="filter-cell"
           [nzWidth]="column.width + 'px'"
@@ -248,7 +248,7 @@
             </a>
           </td>
         }
-        @if (selection === SelectionMode.Checkbox) {
+        @if (selection() === SelectionMode.Checkbox) {
           <td
             [(nzChecked)]="mapOfCheckedId[row[uniqueKey]]"
             [nzDisabled]="row.disabled"
@@ -260,10 +260,10 @@
             nzShowCheckbox
           ></td>
         }
-        @if (showRowIndex) {
+        @if (showRowIndex()) {
           <td
             class="table-cell-row-index"
-            [nzLeft]="childrenKey && selection ? '70px' : !childrenKey && !selection ? '0px' : '35px'"
+            [nzLeft]="childrenKey && selection() ? '70px' : !childrenKey && !selection() ? '0px' : '35px'"
             [style.maxWidth.px]="70"
             [style.minWidth.px]="70"
             [style.width.px]="70"
@@ -271,7 +271,7 @@
             <b>{{ index + 1 }}</b>
           </td>
         }
-        @for (column of columns | filter : { visible: true, hidden: false }; track column) {
+        @for (column of columns() | filter : { visible: true, hidden: false }; track column.key) {
           <td
             class="table-cell"
             [class.focused]="column.key === (focusedCell$ | async).key && index === (focusedCell$ | async).rowIndex"
@@ -295,7 +295,7 @@
             ></im-cell>
           </td>
         }
-        @if (allowDelete || allowEdit) {
+        @if (allowDelete() || allowEdit()) {
           <td
             [style.maxWidth.px]="70"
             [style.minWidth.px]="70"
@@ -307,23 +307,23 @@
               class="action-icons"
               [style.marginLeft.px]="3"
               >
-              @if (allowEdit) {
+              @if (allowEdit()) {
                 <a
-                  (click)="customEdit ? customUpdatedRow.emit(row) : openCreateOrEditModal(row)"
+                  (click)="customEdit() ? customUpdatedRow.emit(row) : openCreateOrEditModal(row)"
                   >
                   <i
-                    [nzTheme]="editTheme ?? 'fill'"
-                    [nzType]="editIcon ?? 'edit'"
+                    [nzTheme]="editTheme() ?? 'fill'"
+                    [nzType]="editIcon() ?? 'edit'"
                     nz-icon
                   ></i>
                 </a>
               }
-              @if (allowDelete && allowEdit) {
+              @if (allowDelete() && allowEdit()) {
                 <nz-divider
                   nzType="vertical"
                 ></nz-divider>
               }
-              @if (allowDelete && customDelete === false) {
+              @if (allowDelete() && customDelete() === false) {
                 <a
                   [nzOkText]="translations.delete | translate"
                   [nzPopconfirmTitle]="translations.areYouSure | translate"
@@ -336,13 +336,13 @@
                   ></i>
                 </a>
               }
-              @if (allowDelete && customDelete === true) {
+              @if (allowDelete() && customDelete() === true) {
                 <a
                   (click)="customDeletedRow.emit(row)"
                   >
                   <i
-                    [nzTheme]="deleteTheme ?? 'outline'"
-                    [nzType]="deleteIcon ?? 'delete'"
+                    [nzTheme]="deleteTheme() ?? 'outline'"
+                    [nzType]="deleteIcon() ?? 'delete'"
                     nz-icon
                   ></i>
                 </a>
@@ -360,7 +360,7 @@
       class="modal-footer-buttons"
       >
       <div>
-        @if (!form.get('isNew') && editMode !== EditMode.Direct) {
+        @if (!form.get('isNew') && editMode() !== EditMode.Direct) {
           <button
             (click)="resetRow()"
             nz-button
@@ -399,7 +399,7 @@
 <ng-template #createEditModal>
   @if (form) {
     <im-edit-form
-      [columns]="columns"
+      [columns]="columns()"
       [form]="form"
       [locale]="settingsService.locale"
     ></im-edit-form>
@@ -407,7 +407,7 @@
 </ng-template>
 <ng-template #footerTemplate>
   <im-footer
-    [columns]="columns"
+    [columns]="columns()"
     [filterForm]="filterForm"
     [notIncludedColumns]="notIncludedColumns"
     [rowsLength]="rows.length"
@@ -424,7 +424,7 @@
 }
 <nz-dropdown-menu #menu="nzDropdownMenu">
   <ul nz-menu>
-    @for (button of buttons; track button) {
+    @for (button of buttons(); track button) {
       <li
         (click)="button.func(activeRow)"
         nz-menu-item

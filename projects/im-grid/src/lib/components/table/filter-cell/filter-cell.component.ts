@@ -5,7 +5,7 @@ import {
   NgSwitchCase,
   NgSwitchDefault,
 } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -44,12 +44,12 @@ import { NzRateModule } from 'ng-zorro-antd/rate';
   styleUrls: ['./filter-cell.component.css'],
 })
 export class ImFilterCellComponent {
-  @Input() column: ImColumn;
-  @Output() filterRows = new EventEmitter();
+  settingsService = inject(SettingsService);
+
+  readonly column = input<ImColumn>(undefined);
+  readonly filterRows = output();
   ImFilterType = ImFilterType;
   ImColumnType = ImColumnType;
   translations = translations;
   DateFormats = DateFormats;
-
-  constructor(public settingsService: SettingsService) {}
 }

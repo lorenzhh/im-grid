@@ -1,5 +1,4 @@
-
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
@@ -29,18 +28,18 @@ import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
     FormatPipe,
     NzRateModule,
     NzCheckboxModule,
-    NzInputNumberLegacyModule
-],
+    NzInputNumberLegacyModule,
+  ],
   selector: 'im-edit-form',
   templateUrl: './edit-form.component.html',
   styleUrls: ['./edit-form.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditFormComponent {
-  @Input() form: FormGroup;
-  @Input() columns: ImColumn[];
-  @Input() locale: Locale;
-  @Input() valueProperty: Locale;
+  readonly form = input<FormGroup>();
+  readonly columns = input<ImColumn[]>();
+  readonly locale = input<Locale>();
+  readonly valueProperty = input<Locale>();
   ImColumnType = ImColumnType;
   ImFieldType = ImFieldType;
   TimeFormats = TimeFormats;

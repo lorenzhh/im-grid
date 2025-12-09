@@ -2,8 +2,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
-  Input,
   Output,
+  input
 } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { ChangesEvent, EditMode, ImColumn } from '../../models/column.model';
@@ -17,13 +17,13 @@ import { ImGridComponent } from '../table/table.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChildTableComponent {
-  @Input() columns: ImColumn[] = [];
-  @Input() dataSource$: Observable<any> = of([]);
-  @Input() enableNotifications = true;
-  @Input() childAllowExcel = true;
-  @Input() allowCreate = true;
-  @Input() allowEdit = true;
-  @Input() allowDelete = true;
+  readonly columns = input<ImColumn[]>([]);
+  readonly dataSource$ = input<Observable<any>>(of([]));
+  readonly enableNotifications = input(true);
+  readonly childAllowExcel = input(true);
+  readonly allowCreate = input(true);
+  readonly allowEdit = input(true);
+  readonly allowDelete = input(true);
   @Output() changes: EventEmitter<ChangesEvent>;
   EditMode = EditMode;
 

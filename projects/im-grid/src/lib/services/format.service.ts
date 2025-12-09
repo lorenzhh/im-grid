@@ -1,5 +1,5 @@
 import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { translations } from '../components/table/translations/default-translations';
 import { ImColumn, ImColumnType } from '../models/column.model';
 import { TimeFormats } from '../models/settings.model';
@@ -9,15 +9,13 @@ import { SettingsService } from './settings.service';
   providedIn: 'root',
 })
 export class FormatService {
+  private datePipe = inject(DatePipe);
+  private decimalPipe = inject(DecimalPipe);
+  private currencyPipe = inject(CurrencyPipe);
+  private settingsService = inject(SettingsService);
+
   ISO8601_DATE_REGEX =
     /^(\d{4})-?(\d\d)-?(\d\d)(?:T(\d\d)(?::?(\d\d)(?::?(\d\d)(?:\.(\d+))?)?)?(Z|([+-])(\d\d):?(\d\d))?)?$/;
-
-  constructor(
-    private datePipe: DatePipe,
-    private decimalPipe: DecimalPipe,
-    private currencyPipe: CurrencyPipe,
-    private settingsService: SettingsService
-  ) {}
 
   format(value: any, column: ImColumn, optional = false) {
     if (value == null) {
@@ -62,9 +60,7 @@ export class FormatService {
   }
 
   private mapKeys(array: any[], property: string) {
-    return array.map((item) =>
-      item && typeof item === 'object' ? item[property] : item
-    );
+    return array.map(item => (item && typeof item === 'object' ? item[property] : item));
   }
 
   private isTrue(value: any): boolean {
@@ -79,7 +75,7 @@ export class FormatService {
     let formatted = '';
     let indent = '';
     const tab = '\t';
-    xml.split(/>\s*</).forEach((node) => {
+    xml.split(/>\s*</).forEach(node => {
       if (node.match(/^\/\w/)) {
         indent = indent.substring(tab.length);
       }

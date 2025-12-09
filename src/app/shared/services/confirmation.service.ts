@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ModalOptions, NzModalService } from 'ng-zorro-antd/modal';
 import { Observable, Subject } from 'rxjs';
 
@@ -8,7 +8,7 @@ export type modalType = 'confirm' | 'info' | 'success' | 'warning' | 'create' | 
   providedIn: 'root',
 })
 export class ConfirmationService {
-  constructor(private modalService: NzModalService) {}
+  private modalService = inject(NzModalService);
 
   confirm = (message: string): Observable<boolean> => {
     return this.openModal('confirm', message);

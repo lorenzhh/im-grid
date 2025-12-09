@@ -8,8 +8,8 @@ describe('ImFilterCellComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ImFilterCellComponent ]
-    })
+    imports: [ImFilterCellComponent]
+})
     .compileComponents();
   }));
 

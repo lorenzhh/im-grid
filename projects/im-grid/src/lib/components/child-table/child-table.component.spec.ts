@@ -8,8 +8,8 @@ describe('ChildTableComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ChildTableComponent ]
-    })
+    imports: [ChildTableComponent]
+})
     .compileComponents();
   }));
 

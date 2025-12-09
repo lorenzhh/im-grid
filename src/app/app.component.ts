@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Locale, SettingsService } from 'im-grid';
@@ -24,11 +24,11 @@ import { NzSliderModule } from 'ng-zorro-antd/slider';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
+  private settingsService = inject(SettingsService);
+
   isCollapsed = false;
   Locale = Locale;
   value: 0;
-
-  constructor(private settingsService: SettingsService) {}
 
   changeLanguage(language: string) {
     this.settingsService.language = language;

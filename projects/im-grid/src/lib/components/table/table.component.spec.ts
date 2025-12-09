@@ -8,8 +8,8 @@ describe('ImGridComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ImGridComponent ]
-    })
+    imports: [ImGridComponent]
+})
     .compileComponents();
   }));
 

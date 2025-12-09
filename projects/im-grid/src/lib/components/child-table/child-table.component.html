@@ -1,11 +1,11 @@
 <im-grid
-  [allowCreate]="allowCreate"
-  [allowDelete]="allowDelete"
-  [allowEdit]="allowEdit"
-  [allowExcel]="childAllowExcel"
-  [columns]="columns"
-  [dataSource$]="dataSource$"
+  [allowCreate]="allowCreate()"
+  [allowDelete]="allowDelete()"
+  [allowEdit]="allowEdit()"
+  [allowExcel]="childAllowExcel()"
+  [columns]="columns()"
+  [dataSource$]="dataSource$()"
   [editMode]="EditMode.Cache"
-  [enableNotifications]="enableNotifications"
+  [enableNotifications]="enableNotifications()"
   (save)="save($event)"
 ></im-grid>

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
 import { Observable } from 'rxjs';
@@ -10,8 +10,8 @@ export interface DirtyComponent {
 }
 
 @Injectable()
-export class UnsavedChangesGuard  {
-  constructor(private confirmationService: ConfirmationService) {}
+export class UnsavedChangesGuard {
+  private confirmationService = inject(ConfirmationService);
 
   isClean(component: DirtyComponent) {
     if (component.customValidation) {

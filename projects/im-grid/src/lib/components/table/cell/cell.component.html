@@ -1,8 +1,8 @@
 
-@switch (column.columnType) {
+@switch (column().columnType) {
   @case (ImColumnType.Rating) {
     <nz-rate
-      [ngModel]="value"
+      [ngModel]="value()"
       nzAllowHalf
       nzDisabled
     ></nz-rate>
@@ -10,19 +10,19 @@
   @case (ImColumnType.Color) {
     <div
       class="color"
-      [style.backgroundColor]="value"
+      [style.backgroundColor]="value()"
     ></div>
   }
   @case (ImColumnType.Avatar) {
     <nz-avatar
-      [nzShape]="column.avatarShape"
+      [nzShape]="column().avatarShape"
       [nzSize]="'large'"
-      [nzSrc]="rawValue"
+      [nzSrc]="rawValue()"
     ></nz-avatar>
   }
   @case (ImColumnType.Website) {
     <a
-      [href]="value"
+      [href]="value()"
       [style.width.%]="100"
       >
       <i
@@ -34,20 +34,20 @@
   @case (ImColumnType.Boolean) {
     <i
       class="boolean-icon"
-      [nzType]="rawValue === 1 || rawValue === '1' || rawValue === true || rawValue === 'true' ? 'check' : 'close'"
+      [nzType]="rawValue() === 1 || rawValue() === '1' || rawValue() === true || rawValue() === 'true' ? 'check' : 'close'"
       nz-icon
     ></i>
   }
   @default {
-    {{ value }}
+    {{ value() }}
   }
 }
-@if (focused && value != null) {
+@if (focused() && value() != null) {
   <div
     class="footer-icons"
     >
     <div>
-      @if (column.zoom) {
+      @if (column().zoom) {
         <a
           (click)="zoomed.emit()"
           >
@@ -60,10 +60,10 @@
       }
     </div>
     <div>
-      @if (column.copy) {
+      @if (column().copy) {
         <p
           class="copy-icon"
-          [nzCopyText]="value.toString()"
+          [nzCopyText]="value().toString()"
           nz-paragraph
           nzCopyable
         ></p>

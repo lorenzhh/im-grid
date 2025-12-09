@@ -4,13 +4,13 @@ import {
   ChangeDetectorRef,
   Component,
   ComponentRef,
-  EventEmitter,
-  Input,
   OnChanges,
-  Output,
   SimpleChanges,
-  ViewChild,
   ViewContainerRef,
+  inject,
+  input,
+  output,
+  viewChild,
 } from '@angular/core';
 import { NzResizableModule, NzResizeEvent } from 'ng-zorro-antd/resizable';
 import { DynamicComponentConfig } from '../../../models/column.model';
@@ -24,17 +24,16 @@ import { NzDrawerModule } from 'ng-zorro-antd/drawer';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ImDrawerComponent implements OnChanges {
-  @Input() public componentConfig: DynamicComponentConfig;
-  @Input() visible: boolean;
-  @Input() title: string;
-  @Output() closed = new EventEmitter<void>();
-  @ViewChild('content', { read: ViewContainerRef, static: false })
-  viewport: ViewContainerRef;
+  private cd = inject(ChangeDetectorRef);
+
+  public readonly componentConfig = input<DynamicComponentConfig>();
+  readonly visible = input<boolean>();
+  readonly title = input<string>();
+  readonly closed = output<void>();
+  readonly viewport = viewChild('content', { read: ViewContainerRef });
   private componentRef: ComponentRef<any> = null;
   id = -1;
   width = 1000;
-
-  constructor(private cd: ChangeDetectorRef) {}
   ngOnChanges(changes: SimpleChanges) {
     if (changes.visible) {
       this.cd.detectChanges();
@@ -54,19 +53,20 @@ export class ImDrawerComponent implements OnChanges {
       this.componentRef.destroy();
     }
 
-    if (this.componentConfig) {
-      this.componentRef = this.viewport.createComponent(
-        this.componentConfig.componentToPort
+    const componentConfig = this.componentConfig();
+    if (componentConfig) {
+      this.componentRef = this.viewport().createComponent(
+        componentConfig.componentToPort
       );
 
-      const inputs = this.componentConfig.inputs;
+      const inputs = componentConfig.inputs;
       for (const key in inputs) {
         if (this.componentRef) {
           this.componentRef.instance[key] = inputs[key];
         }
       }
 
-      const outputs = this.componentConfig.outputs;
+      const outputs = componentConfig.outputs;
       for (const key in outputs) {
         if (this.componentRef) {
           this.componentRef.instance[key] = outputs[key];
