@@ -15,7 +15,7 @@
         <img
           src="https://ng.ant.design/assets/img/logo.svg"
           alt="logo"
-        >
+        />
         <h1>IM Grid Frontend</h1>
       </a>
     </div>
@@ -87,12 +87,13 @@
         </span>
         <div style="display: flex; align-items: center">
           <div style="display: flex; align-items: center">
-            <nz-slider [(ngModel)]="value"
+            <nz-slider
+              [(ngModel)]="value"
               [nzMax]="360"
               [nzMin]="0"
               [style.width.px]="180"
               (ngModelChange)="changeTheme($event)"
-             />
+            />
           </div>
           <nz-divider nzType="vertical" />
           <div>

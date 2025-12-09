@@ -1,5 +1,5 @@
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
-import { AsyncPipe, NgStyle } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -110,10 +110,9 @@ export interface Edit<T> {
     CellComponent,
     DragDropModule,
     NzTableModule,
-    NgStyle,
     TranslatePipe,
-    NzResizableModule,
-  ],
+    NzResizableModule
+],
   selector: 'im-grid',
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.scss'],

@@ -24,7 +24,9 @@
 .header-trigger {
   font-size: 20px;
   cursor: pointer;
-  transition: all 0.3s, padding 0s;
+  transition:
+    all 0.3s,
+    padding 0s;
 }
 
 .trigger:hover {
@@ -53,7 +55,12 @@
   color: #fff;
   font-weight: 600;
   font-size: 14px;
-  font-family: Avenir, Helvetica Neue, Arial, Helvetica, sans-serif;
+  font-family:
+    Avenir,
+    Helvetica Neue,
+    Arial,
+    Helvetica,
+    sans-serif;
   vertical-align: middle;
 }
 

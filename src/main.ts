@@ -1,4 +1,10 @@
-import { enableProdMode, importProvidersFrom } from '@angular/core';
+import {
+  enableProdMode,
+  importProvidersFrom,
+  provideBrowserGlobalErrorListeners,
+  provideZoneChangeDetection,
+  provideZonelessChangeDetection,
+} from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
 import { AppModule } from './app/app.module';
@@ -11,7 +17,9 @@ if (environment.production) {
 
 bootstrapApplication(AppComponent, {
   providers: [
+    provideZonelessChangeDetection(),
     provideHttpClient(withInterceptorsFromDi()),
     importProvidersFrom(AppModule),
+    provideBrowserGlobalErrorListeners(),
   ],
 });

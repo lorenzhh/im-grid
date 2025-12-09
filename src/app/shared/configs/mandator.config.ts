@@ -15,7 +15,7 @@ export const columns: ImColumn[] = [
     key: 'color',
     title: 'Color',
     columnType: ImColumnType.Color,
-    width: 50
+    width: 50,
   },
   {
     key: 'shortName',

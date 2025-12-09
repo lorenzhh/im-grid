@@ -10,7 +10,7 @@ export const routes: Routes = [
   {
     path: 'welcome',
     loadChildren: () =>
-      import('./pages/welcome/welcome-routing.module').then((m) => m.routes),
+      import('./pages/welcome/welcome-routing.module').then(m => m.routes),
   },
   {
     path: '**',
