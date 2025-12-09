@@ -1,5 +1,4 @@
-<im-grid
-  [allowCreate]="allowCreate()"
+<im-grid [allowCreate]="allowCreate()"
   [allowDelete]="allowDelete()"
   [allowEdit]="allowEdit()"
   [allowExcel]="childAllowExcel()"
@@ -8,4 +7,4 @@
   [editMode]="EditMode.Cache"
   [enableNotifications]="enableNotifications()"
   (save)="save($event)"
-></im-grid>
+ />

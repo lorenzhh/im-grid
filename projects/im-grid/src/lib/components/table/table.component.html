@@ -1,6 +1,5 @@
 <ng-template #toolbarTemplate>
-  <im-toolbar
-    [allowCreate]="allowCreate()"
+  <im-toolbar [allowCreate]="allowCreate()"
     [allowExcel]="allowExcel()"
     [deletedRowsLength]="deletedRowsLength"
     [directMode]="editMode() === EditMode.Direct"
@@ -15,7 +14,7 @@
     (exportAsExcel)="exportAsExcel()"
     (resetRows)="resetRows()"
     (saveRows)="saveRows()"
-  ></im-toolbar>
+   />
 </ng-template>
 <nz-table
   [nzData]="rows"
@@ -122,11 +121,10 @@
         nzRight
         >
         @if (disableSearch() === false) {
-          <nz-switch
-            [(ngModel)]="allowSearch"
+          <nz-switch [(ngModel)]="allowSearch"
             [nzCheckedChildren]="checkedTemplate"
             [nzUnCheckedChildren]="checkedTemplate"
-          ></nz-switch>
+           />
           <ng-template #checkedTemplate>
             <i
               nz-icon
@@ -192,10 +190,9 @@
           [style.minWidth.px]="column.width"
           [style.width.px]="column.width"
           >
-          <im-filter-cell
-            [column]="column"
+          <im-filter-cell [column]="column"
             (filterRows)="filterRows()"
-          ></im-filter-cell>
+           />
         </th>
       }
       <th
@@ -286,13 +283,12 @@
             [title]="row[column.key] | format : column : (settingsService.settings$ | async)"
             (click)="handleClick(column, row, index)"
             >
-            <im-cell
-              [column]="column"
+            <im-cell [column]="column"
               [focused]="column.key === (focusedCell$ | async).key && index === (focusedCell$ | async).rowIndex"
               [rawValue]="row[column.key]"
               [value]="row[column.key] | format : column : (settingsService.settings$ | async)"
               (zoomed)="showValueInModal(row, column)"
-            ></im-cell>
+             />
           </td>
         }
         @if (allowDelete() || allowEdit()) {
@@ -319,9 +315,8 @@
                 </a>
               }
               @if (allowDelete() && allowEdit()) {
-                <nz-divider
-                  nzType="vertical"
-                ></nz-divider>
+                <nz-divider nzType="vertical"
+                 />
               }
               @if (allowDelete() && customDelete() === false) {
                 <a
@@ -378,14 +373,14 @@
           >
           {{ translations.submit | translate }}
         </button>
-        <nz-divider nzType="vertical"></nz-divider>
+        <nz-divider nzType="vertical" />
         <button
           (click)="resetForm($event)"
           nz-button
           >
           {{ translations.reset | translate }}
         </button>
-        <nz-divider nzType="vertical"></nz-divider>
+        <nz-divider nzType="vertical" />
         <button
           (click)="closeModal()"
           nz-button
@@ -398,29 +393,26 @@
 </ng-template>
 <ng-template #createEditModal>
   @if (form) {
-    <im-edit-form
-      [columns]="columns()"
+    <im-edit-form [columns]="columns()"
       [form]="form"
       [locale]="settingsService.locale"
-    ></im-edit-form>
+     />
   }
 </ng-template>
 <ng-template #footerTemplate>
-  <im-footer
-    [columns]="columns()"
+  <im-footer [columns]="columns()"
     [filterForm]="filterForm"
     [notIncludedColumns]="notIncludedColumns"
     [rowsLength]="rows.length"
     (filterRows)="filterRows($event)"
-  ></im-footer>
+   />
 </ng-template>
 @if (childrenKey) {
-  <im-drawer
-    [componentConfig]="componentConfig"
+  <im-drawer [componentConfig]="componentConfig"
     [title]="childrenTitle | translate"
     [visible]="drawerVisible"
     (closed)="closeDrawer()"
-  ></im-drawer>
+   />
 }
 <nz-dropdown-menu #menu="nzDropdownMenu">
   <ul nz-menu>

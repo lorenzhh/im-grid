@@ -87,26 +87,25 @@
         </span>
         <div style="display: flex; align-items: center">
           <div style="display: flex; align-items: center">
-            <nz-slider
-              [(ngModel)]="value"
+            <nz-slider [(ngModel)]="value"
               [nzMax]="360"
               [nzMin]="0"
               [style.width.px]="180"
               (ngModelChange)="changeTheme($event)"
-            ></nz-slider>
+             />
           </div>
-          <nz-divider nzType="vertical"></nz-divider>
+          <nz-divider nzType="vertical" />
           <div>
             <a (click)="changeLocale(Locale.us)">en-US</a>
-            <nz-divider nzType="vertical"></nz-divider>
+            <nz-divider nzType="vertical" />
             <a (click)="changeLocale(Locale.gb)">en-GB</a>
-            <nz-divider nzType="vertical"></nz-divider>
+            <nz-divider nzType="vertical" />
             <a (click)="changeLocale(Locale.de)">de-DE</a>
           </div>
-          <nz-divider nzType="vertical"></nz-divider>
+          <nz-divider nzType="vertical" />
           <div>
             <a (click)="changeLanguage('en')">English</a>
-            <nz-divider nzType="vertical"></nz-divider>
+            <nz-divider nzType="vertical" />
             <a (click)="changeLanguage('de')">Deutsch</a>
           </div>
         </div>
@@ -114,7 +113,7 @@
     </nz-header>
     <nz-content>
       <div class="inner-content">
-        <router-outlet></router-outlet>
+        <router-outlet />
       </div>
     </nz-content>
   </nz-layout>

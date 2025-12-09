@@ -13,14 +13,13 @@
       nzAllowClear
       >
       @for (column of columns(); track column.key) {
-        <nz-option
-          [nzLabel]="column.title | translate"
+        <nz-option [nzLabel]="column.title | translate"
           [nzValue]="column"
-        ></nz-option>
+         />
       }
     </nz-select>
   }
-  <nz-divider nzType="vertical"></nz-divider>
+  <nz-divider nzType="vertical" />
   <nz-input-group
     [formGroup]="filterForm()"
     [nzSuffix]="suffixIconSearch"

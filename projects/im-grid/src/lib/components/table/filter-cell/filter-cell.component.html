@@ -8,15 +8,12 @@
     nzShowSearch
     nzSize="small"
   >
-    <nz-option
-      [nzLabel]="translations.yes | translate"
+    <nz-option [nzLabel]="translations.yes | translate"
       [nzValue]="true"
-    >
-    </nz-option>
-    <nz-option
-      [nzLabel]="translations.no | translate"
+     />
+    <nz-option [nzLabel]="translations.no | translate"
       [nzValue]="false"
-    ></nz-option>
+     />
   </nz-select>
   <nz-select
     [(ngModel)]="column().filter.values"
@@ -30,8 +27,7 @@
     nzShowSearch
     nzSize="small"
   >
-    <nz-option
-      [nzLabel]="(option | typeof) === 'object' 
+    <nz-option [nzLabel]="(option | typeof) === 'object' 
         ? option[column().labelProperty] 
         : (option | typeof) !== 'null'
           ? (option | format: column(): (settingsService.settings$ | async)) 
@@ -40,7 +36,7 @@
         ? [option] 
         : option"
       *ngFor="let option of column().filter.selectValues"
-    ></nz-option>
+     />
   </nz-select>
   <ng-template
     #selectListTagPlaceholder
@@ -85,20 +81,18 @@
     autocomplete="off"
     nzSize="small"
   >
-  <nz-rate
-    [(ngModel)]="column().filter.values[0]"
+  <nz-rate [(ngModel)]="column().filter.values[0]"
     (ngModelChange)="filterRows.emit()"
     *ngSwitchCase="ImFilterType.Rating"
     nzAllowHalf
-  ></nz-rate>
-  <nz-range-picker
-    [(ngModel)]="column().filter.values"
+   />
+  <nz-range-picker [(ngModel)]="column().filter.values"
     [nzFormat]="DateFormats[settingsService.locale]"
     [style.width.%]="100"
     (ngModelChange)="filterRows.emit()"
     *ngSwitchCase="ImFilterType.RangeDate"
     nzSize="small"
-  ></nz-range-picker>
+   />
   <input
     *ngSwitchDefault
     disabled

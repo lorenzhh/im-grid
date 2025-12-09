@@ -1,11 +1,10 @@
 
 @switch (column().columnType) {
   @case (ImColumnType.Rating) {
-    <nz-rate
-      [ngModel]="value()"
+    <nz-rate [ngModel]="value()"
       nzAllowHalf
       nzDisabled
-    ></nz-rate>
+     />
   }
   @case (ImColumnType.Color) {
     <div
@@ -14,11 +13,10 @@
     ></div>
   }
   @case (ImColumnType.Avatar) {
-    <nz-avatar
-      [nzShape]="column().avatarShape"
+    <nz-avatar [nzShape]="column().avatarShape"
       [nzSize]="'large'"
       [nzSrc]="rawValue()"
-    ></nz-avatar>
+     />
   }
   @case (ImColumnType.Website) {
     <a
