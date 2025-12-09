@@ -65,7 +65,6 @@ import { NgZorroAntdModule } from '../../modules/ng-zorro.module';
 import { FilterPipe } from '../../pipes/filter.pipe';
 import { FormatPipe } from '../../pipes/format.pipe';
 import { TranslatePipe } from '../../pipes/translate.pipe';
-import { ExcelService } from '../../services/excel.service';
 import { FormatService } from '../../services/format.service';
 import { SettingsService } from '../../services/settings.service';
 import { CellComponent } from './cell/cell.component';
@@ -152,8 +151,8 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   @Input() childAllowCreate = true;
   @Input() childAllowEdit = true;
   @Input() childAllowDelete = true;
-  @Input() allowExcel = true;
-  @Input() childAllowExcel = true;
+  @Input() allowExcel = false;
+  @Input() childAllowExcel = false;
   @Input() size: Size = 'default';
 
   @Output() selectedIds = new EventEmitter<{ [key: string]: boolean }>();
@@ -212,7 +211,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   private stillClickedInsideBodySubject$: BehaviorSubject<boolean> =
     new BehaviorSubject<boolean>(false);
   private clickedInsideOfBody = false;
-  private arrowKeys = new Subject<KeyboardEvent>();
+  private arrowKeys = new Subject<Event>();
   public resizing = false;
 
   /* context menu active row */
@@ -226,7 +225,6 @@ export class ImGridComponent<T extends { isNew?: boolean }>
     private formBuilder: FormBuilder,
     private modalService: NzModalService,
     private formatService: FormatService,
-    private excelService: ExcelService,
     private messageService: NzMessageService,
     private cd: ChangeDetectorRef,
     public settingsService: SettingsService,
@@ -1167,13 +1165,13 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   }
 
   public exportAsExcel() {
-    this.excelService.exportAsExcelFile(
-      this.rows,
-      'file',
-      this.columns.filter(
-        column => column.visible && !column.hidden && !column.childrenConfig
-      )
-    );
+    // this.excelService.exportAsExcelFile(
+    //   this.rows,
+    //   'file',
+    //   this.columns.filter(
+    //     column => column.visible && !column.hidden && !column.childrenConfig
+    //   )
+    // );
   }
 
   private createMessage(type: string, message: Translation): void {
@@ -1313,7 +1311,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   @HostListener('document:keydown.ArrowRight', ['$event'])
   @HostListener('document:keydown.ArrowDown', ['$event'])
   @HostListener('document:keydown.ArrowLeft', ['$event'])
-  handleEvent(event: KeyboardEvent) {
+  handleEvent(event: Event) {
     if (this.stillClickedInsideBodySubject$.value) {
       event.preventDefault();
       this.arrowKeys.next(event);

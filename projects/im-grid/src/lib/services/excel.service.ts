@@ -1,104 +1,104 @@
-import { Inject, Injectable } from '@angular/core';
-import { utils, WorkBook, WorkSheet, write } from 'xlsx';
-import { DOCUMENT } from '@angular/common';
-import { ImColumn, ImColumnType } from '../models/column.model';
-import { FormatService } from './format.service';
-import { SettingsService } from './settings.service';
-const EXCEL_TYPE =
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+// import { Inject, Injectable } from '@angular/core';
+// import { utils, WorkBook, WorkSheet, write } from 'xlsx';
+// import { DOCUMENT } from '@angular/common';
+// import { ImColumn, ImColumnType } from '../models/column.model';
+// import { FormatService } from './format.service';
+// import { SettingsService } from './settings.service';
+// const EXCEL_TYPE =
+//     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
 
-@Injectable({ providedIn: 'root' })
-export class ExcelService {
-    constructor(
-        private formatService: FormatService,
-        private settingsService: SettingsService,
-        @Inject(DOCUMENT) private document: any
-    ) {}
+// @Injectable({ providedIn: 'root' })
+// export class ExcelService {
+//     constructor(
+//         private formatService: FormatService,
+//         private settingsService: SettingsService,
+//         @Inject(DOCUMENT) private document: any
+//     ) {}
 
-    public exportAsExcelFile(
-        rows: any[],
-        excelFileName: string,
-        columns: ImColumn[]
-    ): void {
-        const rowsToExport = this.formatedRows(rows, columns);
-        const worksheet: WorkSheet = utils.json_to_sheet(rowsToExport);
+//     public exportAsExcelFile(
+//         rows: any[],
+//         excelFileName: string,
+//         columns: ImColumn[]
+//     ): void {
+//         const rowsToExport = this.formatedRows(rows, columns);
+//         const worksheet: WorkSheet = utils.json_to_sheet(rowsToExport);
 
-        worksheet['!cols'] = columns.map((column) => ({ wpx: column.width / 1.2 }));
-        const workbook: WorkBook = {
-            Sheets: { ['data']: worksheet },
-            SheetNames: ['data'],
-        };
-        const excelBuffer: any = write(workbook, { bookType: 'xlsx', type: 'array' });
-        this.saveAsExcelFile(excelBuffer, excelFileName);
-    }
+//         worksheet['!cols'] = columns.map((column) => ({ wpx: column.width / 1.2 }));
+//         const workbook: WorkBook = {
+//             Sheets: { ['data']: worksheet },
+//             SheetNames: ['data'],
+//         };
+//         const excelBuffer: any = write(workbook, { bookType: 'xlsx', type: 'array' });
+//         this.saveAsExcelFile(excelBuffer, excelFileName);
+//     }
 
-    private saveAsExcelFile(buffer: any, fileName: string): void {
-        const blob: Blob = new Blob([buffer], { type: EXCEL_TYPE });
-        const url = window.URL.createObjectURL(blob);
-        const link = this.document.createElement('a');
-        link.href = url;
-        link.download = fileName + '.xlsx';
+//     private saveAsExcelFile(buffer: any, fileName: string): void {
+//         const blob: Blob = new Blob([buffer], { type: EXCEL_TYPE });
+//         const url = window.URL.createObjectURL(blob);
+//         const link = this.document.createElement('a');
+//         link.href = url;
+//         link.download = fileName + '.xlsx';
 
-        this.document.body.appendChild(link);
-        link.click();
-        this.document.body.removeChild(link);
-    }
+//         this.document.body.appendChild(link);
+//         link.click();
+//         this.document.body.removeChild(link);
+//     }
 
-    private formatedRows(rows: any[], columns: ImColumn[]): any[] {
-        const formatedRows: any[] = [];
-        const clonedRows = JSON.parse(JSON.stringify(rows));
+//     private formatedRows(rows: any[], columns: ImColumn[]): any[] {
+//         const formatedRows: any[] = [];
+//         const clonedRows = JSON.parse(JSON.stringify(rows));
 
-        clonedRows.forEach((row) => {
-            const toFormatRow = {};
-            columns.forEach((column) => {
-                const value = this.formatValue(column, row[column.key]);
-                const type = this.getType(column, value);
+//         clonedRows.forEach((row) => {
+//             const toFormatRow = {};
+//             columns.forEach((column) => {
+//                 const value = this.formatValue(column, row[column.key]);
+//                 const type = this.getType(column, value);
 
-                const title =
-                    typeof column.title === 'string'
-                        ? column.title
-                        : column.title[this.settingsService.language];
+//                 const title =
+//                     typeof column.title === 'string'
+//                         ? column.title
+//                         : column.title[this.settingsService.language];
 
-                toFormatRow[title] = {
-                    v: value,
-                    t: type,
-                };
-            });
-            formatedRows.push(toFormatRow);
-        });
-        return formatedRows;
-    }
+//                 toFormatRow[title] = {
+//                     v: value,
+//                     t: type,
+//                 };
+//             });
+//             formatedRows.push(toFormatRow);
+//         });
+//         return formatedRows;
+//     }
 
-    private formatValue(column: ImColumn, value: any) {
-        if (!value) {
-            return '';
-        }
-        switch (column.columnType) {
-            case ImColumnType.Boolean:
-            case ImColumnType.Xml:
-            case ImColumnType.Object:
-            case ImColumnType.Array:
-                return this.formatService.format(value, column);
-            default:
-                return value;
-        }
-    }
+//     private formatValue(column: ImColumn, value: any) {
+//         if (!value) {
+//             return '';
+//         }
+//         switch (column.columnType) {
+//             case ImColumnType.Boolean:
+//             case ImColumnType.Xml:
+//             case ImColumnType.Object:
+//             case ImColumnType.Array:
+//                 return this.formatService.format(value, column);
+//             default:
+//                 return value;
+//         }
+//     }
 
-    private getType(column: ImColumn, value: any) {
-        if (!value && column.columnType !== ImColumnType.Boolean) {
-            return 's';
-        }
+//     private getType(column: ImColumn, value: any) {
+//         if (!value && column.columnType !== ImColumnType.Boolean) {
+//             return 's';
+//         }
 
-        switch (column.columnType) {
-            case ImColumnType.Int:
-            case ImColumnType.Decimal:
-                return 'n';
-            case ImColumnType.Date:
-                return 'd';
-            case ImColumnType.Boolean:
-                return 'b';
-            default:
-                return 's';
-        }
-    }
-}
+//         switch (column.columnType) {
+//             case ImColumnType.Int:
+//             case ImColumnType.Decimal:
+//                 return 'n';
+//             case ImColumnType.Date:
+//                 return 'd';
+//             case ImColumnType.Boolean:
+//                 return 'b';
+//             default:
+//                 return 's';
+//         }
+//     }
+// }
