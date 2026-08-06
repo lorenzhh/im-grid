@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzInputNumberLegacyModule } from 'ng-zorro-antd/input-number-legacy';
+import { NzInputNumberComponent } from 'ng-zorro-antd/input-number';
 
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { ImColumn, ImColumnType, ImFieldType } from '../../../models/column.model';
@@ -28,7 +28,7 @@ import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
     FormatPipe,
     NzRateModule,
     NzCheckboxModule,
-    NzInputNumberLegacyModule,
+    NzInputNumberComponent,
   ],
   selector: 'im-edit-form',
   templateUrl: './edit-form.component.html',

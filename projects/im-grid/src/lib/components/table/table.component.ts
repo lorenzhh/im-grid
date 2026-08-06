@@ -23,7 +23,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import {
   NzContextMenuService,
-  NzDropDownModule,
+  NzDropdownModule,
   NzDropdownMenuComponent,
 } from 'ng-zorro-antd/dropdown';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -98,7 +98,7 @@ export interface Edit<T> {
     ImFilterCellComponent,
     EditFormComponent,
     FilterPipe,
-    NzDropDownModule,
+    NzDropdownModule,
     NzInputModule,
     NzDividerModule,
     NzPopconfirmModule,
@@ -111,8 +111,8 @@ export interface Edit<T> {
     DragDropModule,
     NzTableModule,
     TranslatePipe,
-    NzResizableModule
-],
+    NzResizableModule,
+  ],
   selector: 'im-grid',
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.scss'],
