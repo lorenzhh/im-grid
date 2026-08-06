@@ -20,21 +20,13 @@
     </nz-select>
   }
   <nz-divider nzType="vertical" />
-  <nz-input-group
-    [formGroup]="filterForm()"
-    [nzSuffix]="suffixIconSearch"
-    >
+  <nz-input-wrapper [formGroup]="filterForm()">
+    <nz-icon nzInputSuffix nzType="search" />
     <input
       [placeholder]="translations.filter | translate"
       type="text"
       nz-input
       formControlName="search"
-      />
-    </nz-input-group>
-    <ng-template #suffixIconSearch>
-      <i
-        nz-icon
-        nzType="search"
-      ></i>
-    </ng-template>
+    />
+  </nz-input-wrapper>
   </div>

@@ -44,7 +44,7 @@
   >
     {{ selectedList.length }}
   </ng-template>
-  <nz-input-group
+  <nz-input-wrapper
     *ngSwitchCase="ImFilterType.RangeNumber"
     nzCompact
     nzSize="small"
@@ -72,7 +72,7 @@
       type="number"
       nz-input
     >
-  </nz-input-group>
+  </nz-input-wrapper>
   <input
     [(ngModel)]="column().filter.values[0]"
     (ngModelChange)="filterRows.emit()"

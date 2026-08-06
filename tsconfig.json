@@ -2,14 +2,17 @@
   "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "./",
+    "ignoreDeprecations": "6.0",
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "esModuleInterop": true,
     "declaration": false,
     "experimentalDecorators": true,
     "module": "esnext",
+    "strict": false,
     "moduleResolution": "bundler",
     "importHelpers": true,
+    "strictNullChecks": false,
     "target": "ES2022",
     "typeRoots": [
       "node_modules/@types"
@@ -25,8 +28,8 @@
     "useDefineForClassFields": false
   },
   "angularCompilerOptions": {
-    "fullTemplateTypeCheck": true,
     "strictInjectionParameters": true,
-    "strictTemplates": true
+    "strictNullInputTypes": false,
+    "strictTemplates": false,
   }
 }

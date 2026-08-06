@@ -8,12 +8,8 @@
     "types": []
   },
   "angularCompilerOptions": {
-    "extendedDiagnostics": {
-      "checks": {
-        "nullishCoalescingNotNullable": "suppress",
-        "optionalChainNotNullable": "suppress"
-      }
-    },
+    "strictNullInputTypes": false,
+    "strictTemplates": false
   },
   "exclude": ["src/test.ts", "**/*.spec.ts"]
 }

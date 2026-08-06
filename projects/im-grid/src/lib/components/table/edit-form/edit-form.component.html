@@ -52,16 +52,15 @@
                  />
               }
               @case (ImFieldType.Website) {
-                <nz-input-group
-                  [nzAddOnAfterIcon]="'global'"
-                  >
+                <nz-input-wrapper>
+                  <nz-icon nzInputSuffix nzType="global" />
                   <input
                     [formControlName]="column.key"
                     [placeholder]="(column.title | translate) + '...'"
                     type="text"
                     nz-input
-                    />
-                  </nz-input-group>
+                  />
+                </nz-input-wrapper>
                 }
                 @case (ImFieldType.Date) {
                   <nz-date-picker [formControlName]="column.key"
