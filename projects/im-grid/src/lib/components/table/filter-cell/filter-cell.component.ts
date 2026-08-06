@@ -5,7 +5,7 @@ import {
   NgSwitchCase,
   NgSwitchDefault,
 } from '@angular/common';
-import { Component, inject, input, output } from '@angular/core';
+import { Component, inject, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -41,6 +41,7 @@ import { NzRateModule } from 'ng-zorro-antd/rate';
   ],
   selector: 'im-filter-cell',
   templateUrl: './filter-cell.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./filter-cell.component.css'],
 })
 export class ImFilterCellComponent {
