@@ -64,6 +64,7 @@
           <div
             class="im-lead"
             [class.has-index]="showRowIndex()"
+            [class.has-check]="selection() === SelectionMode.Checkbox"
             [class.show-check]="numberOfChecked() > 0"
             >
             @if (showRowIndex()) {
@@ -252,6 +253,7 @@
             <div
               class="im-lead"
               [class.has-index]="showRowIndex()"
+            [class.has-check]="selection() === SelectionMode.Checkbox"
               [class.show-check]="numberOfChecked() > 0"
               >
               @if (showRowIndex()) {

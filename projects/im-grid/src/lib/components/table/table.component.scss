@@ -609,14 +609,15 @@ nz-table.im-grid-table {
       }
     }
 
-    .im-lead.has-index .im-lead-check {
+    .im-lead.has-index.has-check .im-lead-check {
       visibility: hidden;
     }
 
-    .ant-table-thead th.im-col-lead:hover .im-lead.has-index,
-    .ant-table-tbody > tr:hover .im-lead.has-index,
-    .ant-table-tbody > tr.is-selected .im-lead.has-index,
-    .im-lead.has-index.show-check {
+    /* the number turns into a checkbox on hover, but only when there is a checkbox */
+    .ant-table-thead th.im-col-lead:hover .im-lead.has-index.has-check,
+    .ant-table-tbody > tr:hover .im-lead.has-index.has-check,
+    .ant-table-tbody > tr.is-selected .im-lead.has-index.has-check,
+    .im-lead.has-index.has-check.show-check {
       .im-lead-check {
         visibility: visible;
       }
@@ -641,11 +642,11 @@ nz-table.im-grid-table {
     }
 
     @media (hover: none) {
-      .im-lead.has-index .im-lead-check {
+      .im-lead.has-index.has-check .im-lead-check {
         visibility: visible;
       }
 
-      .im-lead.has-index .im-lead-index {
+      .im-lead.has-index.has-check .im-lead-index {
         visibility: hidden;
       }
     }
