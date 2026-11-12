@@ -108,7 +108,7 @@
 
   @if (allowCreate()) {
     <button
-      class="im-btn"
+      class="im-btn im-new-btn"
       [class.im-btn-primary]="directMode() || pendingCount() === 0"
       (click)="addRow.emit()"
       type="button"

@@ -57,7 +57,7 @@
   gap: 6px;
   min-width: 0;
   max-width: 100%;
-  color: var(--im-grid-accent, #1677ff);
+  color: var(--im-grid-accent, var(--ant-primary-color, #5c5c5c));
 
   &:hover {
     text-decoration: underline;
@@ -75,7 +75,7 @@
   font-size: 14px;
 
   &.is-true {
-    color: var(--im-grid-accent, #1677ff);
+    color: var(--im-grid-accent, var(--ant-primary-color, #5c5c5c));
   }
 
   &.is-false {

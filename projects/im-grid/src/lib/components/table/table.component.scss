@@ -8,7 +8,7 @@
  *   im-grid { --im-grid-accent: #7c3aed; --im-grid-radius: 6px; }
  */
 :host {
-  --im-grid-accent: var(--ant-primary-color, #1677ff);
+  --im-grid-accent: var(--ant-primary-color, #5c5c5c);
   --im-grid-danger: var(--ant-error-color, #ff4d4f);
   --im-grid-success: var(--ant-success-color, #52c41a);
   --im-grid-warning: var(--ant-warning-color, #faad14);
@@ -24,7 +24,13 @@
   --im-grid-border: color-mix(in srgb, currentColor 9%, transparent);
   --im-grid-divider: color-mix(in srgb, currentColor 6%, transparent);
   --im-grid-muted: color-mix(in srgb, currentColor 55%, transparent);
-  --im-grid-row-hover: color-mix(in srgb, currentColor 3.5%, transparent);
+  --im-grid-row-hover: color-mix(in srgb, var(--im-grid-accent) 6%, transparent);
+  /* depth: the card floats over the page instead of being drawn on it */
+  --im-grid-elevation:
+    0 1px 2px light-dark(rgba(16, 24, 40, 0.05), rgba(0, 0, 0, 0.4)),
+    0 10px 28px -8px light-dark(rgba(16, 24, 40, 0.12), rgba(0, 0, 0, 0.55));
+  /* a faint wash of the accent behind the header row */
+  --im-grid-header-bg: color-mix(in srgb, var(--im-grid-accent) 5%, transparent);
   --im-grid-row-selected: color-mix(in srgb, var(--im-grid-accent) 9%, transparent);
   --im-grid-row-selected-hover: color-mix(in srgb, var(--im-grid-accent) 13%, transparent);
   --im-grid-focus: var(--im-grid-accent);
@@ -34,6 +40,19 @@
   flex-direction: column;
   height: 100%;
   min-height: 0;
+  /* lets the toolbar, search and cells adapt to the grid's own width */
+  container: im-grid / inline-size;
+}
+
+@container im-grid (max-width: 640px) {
+  nz-table.im-grid-table {
+    --im-grid-cell-padding-x: 10px;
+    --im-grid-radius: 10px;
+  }
+
+  .im-grid-toolbar {
+    margin-bottom: 10px;
+  }
 }
 
 /* spacing via margin, not `gap`: the host also contains invisible children
@@ -112,6 +131,7 @@ nz-table.im-grid-table {
   border: 1px solid var(--im-grid-border);
   border-radius: var(--im-grid-radius);
   overflow: hidden;
+  box-shadow: var(--im-grid-elevation);
 }
 
 :host ::ng-deep nz-table.im-grid-table {
@@ -177,10 +197,6 @@ nz-table.im-grid-table {
       background-color: inherit;
     }
 
-    .ant-table-body {
-      scrollbar-color: color-mix(in srgb, currentColor 20%, transparent) transparent;
-    }
-
     /* -------------------------------- footer -------------------------------- */
     .ant-table-footer {
       display: flex;
@@ -203,7 +219,7 @@ nz-table.im-grid-table {
     }
 
     .ant-table-thead > tr > th {
-      --im-header-tint: transparent;
+      --im-header-tint: var(--im-grid-header-bg);
       height: var(--im-grid-header-height);
       padding: 0 var(--im-grid-cell-padding-x);
       font-size: var(--im-grid-header-font-size);
@@ -233,7 +249,7 @@ nz-table.im-grid-table {
       }
 
       &.ant-table-column-has-sorters:hover {
-        --im-header-tint: color-mix(in srgb, currentColor 3.5%, transparent);
+        --im-header-tint: color-mix(in srgb, var(--im-grid-accent) 9%, transparent);
       }
     }
 
@@ -480,21 +496,21 @@ nz-table.im-grid-table {
       );
     }
 
-    /* Header and summary reserve a scrollbar gutter (overflow-y: scroll) so their columns
-       line up with the scrolling body. Keep the gutter, but don't paint a scrollbar in it. */
+    /* Header and summary must leave room for the body's vertical scrollbar so their columns
+       (and sticky cells) line up with it. ng-zorro does that with an overflow-y: scroll gutter,
+       but that only matches when both scrollbars are styled alike – host apps often restyle
+       them. Instead, reserve exactly the body's measured scrollbar width (set by the grid as
+       --im-grid-scrollbar-width) as a transparent border, which also shrinks the area sticky
+       cells stick to. */
     .ant-table-header,
     .ant-table-summary {
-      scrollbar-color: transparent transparent;
+      overflow-y: hidden !important;
+      border-inline-end: var(--im-grid-scrollbar-width, 0px) solid transparent;
+    }
 
-      &::-webkit-scrollbar,
-      &::-webkit-scrollbar-thumb,
-      &::-webkit-scrollbar-track {
-        background: transparent;
-      }
-
-      &::-webkit-scrollbar-button {
-        display: none;
-      }
+    /* the reserved gutter isn't a cell: give it the header tint too */
+    .ant-table-header {
+      background-image: linear-gradient(var(--im-grid-header-bg), var(--im-grid-header-bg));
     }
 
     .im-summary-row > td {
@@ -906,7 +922,7 @@ nz-table.im-grid-table.is-loading::after {
 
 .im-value ::ng-deep {
   .im-xml-tag {
-    color: #3b82f6;
+    color: var(--im-grid-accent, var(--ant-primary-color, #5c5c5c));
   }
 
   .im-xml-attr {
@@ -958,7 +974,7 @@ nz-table.im-grid-table.is-loading::after {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #fff;
-  background: color-mix(in srgb, var(--im-grid-accent, #1677ff) 92%, black);
+  background: color-mix(in srgb, var(--im-grid-accent, var(--ant-primary-color, #5c5c5c)) 92%, black);
   box-shadow:
     0 12px 32px rgba(0, 0, 0, 0.3),
     0 2px 6px rgba(0, 0, 0, 0.2);
@@ -1058,8 +1074,8 @@ nz-table.im-grid-table.is-loading::after {
   height: 32px;
   border-radius: 8px;
   font-size: 15px;
-  color: var(--im-grid-accent, #1677ff);
-  background: color-mix(in srgb, var(--im-grid-accent, #1677ff) 12%, transparent);
+  color: var(--im-grid-accent, var(--ant-primary-color, #5c5c5c));
+  background: color-mix(in srgb, var(--im-grid-accent, var(--ant-primary-color, #5c5c5c)) 12%, transparent);
 }
 
 /* ------------------------------------------------------------------------ */

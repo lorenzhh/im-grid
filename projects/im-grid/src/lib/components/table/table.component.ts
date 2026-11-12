@@ -6,6 +6,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
   EventEmitter,
   TemplateRef,
   computed,
@@ -257,6 +258,33 @@ export class ImGridComponent<T extends { isNew?: boolean }> {
   /* ------------------------------------------------------------------ */
 
   readonly isRtl = computed(() => this.directionality?.valueSignal() === 'rtl');
+
+  /** Width of the grid itself (not the window), so it also adapts inside narrow panels. */
+  private readonly hostWidth = signal(Infinity);
+  /** Narrow layout: row actions collapse into one menu. */
+  readonly compact = computed(() => this.hostWidth() < 640);
+
+  /**
+   * Sticky sides for the lead (row number / checkbox) and actions columns. They stick to the
+   * physical edge matching the reading direction, and not at all in the compact layout, where
+   * pinned columns would take too much of the narrow width.
+   */
+  readonly stickyStart = computed(() => {
+    const stick = this.compact() ? false : '0px';
+    return this.isRtl() ? { left: false, right: stick } : { left: stick, right: false };
+  });
+  readonly stickyEnd = computed(() => {
+    const stick = this.compact() ? false : '0px';
+    return this.isRtl() ? { left: stick, right: false } : { left: false, right: stick };
+  });
+
+  readonly hasRowActions = computed(
+    () =>
+      this.allowEdit() ||
+      this.allowDelete() ||
+      !!this.buttons()?.length ||
+      !!this.childrenKey()
+  );
   readonly height = computed(() => ROW_HEIGHTS[this.size()] ?? ROW_HEIGHTS.default);
 
   readonly visibleColumns = computed(() =>
@@ -388,11 +416,13 @@ export class ImGridComponent<T extends { isNew?: boolean }> {
 
   /** Width of the sticky actions column, sized to the number of row actions. */
   readonly actionsWidth = computed(() => {
-    const count =
-      (this.allowEdit() ? 1 : 0) +
-      (this.allowDelete() ? 1 : 0) +
-      (this.buttons()?.length ? 1 : 0) +
-      (this.childrenKey() ? 1 : 0);
+    // narrow grids show a single "more" button that opens every action
+    const count = this.compact()
+      ? Number(this.hasRowActions())
+      : (this.allowEdit() ? 1 : 0) +
+        (this.allowDelete() ? 1 : 0) +
+        (this.buttons()?.length ? 1 : 0) +
+        (this.childrenKey() ? 1 : 0);
     // the header cell holds the column chooser (+ filter toggle without toolbar)
     const headerCount =
       1 + (!this.showToolbar() && this.disableSearch() === false ? 1 : 0);
@@ -457,6 +487,17 @@ export class ImGridComponent<T extends { isNew?: boolean }> {
 
   constructor() {
     inject(NzIconService).addIcon(...IM_GRID_ICONS);
+
+    // follow the grid's own width (no-op where ResizeObserver doesn't exist, e.g. SSR)
+    if (typeof ResizeObserver !== 'undefined') {
+      const host: HTMLElement = inject(ElementRef).nativeElement;
+      const observer = new ResizeObserver(([entry]) => {
+        this.hostWidth.set(entry.contentRect.width);
+        this.measureScrollbarGutter(host);
+      });
+      observer.observe(host);
+      inject(DestroyRef).onDestroy(() => observer.disconnect());
+    }
     this.i18n.useOverrides(this.textOverrides);
 
     this.arrowKeys
@@ -1537,6 +1578,44 @@ export class ImGridComponent<T extends { isNew?: boolean }> {
   public clickInside() {
     this.bodyFocused = true;
     this.clickedInsideOfBody = true;
+  }
+
+  /**
+   * Header and summary reserve the body's vertical scrollbar width so columns and sticky cells
+   * line up. Measured instead of assumed, because host apps style scrollbars differently.
+   */
+  private measureScrollbarGutter(host: HTMLElement): void {
+    const body: HTMLElement = this.table()?.cdkVirtualScrollViewport?.elementRef.nativeElement;
+    if (body) {
+      host.style.setProperty(
+        '--im-grid-scrollbar-width',
+        `${Math.max(0, body.offsetWidth - body.clientWidth)}px`
+      );
+    }
+  }
+
+  /** Edit action (custom handler or the built-in dialog). */
+  editRow(row: T): void {
+    if (this.customEdit()) {
+      this.customUpdatedRow.emit(row);
+    } else {
+      this.openCreateOrEditModal(row);
+    }
+  }
+
+  /** Delete from the compact menu: a confirm dialog instead of the inline popconfirm. */
+  confirmDeleteRow(row: T): void {
+    if (this.customDelete()) {
+      this.customDeletedRow.emit(row);
+      return;
+    }
+    this.modalService.confirm({
+      nzTitle: this.texts().areYouSure,
+      nzOkText: this.texts().delete,
+      nzOkDanger: true,
+      nzCancelText: this.texts().cancel,
+      nzOnOk: () => this.deleteRow(row),
+    });
   }
 
   openRowMenu(event: MouseEvent, menu: NzDropdownMenuComponent, row: T): void {

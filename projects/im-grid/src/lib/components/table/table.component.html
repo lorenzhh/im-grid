@@ -58,8 +58,8 @@
           [style.minWidth.px]="LEAD_WIDTH"
           [style.width.px]="LEAD_WIDTH"
           [nzWidth]="LEAD_WIDTH + 'px'"
-          [nzLeft]="isRtl() ? false : '0px'"
-          [nzRight]="isRtl() ? '0px' : false"
+          [nzLeft]="stickyStart().left"
+          [nzRight]="stickyStart().right"
           >
           <div
             class="im-lead"
@@ -121,8 +121,8 @@
         [style.minWidth.px]="actionsWidth()"
         [style.width.px]="actionsWidth()"
         [nzWidth]="actionsWidth() + 'px'"
-        [nzRight]="isRtl() ? false : '0px'"
-        [nzLeft]="isRtl() ? '0px' : false"
+        [nzRight]="stickyEnd().right"
+        [nzLeft]="stickyEnd().left"
         >
         <div class="im-row-actions">
           @if (!showToolbar() && disableSearch() === false) {
@@ -171,8 +171,8 @@
           [style.minWidth.px]="LEAD_WIDTH"
           [style.width.px]="LEAD_WIDTH"
           [nzWidth]="LEAD_WIDTH + 'px'"
-          [nzLeft]="isRtl() ? false : '0px'"
-          [nzRight]="isRtl() ? '0px' : false"
+          [nzLeft]="stickyStart().left"
+          [nzRight]="stickyStart().right"
           >
           @if (showRowIndex()) {
             <input
@@ -209,8 +209,8 @@
         [style.minWidth.px]="actionsWidth()"
         [style.width.px]="actionsWidth()"
         [nzWidth]="actionsWidth() + 'px'"
-        [nzRight]="isRtl() ? false : '0px'"
-        [nzLeft]="isRtl() ? '0px' : false"
+        [nzRight]="stickyEnd().right"
+        [nzLeft]="stickyEnd().left"
         >
         <button
           [attr.aria-label]="texts().clearFilters"
@@ -246,8 +246,8 @@
             [style.maxWidth.px]="LEAD_WIDTH"
             [style.minWidth.px]="LEAD_WIDTH"
             [style.width.px]="LEAD_WIDTH"
-            [nzLeft]="isRtl() ? false : '0px'"
-          [nzRight]="isRtl() ? '0px' : false"
+            [nzLeft]="stickyStart().left"
+          [nzRight]="stickyStart().right"
             >
             <div
               class="im-lead"
@@ -294,9 +294,24 @@
           [style.maxWidth.px]="actionsWidth()"
           [style.minWidth.px]="actionsWidth()"
           [style.width.px]="actionsWidth()"
-          [nzRight]="isRtl() ? false : '0px'"
-          [nzLeft]="isRtl() ? '0px' : false"
+          [nzRight]="stickyEnd().right"
+          [nzLeft]="stickyEnd().left"
           >
+          @if (compact()) {
+            @if (hasRowActions()) {
+              <div class="im-row-actions">
+                <button
+                  class="im-icon-btn"
+                  [attr.aria-label]="texts().moreActions"
+                  [title]="texts().moreActions"
+                  (click)="openRowMenu($event, compactMenu, row)"
+                  type="button"
+                  >
+                  <span nz-icon nzType="ellipsis"></span>
+                </button>
+              </div>
+            }
+          } @else {
           <div class="im-row-actions">
             @if (allowEdit()) {
               <button
@@ -368,6 +383,7 @@
               </button>
             }
           </div>
+          }
         </td>
       </tr>
     </ng-template>
@@ -378,8 +394,8 @@
         @if (hasLeadColumn()) {
           <td
             class="im-col-lead"
-            [nzLeft]="isRtl() ? false : '0px'"
-            [nzRight]="isRtl() ? '0px' : false"
+            [nzLeft]="stickyStart().left"
+            [nzRight]="stickyStart().right"
             [style.maxWidth.px]="LEAD_WIDTH"
             [style.minWidth.px]="LEAD_WIDTH"
             [style.width.px]="LEAD_WIDTH"
@@ -405,8 +421,8 @@
         }
         <td
           class="im-col-actions"
-          [nzRight]="isRtl() ? false : '0px'"
-          [nzLeft]="isRtl() ? '0px' : false"
+          [nzRight]="stickyEnd().right"
+          [nzLeft]="stickyEnd().left"
           [style.maxWidth.px]="actionsWidth()"
           [style.minWidth.px]="actionsWidth()"
           [style.width.px]="actionsWidth()"
@@ -584,6 +600,37 @@
     (closed)="closeDrawer()"
   />
 }
+
+<!-- narrow grids: every row action in one menu -->
+<nz-dropdown-menu #compactMenu="nzDropdownMenu">
+  <ul class="im-context-menu" nz-menu>
+    @if (allowEdit()) {
+      <li (click)="editRow(activeRow)" nz-menu-item>
+        <span nz-icon [nzType]="editIcon() ?? 'edit'"></span>
+        {{ texts().edit }}
+      </li>
+    }
+    @if (childrenKey()) {
+      <li (click)="openDrawer(activeRow)" nz-menu-item>
+        <span nz-icon nzType="right"></span>
+        {{ texts().details }}
+      </li>
+    }
+    @for (button of buttons(); track button) {
+      <li [nzDanger]="!!button.danger" (click)="button.func(activeRow)" nz-menu-item>
+        <span [nzType]="button.icon" nz-icon></span>
+        {{ button.title | imText }}
+      </li>
+    }
+    @if (allowDelete()) {
+      <li nz-menu-divider></li>
+      <li (click)="confirmDeleteRow(activeRow)" nz-menu-item nzDanger>
+        <span nz-icon [nzType]="deleteIcon() ?? 'delete'"></span>
+        {{ texts().delete }}
+      </li>
+    }
+  </ul>
+</nz-dropdown-menu>
 
 <nz-dropdown-menu #menu="nzDropdownMenu">
   <ul class="im-context-menu" nz-menu>

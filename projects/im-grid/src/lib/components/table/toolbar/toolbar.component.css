@@ -78,11 +78,11 @@
 
 .im-btn-primary {
   color: #fff;
-  background: var(--im-grid-accent, #1677ff);
+  background: var(--im-grid-accent, var(--ant-primary-color, #5c5c5c));
 }
 
 .im-btn-primary:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--im-grid-accent, #1677ff) 88%, white);
+  background: color-mix(in srgb, var(--im-grid-accent, var(--ant-primary-color, #5c5c5c)) 88%, white);
 }
 
 .im-btn:disabled {
@@ -94,7 +94,7 @@
 .im-tool:focus-visible,
 .im-selection-action:focus-visible,
 .im-pending-discard:focus-visible {
-  outline: 2px solid var(--im-grid-accent, #1677ff);
+  outline: 2px solid var(--im-grid-accent, var(--ant-primary-color, #5c5c5c));
   outline-offset: 2px;
 }
 
@@ -130,8 +130,8 @@
 }
 
 .im-tool.is-active {
-  color: var(--im-grid-accent, #1677ff);
-  background: color-mix(in srgb, var(--im-grid-accent, #1677ff) 14%, transparent);
+  color: var(--im-grid-accent, var(--ant-primary-color, #5c5c5c));
+  background: color-mix(in srgb, var(--im-grid-accent, var(--ant-primary-color, #5c5c5c)) 14%, transparent);
 }
 
 .im-tool-dot {
@@ -141,7 +141,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--im-grid-accent, #1677ff);
+  background: var(--im-grid-accent, var(--ant-primary-color, #5c5c5c));
 }
 
 /* ---------------------------------------------------------------------- */
@@ -156,20 +156,20 @@
   padding-inline: 12px 4px;
   border-radius: 8px;
   font-size: 13px;
-  background: color-mix(in srgb, var(--im-grid-accent, #1677ff) 12%, transparent);
+  background: color-mix(in srgb, var(--im-grid-accent, var(--ant-primary-color, #5c5c5c)) 12%, transparent);
   animation: im-pop 140ms ease-out;
 }
 
 .im-selection-count {
   font-weight: 600;
   white-space: nowrap;
-  color: var(--im-grid-accent, #1677ff);
+  color: var(--im-grid-accent, var(--ant-primary-color, #5c5c5c));
 }
 
 .im-selection-sep {
   width: 1px;
   height: 14px;
-  background: color-mix(in srgb, var(--im-grid-accent, #1677ff) 35%, transparent);
+  background: color-mix(in srgb, var(--im-grid-accent, var(--ant-primary-color, #5c5c5c)) 35%, transparent);
 }
 
 .im-selection-action {
@@ -295,5 +295,61 @@
 .im-density-check {
   margin-inline-start: auto;
   padding-inline-start: 24px;
-  color: var(--im-grid-accent, #1677ff);
+  color: var(--im-grid-accent, var(--ant-primary-color, #5c5c5c));
+}
+
+/* ---------------------------------------------------------------------- */
+/* Narrow grids: title + count + New on top, search and tools below        */
+/* ---------------------------------------------------------------------- */
+@container im-grid (max-width: 640px) {
+  :host {
+    gap: 8px;
+  }
+
+  .im-toolbar-start,
+  .im-toolbar-end {
+    display: contents;
+  }
+
+  .im-toolbar-title {
+    order: 1;
+    min-width: 0;
+  }
+
+  .im-toolbar-count {
+    order: 2;
+    flex: 1;
+  }
+
+  .im-new-btn {
+    order: 3;
+    height: 32px;
+  }
+
+  im-search {
+    order: 4;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .im-toolbar-icons {
+    order: 5;
+  }
+
+  .im-toolbar-divider {
+    display: none;
+  }
+
+  .im-pending,
+  .im-selection {
+    order: 6;
+    flex-basis: 100%;
+  }
+
+  .im-pending {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 0;
+    white-space: normal;
+  }
 }

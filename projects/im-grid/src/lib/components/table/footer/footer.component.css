@@ -26,7 +26,7 @@ strong {
 }
 
 .im-footer-selected strong {
-  color: var(--im-grid-accent, #1677ff);
+  color: var(--im-grid-accent, var(--ant-primary-color, #5c5c5c));
 }
 
 .im-footer-dot {

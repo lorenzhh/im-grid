@@ -32,7 +32,7 @@
 
 nz-resize-handle:hover .resize-wrap::after,
 .nz-resizable-resizing .resize-wrap::after {
-  background: var(--im-grid-accent, var(--ant-primary-color, #1677ff));
+  background: var(--im-grid-accent, var(--ant-primary-color, #5c5c5c));
 }
 
 /* drawer chrome (rendered in an overlay; scoped by its wrap class) */
