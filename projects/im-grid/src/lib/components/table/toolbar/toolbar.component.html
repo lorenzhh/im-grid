@@ -10,15 +10,18 @@
       (filterRows)="filterRows.emit($event)"
     />
   }
-  <span class="im-toolbar-count">
-    <strong>{{ rowsLength() }}</strong>
-    <span class="im-muted">
-      @if (totalLength() != null && totalLength() !== rowsLength()) {
-        {{ texts().of }} {{ totalLength() }}
-      }
-      {{ texts().records }}
+  <!-- the summary row already carries the totals, so the count would repeat it -->
+  @if (showCount()) {
+    <span class="im-toolbar-count">
+      <strong>{{ rowsLength() }}</strong>
+      <span class="im-muted">
+        @if (totalLength() != null && totalLength() !== rowsLength()) {
+          {{ texts().of }} {{ totalLength() }}
+        }
+        {{ texts().records }}
+      </span>
     </span>
-  </span>
+  }
   @if (numberOfChecked() > 0 && !directMode()) {
     <div class="im-selection">
       <span class="im-selection-count">

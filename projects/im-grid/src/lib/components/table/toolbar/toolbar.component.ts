@@ -41,6 +41,8 @@ export class ImToolbarComponent {
 
   readonly rowsLength = input<number>(0);
   readonly totalLength = input<number>(null);
+  /** hidden when the grid shows a summary row */
+  readonly showCount = input<boolean>(true);
 
   /* search */
   readonly showSearch = input<boolean>(true);
