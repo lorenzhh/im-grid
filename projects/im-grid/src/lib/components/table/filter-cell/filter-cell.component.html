@@ -1,100 +1,99 @@
-<ng-container [ngSwitch]="column().filter.type">
-  <nz-select
-    [(ngModel)]="column().filter.values[0]"
-    [style.width.%]="100"
-    (ngModelChange)="filterRows.emit()"
-    *ngSwitchCase="ImFilterType.Boolean"
-    nzAllowClear
-    nzShowSearch
-    nzSize="small"
-  >
-    <nz-option [nzLabel]="translations.yes | translate"
-      [nzValue]="true"
-     />
-    <nz-option [nzLabel]="translations.no | translate"
-      [nzValue]="false"
-     />
-  </nz-select>
-  <nz-select
-    [(ngModel)]="column().filter.values"
-    [nzMaxTagCount]="0"
-    [nzMaxTagPlaceholder]="selectListTagPlaceholder"
-    [nzMode]="column().filter.multiSelect ? 'multiple': 'default'"
-    [style.width.%]="100"
-    (ngModelChange)="filterRows.emit()"
-    *ngSwitchCase="ImFilterType.Select"
-    nzAllowClear
-    nzShowSearch
-    nzSize="small"
-  >
-    <nz-option [nzLabel]="(option | typeof) === 'object' 
-        ? option[column().labelProperty] 
-        : (option | typeof) !== 'null'
-          ? (option | format: column(): (settingsService.settings$ | async)) 
-          : ''"
-      [nzValue]="column().columnType === ImColumnType.Array && !column().multiSelect 
-        ? [option] 
-        : option"
-      *ngFor="let option of column().filter.selectValues"
-     />
-  </nz-select>
-  <ng-template
-    #selectListTagPlaceholder
-    let-selectedList
-  >
-    {{ selectedList.length }}
-  </ng-template>
-  <nz-input-wrapper
-    *ngSwitchCase="ImFilterType.RangeNumber"
-    nzCompact
-    nzSize="small"
-  >
-    <input
-      class="filter-input-from"
-      [(ngModel)]="column().filter.values[0]"
-      [max]="column().filter.values[1]"
-      (ngModelChange)="filterRows.emit()"
-      type="number"
-      nz-input
+@switch (column().filter.type) {
+  @case (ImFilterType.Boolean) {
+    <nz-select
+      [ngModel]="values()[0]"
+      [style.width.%]="100"
+      (ngModelChange)="setValue(0, $event)"
+      nzAllowClear
+      nzShowSearch
+      nzSize="small"
     >
-    <input
-      class="filter-input-space"
-      type="text"
-      disabled
-      nz-input
-      placeholder="~"
+      <nz-option [nzLabel]="texts().yes" [nzValue]="true" />
+      <nz-option [nzLabel]="texts().no" [nzValue]="false" />
+    </nz-select>
+  }
+  @case (ImFilterType.Select) {
+    <nz-select
+      [ngModel]="selectModel()"
+      [nzMaxTagCount]="0"
+      [nzMaxTagPlaceholder]="selectListTagPlaceholder"
+      [nzMode]="column().filter.multiSelect ? 'multiple' : 'default'"
+      [style.width.%]="100"
+      (ngModelChange)="setValues($event)"
+      nzAllowClear
+      nzShowSearch
+      nzSize="small"
     >
+      @for (option of column().filter.selectValues; track $index) {
+        <nz-option
+          [nzLabel]="
+            (option | typeof) === 'object'
+              ? option[column().labelProperty]
+              : (option | typeof) !== 'null'
+                ? (option | format: column() : i18n.formatKey())
+                : ''
+          "
+          [nzValue]="
+            column().columnType === ImColumnType.Array && !column().multiSelect
+              ? [option]
+              : option
+          "
+        />
+      }
+    </nz-select>
+    <ng-template #selectListTagPlaceholder let-selectedList>
+      {{ selectedList.length }} {{ texts().selected }}
+    </ng-template>
+  }
+  @case (ImFilterType.RangeNumber) {
+    <div class="filter-range">
+      <input
+        class="filter-input-from"
+        [max]="values()[1]"
+        [ngModel]="values()[0]"
+        [placeholder]="texts().min"
+        (ngModelChange)="setValue(0, $event)"
+        type="number"
+        nz-input
+        nzSize="small"
+      />
+      <span class="filter-input-space">–</span>
+      <input
+        class="filter-input-until"
+        [min]="values()[0]"
+        [ngModel]="values()[1]"
+        [placeholder]="texts().max"
+        (ngModelChange)="setValue(1, $event)"
+        type="number"
+        nz-input
+        nzSize="small"
+      />
+    </div>
+  }
+  @case (ImFilterType.FreeText) {
     <input
-      class="filter-input-until"
-      [(ngModel)]="column().filter.values[1]"
-      [min]="column().filter.values[0]"
-      (ngModelChange)="filterRows.emit()"
-      type="number"
+      [ngModel]="values()[0]"
+      [placeholder]="texts().filter"
+      (ngModelChange)="setValue(0, $event)"
       nz-input
-    >
-  </nz-input-wrapper>
-  <input
-    [(ngModel)]="column().filter.values[0]"
-    (ngModelChange)="filterRows.emit()"
-    *ngSwitchCase="ImFilterType.FreeText"
-    nz-input
-    autocomplete="off"
-    nzSize="small"
-  >
-  <nz-rate [(ngModel)]="column().filter.values[0]"
-    (ngModelChange)="filterRows.emit()"
-    *ngSwitchCase="ImFilterType.Rating"
-    nzAllowHalf
-   />
-  <nz-range-picker [(ngModel)]="column().filter.values"
-    [nzFormat]="DateFormats[settingsService.locale]"
-    [style.width.%]="100"
-    (ngModelChange)="filterRows.emit()"
-    *ngSwitchCase="ImFilterType.RangeDate"
-    nzSize="small"
-   />
-  <input
-    *ngSwitchDefault
-    disabled
-  >
-</ng-container>
+      autocomplete="off"
+      nzSize="small"
+    />
+  }
+  @case (ImFilterType.Rating) {
+    <nz-rate
+      [ngModel]="values()[0]"
+      (ngModelChange)="setValue(0, $event)"
+      nzAllowHalf
+    />
+  }
+  @case (ImFilterType.RangeDate) {
+    <nz-range-picker
+      [ngModel]="values()"
+      [nzFormat]="i18n.dateFormat()"
+      [style.width.%]="100"
+      (ngModelChange)="setValues($event)"
+      nzSize="small"
+    />
+  }
+}

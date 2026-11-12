@@ -1,18 +1,15 @@
 import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Injectable, inject } from '@angular/core';
-import { translations } from '../components/table/translations/default-translations';
 import { ImColumn, ImColumnType } from '../models/column.model';
-import { TimeFormats } from '../models/settings.model';
-import { SettingsService } from './settings.service';
+import { ImGridI18n } from '../i18n/im-grid-i18n';
 
-@Injectable({
-  providedIn: 'root',
-})
+/** Provided per grid (it follows that grid's language and locale). */
+@Injectable()
 export class FormatService {
   private datePipe = inject(DatePipe);
   private decimalPipe = inject(DecimalPipe);
   private currencyPipe = inject(CurrencyPipe);
-  private settingsService = inject(SettingsService);
+  private i18n = inject(ImGridI18n);
 
   ISO8601_DATE_REGEX =
     /^(\d{4})-?(\d\d)-?(\d\d)(?:T(\d\d)(?::?(\d\d)(?::?(\d\d)(?:\.(\d+))?)?)?(Z|([+-])(\d\d):?(\d\d))?)?$/;
@@ -46,7 +43,7 @@ export class FormatService {
         return value[column.labelProperty];
       }
       case ImColumnType.Decimal: {
-        return this.decimalPipe.transform(value, '1.2-2', this.settingsService.locale);
+        return this.decimalPipe.transform(value, '1.2-2', this.i18n.locale());
       }
       default:
         return value;
@@ -55,8 +52,8 @@ export class FormatService {
 
   private translateLanguage(value: any) {
     return this.isTrue(value)
-      ? translations.yes[this.settingsService.language]
-      : translations.no[this.settingsService.language];
+      ? this.i18n.texts().yes
+      : this.i18n.texts().no;
   }
 
   private mapKeys(array: any[], property: string) {
@@ -68,7 +65,7 @@ export class FormatService {
   }
 
   private getTimeFormat(): string {
-    return TimeFormats[this.settingsService.locale];
+    return this.i18n.dateTimeFormat();
   }
 
   private formattedXml(xml: string): string {

@@ -1,55 +1,106 @@
 :host {
-  display: block;
+  position: relative;
+  display: flex;
+  align-items: center;
   width: 100%;
   height: 100%;
+  min-width: 0;
+  overflow: hidden;
   white-space: nowrap;
+
+  /* numbers always sit on the physical right (digits are LTR), in LTR and RTL */
+  &.is-numeric {
+    direction: ltr;
+    justify-content: flex-end;
+  }
+
+  &.is-centered {
+    justify-content: center;
+  }
+
+  &.is-tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.im-cell-text {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+}
 
-  .color {
-    height: 32px;
-    width: 32px;
-    border-radius: 50%;
-    margin: 0 auto;
+.im-mono {
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 12px;
+}
+
+/* Color */
+.im-color {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.im-color-swatch {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 20%, transparent);
+}
+
+/* Website */
+.im-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+  color: var(--im-grid-accent, #1677ff);
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.im-link-icon {
+  flex: none;
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+/* Boolean: accent check for true, quiet minus for false */
+.im-bool {
+  font-size: 14px;
+
+  &.is-true {
+    color: var(--im-grid-accent, #1677ff);
   }
 
-  .boolean-icon {
-    font-size: medium;
+  &.is-false {
+    color: color-mix(in srgb, currentColor 35%, transparent);
+  }
+}
+
+/* Rating */
+nz-rate {
+  line-height: 1;
+
+  ::ng-deep .ant-rate {
+    font-size: 13px;
   }
 
-  .footer-icons {
-    display: flex;
-    justify-content: space-between;
-    position: absolute;
-    right: 3px;
-    left: 3px;
-    bottom: 5px;
-    align-items: center;
-    height: 10px;
+  ::ng-deep .ant-rate-star {
+    font-size: 13px;
 
-    .copy-icon {
-      margin: 0;
-
-      ::ng-deep nz-text-copy .anticon {
-        font-size: x-small;
-      }
+    &:not(:last-child) {
+      margin-inline-end: 2px;
     }
 
-    .zoom-icon {
-      font-size: x-small;
-    }
-  }
-
-  nz-rate {
-    line-height: 0;
-
-    ::ng-deep .ant-rate-star {
-      font-size: large;
-
-      > div:hover,
-      > div:focus {
-        transform: scale(1);
-      }
+    > div:hover,
+    > div:focus {
+      transform: none;
     }
   }
 }

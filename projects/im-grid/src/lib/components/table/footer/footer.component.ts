@@ -1,35 +1,38 @@
-import { ChangeDetectionStrategy, Component, input, model, output } from '@angular/core';
-import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  model,
+  output,
+} from '@angular/core';
+import { ImGridI18n } from '../../../i18n/im-grid-i18n';
 import { ImColumn } from '../../../models/column.model';
-import { translations } from '../translations/default-translations';
-import { TranslatePipe } from '../../../pipes/translate.pipe';
-import { NzSelectModule } from 'ng-zorro-antd/select';
-import { NzDividerModule } from 'ng-zorro-antd/divider';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
+import { ImSearchComponent } from '../search/search.component';
 
 @Component({
-  imports: [
-    TranslatePipe,
-    NzSelectModule,
-    FormsModule,
-    NzDividerModule,
-    ReactiveFormsModule,
-    NzInputModule,
-    NzPopconfirmModule,
-  ],
+  imports: [ImSearchComponent],
   selector: 'im-footer',
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ImFooterComponent {
-  readonly notIncludedColumns = model<ImColumn[]>(undefined);
-  readonly columns = input<ImColumn[]>(undefined);
-  readonly filterForm = input<FormGroup>(undefined);
-  readonly showExclude = input<boolean>(true);
-  readonly rowsLength = input<number>(undefined);
+  readonly rowsLength = input<number>(0);
+  readonly totalLength = input<number>(null);
+  readonly selectedLength = input<number>(0);
+
+  /* search (only shown here when the toolbar is hidden) */
+  readonly showSearch = input<boolean>(false);
+  readonly notIncludedColumns = input<ImColumn[]>([]);
+  readonly columns = input<ImColumn[]>([]);
+  readonly searchTerm = model<string>('');
   readonly filterRows = output<ImColumn[]>();
 
-  public translations = translations;
+  readonly texts = inject(ImGridI18n).texts;
+
+  readonly isFiltered = computed(
+    () => this.totalLength() != null && this.totalLength() !== this.rowsLength()
+  );
 }

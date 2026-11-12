@@ -73,3 +73,34 @@ export const isDate = (value: any): boolean => {
 
   return !isNaN(timestamp);
 };
+
+/** Returns a sorted copy of `rows`; empty values sort first when ascending. */
+export const sortRows = <T>(rows: T[], sortKey: string, ascending: boolean): T[] =>
+  [...rows].sort((rowA, rowB) => {
+    const firstValue = rowA[sortKey];
+    const secondValue = rowB[sortKey];
+
+    if (firstValue === secondValue) {
+      return 0;
+    }
+    if (firstValue === null || firstValue === '' || firstValue === undefined) {
+      return ascending ? -1 : 1;
+    }
+    if (secondValue === null || secondValue === '' || secondValue === undefined) {
+      return ascending ? 1 : -1;
+    }
+    if (typeof firstValue === 'string' && typeof secondValue === 'string') {
+      return ascending
+        ? firstValue.localeCompare(secondValue)
+        : secondValue.localeCompare(firstValue);
+    }
+    if (typeof firstValue === 'number' || typeof firstValue === 'boolean') {
+      if (firstValue < secondValue) {
+        return ascending ? -1 : 1;
+      }
+      if (firstValue > secondValue) {
+        return ascending ? 1 : -1;
+      }
+    }
+    return 0;
+  });

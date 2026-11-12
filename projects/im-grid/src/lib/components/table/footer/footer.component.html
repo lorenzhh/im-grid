@@ -1,32 +1,25 @@
-<div>
-  {{ translations.records | translate }}:
-  <b>{{ rowsLength() }}</b>
-</div>
-<div class="table-filter-footer">
-  @if (showExclude()) {
-    <nz-select
-      [(ngModel)]="notIncludedColumns"
-      [nzPlaceHolder]="translations.excludeColumns | translate"
-      (ngModelChange)="filterRows.emit($event)"
-      nzNoAnimation
-      nzMode="multiple"
-      nzAllowClear
-      >
-      @for (column of columns(); track column.key) {
-        <nz-option [nzLabel]="column.title | translate"
-          [nzValue]="column"
-         />
-      }
-    </nz-select>
+<div class="im-footer-status">
+  <span>
+    <strong>{{ rowsLength() }}</strong>
+    @if (isFiltered()) {
+      <span class="im-muted"> {{ texts().of }} {{ totalLength() }}</span>
+    }
+    <span class="im-muted"> {{ texts().records }}</span>
+  </span>
+  @if (selectedLength() > 0) {
+    <span class="im-footer-dot"></span>
+    <span class="im-footer-selected">
+      <strong>{{ selectedLength() }}</strong>
+      <span class="im-muted"> {{ texts().selected }}</span>
+    </span>
   }
-  <nz-divider nzType="vertical" />
-  <nz-input-wrapper [formGroup]="filterForm()">
-    <nz-icon nzInputSuffix nzType="search" />
-    <input
-      [placeholder]="translations.filter | translate"
-      type="text"
-      nz-input
-      formControlName="search"
-    />
-  </nz-input-wrapper>
-  </div>
+</div>
+
+@if (showSearch()) {
+  <im-search
+    [columns]="columns()"
+    [(value)]="searchTerm"
+    [notIncludedColumns]="notIncludedColumns()"
+    (filterRows)="filterRows.emit($event)"
+  />
+}

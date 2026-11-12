@@ -1,0 +1,57 @@
+<div class="im-search">
+  <nz-input-wrapper
+    class="im-search-input"
+    nzAllowClear
+    >
+    <nz-icon nzInputPrefix nzType="search" />
+    <input
+      [placeholder]="texts().search"
+      [ngModel]="value()"
+      (ngModelChange)="value.set($event ?? '')"
+      autocomplete="off"
+      nz-input
+      type="text"
+    />
+  </nz-input-wrapper>
+
+  @if (showScope()) {
+    <button
+      class="im-search-scope"
+      [class.is-scoped]="excludedCount() > 0"
+      [nzPopoverContent]="scopeTemplate"
+      [nzPopoverTitle]="texts().searchIn"
+      nz-popover
+      [nzPopoverPlacement]="isRtl() ? 'bottomRight' : 'bottomLeft'"
+      nzPopoverTrigger="click"
+      type="button"
+      >
+      <span>{{ scopeLabel() }}</span>
+      <span nz-icon nzType="down"></span>
+    </button>
+  }
+</div>
+
+<ng-template #scopeTemplate>
+  <div class="im-scope">
+    <label
+      class="im-scope-all"
+      [nzChecked]="excludedCount() === 0"
+      [nzIndeterminate]="excludedCount() > 0 && excludedCount() < searchableColumns().length"
+      (nzCheckedChange)="toggleAll($event)"
+      nz-checkbox
+      >
+      {{ texts().allColumns }}
+    </label>
+    <div class="im-scope-list">
+      @for (column of searchableColumns(); track column.key) {
+        <label
+          [nzChecked]="!excludedKeys().has(column.key)"
+          (nzCheckedChange)="toggleColumn(column, $event)"
+          nz-checkbox
+          >
+          {{ column.title | imText }}
+        </label>
+      }
+    </div>
+  </div>
+</ng-template>

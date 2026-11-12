@@ -19,7 +19,20 @@
             "index": "src/index.html",
             "tsConfig": "tsconfig.app.json",
             "assets": ["src/favicon.ico", "src/assets"],
-            "styles": ["src/theme.less", "node_modules/ng-zorro-antd/resizable/style/entry.less", "src/styles.css"],
+            "styles": [
+              {
+                "input": "node_modules/ng-zorro-antd/ng-zorro-antd.min.css",
+                "bundleName": "theme-light",
+                "inject": false
+              },
+              {
+                "input": "node_modules/ng-zorro-antd/ng-zorro-antd.dark.min.css",
+                "bundleName": "theme-dark",
+                "inject": false
+              },
+              "node_modules/ng-zorro-antd/resizable/style/entry.less",
+              "src/styles.css"
+            ],
             "scripts": [],
             "extractLicenses": false,
             "sourceMap": true,

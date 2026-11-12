@@ -9,6 +9,26 @@
             content="width=device-width, initial-scale=1"
         >
         <link type="image/x-icon" href="favicon.ico" rel="icon">
+        <script>
+            // Apply the saved theme and direction before first paint (see ThemeService / DirectionService).
+            (function () {
+                var theme = 'dark';
+                try {
+                    theme = localStorage.getItem('im-theme') === 'light' ? 'light' : 'dark';
+                } catch (e) {}
+                var root = document.documentElement;
+                try {
+                    root.setAttribute('dir', localStorage.getItem('im-dir') === 'rtl' ? 'rtl' : 'ltr');
+                } catch (e) {}
+                root.setAttribute('data-theme', theme);
+                root.style.colorScheme = theme;
+                var link = document.createElement('link');
+                link.id = 'im-theme';
+                link.rel = 'stylesheet';
+                link.href = 'theme-' + theme + '.css';
+                document.head.appendChild(link);
+            })();
+        </script>
     </head>
     <body>
         <app-root></app-root>

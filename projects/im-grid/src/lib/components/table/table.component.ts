@@ -1,50 +1,55 @@
+import { Directionality } from '@angular/cdk/bidi';
+import { Clipboard } from '@angular/cdk/clipboard';
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
-import { AsyncPipe } from '@angular/common';
+import { formatNumber } from '@angular/common';
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
+  DestroyRef,
   EventEmitter,
-  HostListener,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  SimpleChanges,
   TemplateRef,
+  computed,
+  effect,
   inject,
   input,
+  linkedSignal,
   model,
   output,
+  signal,
+  untracked,
   viewChild,
 } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormControl, FormGroup, FormsModule } from '@angular/forms';
 import { ThemeType } from '@ant-design/icons-angular';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzDividerModule } from 'ng-zorro-antd/divider';
+import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import {
   NzContextMenuService,
   NzDropdownModule,
   NzDropdownMenuComponent,
 } from 'ng-zorro-antd/dropdown';
-import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzIconModule, NzIconService } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
+import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { NzResizableModule, NzResizeEvent } from 'ng-zorro-antd/resizable';
-import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzTableComponent, NzTableModule, NzTableSortOrder } from 'ng-zorro-antd/table';
-import { BehaviorSubject, Observable, Subject, fromEvent, of } from 'rxjs';
+import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
+import { EMPTY, Observable, Subject, fromEvent, of } from 'rxjs';
 import {
   debounceTime,
   distinctUntilChanged,
   filter,
+  switchMap,
   take,
-  takeUntil,
   throttleTime,
 } from 'rxjs/operators';
 import { randomUuid } from '../../helpers/generator';
-import { rowShouldBeFiltered } from '../../helpers/table.helper';
+import { rowShouldBeFiltered, sortRows } from '../../helpers/table.helper';
+import { highlightXml } from '../../helpers/xml.helper';
 import {
   CellCoordinates,
   ChangeEvent,
@@ -55,28 +60,36 @@ import {
   ImButton,
   ImColumn,
   ImColumnType,
-  ImDirection,
   ImFieldType,
   ImFilterType,
   ImTrack,
   SelectionMode,
   Size,
 } from '../../models/column.model';
-import { Translation } from '../../models/settings.model';
-import { NgZorroAntdModule } from '../../modules/ng-zorro.module';
-import { FilterPipe } from '../../pipes/filter.pipe';
+import { IM_GRID_ICONS, NgZorroAntdModule } from '../../modules/ng-zorro.module';
 import { FormatPipe } from '../../pipes/format.pipe';
-import { TranslatePipe } from '../../pipes/translate.pipe';
+import { ImTextPipe } from '../../pipes/text.pipe';
 import { FormatService } from '../../services/format.service';
-import { SettingsService } from '../../services/settings.service';
-import { CellComponent } from './cell/cell.component';
+import { ImGridI18n, ImText } from '../../i18n/im-grid-i18n';
+import { ImGridTexts } from '../../i18n/im-grid-texts';
+import { ImSummaryResult, ImSummaryValue } from '../../models/summary.model';
+import { CellComponent, isCenteredColumn, isNumericColumn } from './cell/cell.component';
 import { ImDrawerComponent } from './drawer/drawer.component';
-import { EditFormComponent } from './edit-form/edit-form.component';
+import { EditFormComponent, formFieldsOf } from './edit-form/edit-form.component';
 import { ImFilterCellComponent } from './filter-cell/filter-cell.component';
 import { ImFooterComponent } from './footer/footer.component';
 import { ImToolbarComponent } from './toolbar/toolbar.component';
-import { translations } from './translations/default-translations';
-import { dynamicTranslations } from './translations/dynamic-translations';
+
+/** Row heights (px) per density. Must match the rendered row height for virtual scrolling. */
+const ROW_HEIGHTS: Record<Size, number> = {
+  small: 32,
+  middle: 38,
+  default: 44,
+};
+
+const ACTION_BUTTON_SIZE = 28;
+const ACTION_BUTTON_GAP = 2;
+const ACTION_CELL_PADDING = 16;
 
 export interface Edit<T> {
   [key: number]: {
@@ -88,57 +101,82 @@ export interface Edit<T> {
   };
 }
 
+interface SortState {
+  /** key of the column header showing the sort arrow */
+  columnKey: string;
+  /** row property the rows are sorted by */
+  sortKey: string;
+  ascending: boolean;
+}
+
 @Component({
   imports: [
     ImToolbarComponent,
-    NzSwitchModule,
     FormsModule,
     NzIconModule,
     NzButtonModule,
     ImFilterCellComponent,
     EditFormComponent,
-    FilterPipe,
     NzDropdownModule,
     NzInputModule,
-    NzDividerModule,
     NzPopconfirmModule,
+    NzTooltipModule,
+    NzCheckboxModule,
+    NzPopoverModule,
     NgZorroAntdModule,
     ImFooterComponent,
     ImDrawerComponent,
     FormatPipe,
-    AsyncPipe,
     CellComponent,
     DragDropModule,
     NzTableModule,
-    TranslatePipe,
+    ImTextPipe,
     NzResizableModule,
   ],
   selector: 'im-grid',
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [ImGridI18n, FormatService],
+  host: {
+    '(document:click)': 'clickout()',
+    '(document:keydown)': 'handleCellShortcuts($event)',
+    '(document:keydown.ArrowUp)': 'handleEvent($event)',
+    '(document:keydown.ArrowRight)': 'handleEvent($event)',
+    '(document:keydown.ArrowDown)': 'handleEvent($event)',
+    '(document:keydown.ArrowLeft)': 'handleEvent($event)',
+  },
 })
-export class ImGridComponent<T extends { isNew?: boolean }>
-  implements OnInit, OnChanges, OnDestroy
-{
+export class ImGridComponent<T extends { isNew?: boolean }> {
   private formBuilder = inject(FormBuilder);
   private modalService = inject(NzModalService);
   private formatService = inject(FormatService);
   private messageService = inject(NzMessageService);
-  private cd = inject(ChangeDetectorRef);
-  settingsService = inject(SettingsService);
+  private destroyRef = inject(DestroyRef);
+  readonly i18n = inject(ImGridI18n);
+  /** Texts for the current language (app config + this grid's `[texts]`). */
+  readonly texts = this.i18n.texts;
   private nzContextMenuService = inject(NzContextMenuService);
+  private directionality = inject(Directionality, { optional: true });
+  private clipboard = inject(Clipboard);
 
   readonly createEditModal = viewChild<TemplateRef<any>>('createEditModal');
   readonly modalFooter = viewChild<TemplateRef<any>>('modalFooter');
+  readonly modalTitle = viewChild<TemplateRef<any>>('modalTitle');
+  readonly valueTitle = viewChild<TemplateRef<any>>('valueTitle');
+  readonly valueContent = viewChild<TemplateRef<any>>('valueContent');
+  readonly valueFooter = viewChild<TemplateRef<any>>('valueFooter');
   readonly table = viewChild<NzTableComponent<T>>('virtualTable');
 
-  readonly columns = model<ImColumn[]>(undefined);
+  /** Column configuration from the parent. Replacing it resets the grid's column state. */
+  readonly columnsInput = input<ImColumn[]>(undefined, { alias: 'columns' });
+  /** Emits the grid's working columns whenever it changes them (filters, widths, order, visibility). */
+  readonly columnsChange = output<ImColumn[]>();
   readonly buttons = input<ImButton[]>(undefined);
   readonly editMode = input(EditMode.Direct);
   readonly selection = input(SelectionMode.Checkbox);
   readonly dataSource$ = input<Observable<T[]>>(undefined);
-  readonly label = input<string>(undefined);
+  readonly label = input<ImText>(undefined);
   readonly editIcon = input<string>(undefined);
   readonly editTheme = input<ThemeType>(undefined);
   readonly deleteIcon = input<string>(undefined);
@@ -158,9 +196,9 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   readonly childAllowCreate = input(true);
   readonly childAllowEdit = input(true);
   readonly childAllowDelete = input(true);
-  readonly allowExcel = input(false);
-  readonly childAllowExcel = input(false);
   readonly size = model<Size>('default');
+  /** Overrides some texts for this grid only, e.g. `{ new: 'New coupon' }`. */
+  readonly textOverrides = input<Partial<ImGridTexts>>(undefined, { alias: 'texts' });
 
   readonly selectedIds = output<{
     [key: string]: boolean;
@@ -173,92 +211,324 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   readonly customDeletedRow = output<T>();
   readonly customCreatedRow = output<void>();
 
-  public childColumns: ImColumn[];
-  public rows: T[] = [];
   public ImFilterType = ImFilterType;
   public ImColumnType = ImColumnType;
   public ImFieldType = ImFieldType;
   public EditMode = EditMode;
   public SelectionMode = SelectionMode;
-  public translations = translations;
-  public originalRows: T[] = [];
-  public currentRows: T[] = [];
   public form: FormGroup;
-  public height = 54;
-  public editCache: Edit<T> = {};
-  public isAllDisplayDataChecked = false;
-  public isIndeterminate = false;
-  public mapOfCheckedId: { [key: string]: boolean } = {};
-  public mapOfSort: { [key: number]: NzTableSortOrder } = {};
-  public numberOfChecked = 0;
-  public unsavedRowsLength = 0;
-  public deletedRowsLength = 0;
-  public newRowsLength = 0;
-  public filterForm: FormGroup;
-  public notIncludedColumns: ImColumn[] = [];
-  public uniqueKey: string;
-  public scrollIndex: number;
-  public allowSearch: boolean;
-  private modal: NzModalRef;
-  private destroyed$ = new Subject<void>();
-  public objectKeys = Object.keys;
-  public childrenKey: string;
-  public childrenTitle: Translation | string;
-  public componentConfig: DynamicComponentConfig;
-  public drawerVisible = false;
-  public columnsWidth: number;
 
-  private successSubject$: Subject<ImTrack> = new Subject<ImTrack>();
-  private focusedCellSubject$: BehaviorSubject<CellCoordinates> =
-    new BehaviorSubject<CellCoordinates>({
-      rowIndex: -1,
-      key: null,
+  /* ------------------------------------------------------------------ */
+  /* State                                                               */
+  /* ------------------------------------------------------------------ */
+
+  /** Rows as delivered by the data source (baseline for "discard changes"). */
+  readonly originalRows = signal<T[]>([]);
+  /** Rows including pending edits / additions / deletions. */
+  readonly currentRows = signal<T[]>([]);
+  /** Pending changes, keyed by the row's unique value. */
+  readonly editCache = signal<Edit<T>>({});
+  readonly mapOfCheckedId = signal<{ [key: string]: boolean }>({});
+
+  /**
+   * The grid's working copy of the columns. It follows the `columns` input, so a new input
+   * replaces it, while the grid's own updates (filters, widths, order, visibility) are plain
+   * writes that leave the input alone.
+   */
+  readonly columns = linkedSignal(() => this.normalizeConfig(this.columnsInput()));
+
+  /** Global search text; two-way bound to the search box. */
+  readonly searchTerm = signal('');
+  /** The search text actually applied (debounced while typing). */
+  readonly activeSearch = signal('');
+  readonly notIncludedColumns = signal<ImColumn[]>([]);
+  private readonly sortState = signal<SortState | null>(null);
+
+  readonly allowSearch = signal(false);
+  readonly scrollIndex = signal<number | null>(null);
+  readonly resizing = signal(false);
+  readonly drawerVisible = signal(false);
+  readonly childrenTitle = signal<ImText>(null);
+  readonly componentConfig = signal<DynamicComponentConfig>(undefined);
+  readonly focusedCell = signal<CellCoordinates>({ rowIndex: -1, key: null });
+
+  /* ------------------------------------------------------------------ */
+  /* Derived state                                                       */
+  /* ------------------------------------------------------------------ */
+
+  readonly isRtl = computed(() => this.directionality?.valueSignal() === 'rtl');
+  readonly height = computed(() => ROW_HEIGHTS[this.size()] ?? ROW_HEIGHTS.default);
+
+  readonly visibleColumns = computed(() =>
+    (this.columns() ?? []).filter(column => column.visible && !column.hidden)
+  );
+  /** Columns the user may show/hide (programmatically hidden ones are excluded). */
+  readonly chooserColumns = computed(() =>
+    (this.columns() ?? []).filter(column => !column.hidden && !column.childrenConfig)
+  );
+  readonly visibleColumnsCount = computed(
+    () => this.chooserColumns().filter(column => column.visible).length
+  );
+  readonly hiddenColumnsCount = computed(
+    () => this.chooserColumns().length - this.visibleColumnsCount()
+  );
+
+  readonly uniqueKey = computed(() => this.columns()?.find(column => column.isUnique)?.key);
+  private readonly childrenColumn = computed(() =>
+    this.columns()?.find(column => column.childrenConfig)
+  );
+  readonly childrenKey = computed(() => this.childrenColumn()?.key ?? null);
+  readonly childColumns = computed(
+    () => this.childrenColumn()?.childrenConfig.columns ?? null
+  );
+
+  readonly activeFilterColumns = computed(() =>
+    (this.columns() ?? []).filter(column =>
+      column.filter?.values?.some((value: unknown) => value != null && value !== '')
+    )
+  );
+  readonly hasActiveFilters = computed(() => this.activeFilterColumns().length > 0);
+  /** Keys of columns with an active filter (marked in the header). */
+  readonly filteredKeys = computed(
+    () => new Set(this.activeFilterColumns().map(column => column.key))
+  );
+
+  /** There is data, but search / filters hide all of it. */
+  readonly isFilteredEmpty = computed(
+    () => this.currentRows().length > 0 && this.rows().length === 0
+  );
+
+  /* placeholder rows while the first data loads */
+  readonly skeletonRows = Array.from({ length: 8 });
+  readonly skeletonCells = [70, 45, 85, 55, 65, 40];
+
+  /** Value shown in the cell-value dialog. */
+  readonly valueDialog = signal<{ title: string; text: string; html: string | null } | null>(
+    null
+  );
+  readonly valueCopied = signal(false);
+  private valueCopiedTimeout: ReturnType<typeof setTimeout>;
+
+  /** Rows after search and column filters. */
+  private readonly filteredRows = computed(() => {
+    const rows = this.currentRows();
+    const search = this.activeSearch();
+    const filterColumns = this.activeFilterColumns();
+    if (!search && filterColumns.length === 0) {
+      return rows;
+    }
+
+    let result = rows;
+    for (const column of filterColumns) {
+      result = result.filter(row => rowShouldBeFiltered(row, column));
+    }
+
+    if (search) {
+      const needle = search.toString().toLowerCase();
+      const excluded = new Set(this.notIncludedColumns().map(column => column.key));
+      const searchable = this.columns().filter(column => !excluded.has(column.key));
+      result = result.filter(row =>
+        searchable.some(
+          column =>
+            row[column.key] != null &&
+            row[column.key].toString().toLowerCase().includes(needle)
+        )
+      );
+    }
+    return result;
+  });
+
+  /** Rows as displayed: filtered, then sorted. */
+  readonly rows = computed(() => {
+    const sort = this.sortState();
+    const rows = this.filteredRows();
+    return sort ? sortRows(rows, sort.sortKey, sort.ascending) : rows;
+  });
+
+  readonly numberOfChecked = computed(() => {
+    const checked = this.mapOfCheckedId();
+    const key = this.uniqueKey();
+    return this.rows().filter(row => checked[row[key]]).length;
+  });
+  readonly isAllDisplayDataChecked = computed(() => {
+    const checked = this.mapOfCheckedId();
+    const key = this.uniqueKey();
+    const rows = this.rows();
+    return rows.length !== 0 && rows.every(row => checked[row[key]]);
+  });
+  readonly isIndeterminate = computed(
+    () => this.numberOfChecked() > 0 && !this.isAllDisplayDataChecked()
+  );
+
+  private readonly unsavedRows = computed(() =>
+    Object.values(this.editCache())
+      .filter(entry => entry.changed && !entry.deleted && !entry.new)
+      .map(entry => entry.row)
+  );
+  private readonly deletedRowIds = computed(() => {
+    const cache = this.editCache();
+    return Object.keys(cache).filter(id => cache[id].deleted);
+  });
+  private readonly newRows = computed(() =>
+    Object.values(this.editCache())
+      .filter(entry => entry.new && !entry.deleted)
+      .map(entry => entry.row)
+  );
+  readonly unsavedRowsLength = computed(() => this.unsavedRows().length);
+  readonly deletedRowsLength = computed(() => this.deletedRowIds().length);
+  readonly newRowsLength = computed(() => this.newRows().length);
+
+  /** Width of the sticky lead column (row number / selection checkbox). */
+  public readonly LEAD_WIDTH = 52;
+
+  /** Row number and selection checkbox share one sticky column. */
+  readonly hasLeadColumn = computed(
+    () => this.showRowIndex() || this.selection() === SelectionMode.Checkbox
+  );
+
+  /** Width of the sticky actions column, sized to the number of row actions. */
+  readonly actionsWidth = computed(() => {
+    const count =
+      (this.allowEdit() ? 1 : 0) +
+      (this.allowDelete() ? 1 : 0) +
+      (this.buttons()?.length ? 1 : 0) +
+      (this.childrenKey() ? 1 : 0);
+    // the header cell holds the column chooser (+ filter toggle without toolbar)
+    const headerCount =
+      1 + (!this.showToolbar() && this.disableSearch() === false ? 1 : 0);
+    const buttonsWidth =
+      count * ACTION_BUTTON_SIZE + Math.max(0, count - 1) * ACTION_BUTTON_GAP;
+    const headerWidth =
+      headerCount * ACTION_BUTTON_SIZE + (headerCount - 1) * ACTION_BUTTON_GAP;
+    return Math.max(headerWidth, buttonsWidth) + ACTION_CELL_PADDING;
+  });
+
+  /** The summary row is shown as soon as one visible column defines a `summary`. */
+  readonly hasSummary = computed(() => this.visibleColumns().some(column => !!column.summary));
+
+  /** One entry per visible column, recomputed when rows, filters, columns or language change. */
+  readonly summaryCells = computed(() => {
+    if (!this.hasSummary()) {
+      return [];
+    }
+    const rows = this.rows();
+    const allRows = this.currentRows();
+    const texts = this.texts();
+
+    return this.visibleColumns().map(column => {
+      if (!column.summary) {
+        return { key: column.key, label: '', text: '' };
+      }
+      let result: ImSummaryResult;
+      try {
+        result = column.summary({
+          rows,
+          allRows,
+          values: rows.map(row => row[column.key]),
+          column,
+          texts,
+        });
+      } catch (error) {
+        console.error(`im-grid: summary of column "${column.key}" failed`, error);
+        result = null;
+      }
+      return { key: column.key, ...this.renderSummary(result, column) };
     });
+  });
 
-  public focusedCell$ = this.focusedCellSubject$.asObservable();
+  readonly columnsWidth = computed(() => {
+    const fixedWidth = (this.hasLeadColumn() ? this.LEAD_WIDTH : 0) + this.actionsWidth();
+    return this.visibleColumns()
+      .filter(column => !column.childrenConfig)
+      .reduce((total, column) => total + column.width, fixedWidth);
+  });
 
-  private stillClickedInsideBodySubject$: BehaviorSubject<boolean> =
-    new BehaviorSubject<boolean>(false);
+  /* ------------------------------------------------------------------ */
+
+  private modal: NzModalRef;
+  private successSubject$: Subject<ImTrack> = new Subject<ImTrack>();
+  private bodyFocused = false;
   private clickedInsideOfBody = false;
   private arrowKeys = new Subject<Event>();
-  public resizing = false;
+  private resizeFrame = 0;
 
   /* context menu active row */
   public activeRow: T;
-  public activeRowIndex = -1;
-
-  private sortKey: string;
-  private sortAsc = false;
 
   constructor() {
+    inject(NzIconService).addIcon(...IM_GRID_ICONS);
+    this.i18n.useOverrides(this.textOverrides);
+
     this.arrowKeys
-      .pipe(throttleTime(50), takeUntil(this.destroyed$))
+      .pipe(throttleTime(50), takeUntilDestroyed())
       .subscribe((event: KeyboardEvent) => this.handleArrowKeyboardEvent(event));
 
     fromEvent(window, 'resize')
-      .pipe(debounceTime(500), takeUntil(this.destroyed$))
+      .pipe(debounceTime(500), takeUntilDestroyed())
       .subscribe(() => {
-        this.table().cdkVirtualScrollViewport.checkViewportSize();
+        this.table()?.cdkVirtualScrollViewport?.checkViewportSize();
       });
 
-    this.filterForm = this.formBuilder.group({
-      search: null,
+    // typing is debounced; programmatic changes (see reset) are applied immediately
+    toObservable(this.searchTerm)
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe(term => this.activeSearch.set(term));
+
+    // data source: follows the input, and re-subscribes when a new source is passed
+    toObservable(this.dataSource$)
+      .pipe(
+        switchMap(source => source ?? EMPTY),
+        takeUntilDestroyed()
+      )
+      .subscribe(rows => {
+        this.originalRows.set([...rows]);
+        this.currentRows.set([...rows]);
+        this.reset();
+      });
+
+    // the parent passed new columns: drop everything that belonged to the old ones
+    let firstColumns = true;
+    effect(() => {
+      this.columnsInput();
+      untracked(() => {
+        if (firstColumns) {
+          firstColumns = false;
+          return;
+        }
+        this.form = null;
+        if (this.modal) {
+          this.closeModal();
+        }
+        if (this.drawerVisible()) {
+          this.closeDrawer();
+        }
+        this.sortState.set(null);
+        this.notIncludedColumns.set([]);
+      });
     });
 
-    this.filterForm
-      .get('search')
-      .valueChanges.pipe(
-        takeUntil(this.destroyed$),
-        debounceTime(400),
-        distinctUntilChanged()
-      )
-      .subscribe(() => {
-        this.filterRows();
+    // report the grid's own column changes to the parent
+    effect(() => {
+      const columns = this.columns();
+      untracked(() => {
+        if (columns !== this.columnsInput()) {
+          this.columnsChange.emit(columns);
+        }
       });
+    });
+
+    effect(() => {
+      const checked = this.mapOfCheckedId();
+      untracked(() => this.selectedIds.emit(checked));
+    });
   }
 
+  /* ------------------------------------------------------------------ */
+  /* Keyboard navigation                                                 */
+  /* ------------------------------------------------------------------ */
+
   private getNeighborColumn(key: string, forward: boolean): ImColumn {
-    const columns = this.columns().filter(column => column.visible && !column.hidden);
+    const columns = this.visibleColumns();
     const currentColumnIndex = columns.findIndex(column => column.key === key);
     return columns.find((_, index) =>
       forward ? index > currentColumnIndex : index === currentColumnIndex - 1
@@ -266,271 +536,245 @@ export class ImGridComponent<T extends { isNew?: boolean }>
   }
 
   private handleArrowKeyboardEvent(event: KeyboardEvent) {
-    const index = this.focusedCellSubject$.value.rowIndex;
-    const key = this.focusedCellSubject$.value.key;
-    if (index > -1) {
-      if (event.key === 'ArrowLeft') {
-        const neighborColumn = this.getNeighborColumn(key, false);
+    const { rowIndex, key } = this.focusedCell();
+    if (rowIndex < 0) {
+      return;
+    }
 
-        if (neighborColumn) {
-          this.scrollToRowElement(index, ImDirection.LEFT, neighborColumn.key);
-          this.updateFocusedCell(index, neighborColumn.key);
-        }
-      }
-      if (event.key === 'ArrowRight') {
-        const neighborColumn = this.getNeighborColumn(key, true);
-        if (neighborColumn) {
-          this.updateFocusedCell(index, neighborColumn.key);
-          this.scrollToRowElement(index, ImDirection.RIGHT, neighborColumn.key);
-        }
-      }
-      if (event.key === 'ArrowUp') {
-        if (index - 1 > -1) {
-          this.updateFocusedCell(index - 1, key);
-          this.scrollToRowElement(index - 1, ImDirection.TOP);
-        }
-      }
-      if (event.key === 'ArrowDown') {
-        if (index + 1 < this.rows.length) {
-          this.scrollToRowElement(index + 1, ImDirection.Bottom);
-          this.updateFocusedCell(index + 1, key);
-        }
-      }
+    // in RTL the visual "previous" column is to the right
+    const previousKey = this.isRtl() ? 'ArrowRight' : 'ArrowLeft';
+    const nextKey = this.isRtl() ? 'ArrowLeft' : 'ArrowRight';
+
+    let targetRow = rowIndex;
+    let targetKey = key;
+
+    switch (event.key) {
+      case previousKey:
+        targetKey = this.getNeighborColumn(key, false)?.key ?? key;
+        break;
+      case nextKey:
+        targetKey = this.getNeighborColumn(key, true)?.key ?? key;
+        break;
+      case 'ArrowUp':
+        targetRow = Math.max(0, rowIndex - 1);
+        break;
+      case 'ArrowDown':
+        targetRow = Math.min(this.rows().length - 1, rowIndex + 1);
+        break;
+      default:
+        return;
+    }
+
+    if (targetRow !== rowIndex || targetKey !== key) {
+      this.updateFocusedCell(targetRow, targetKey);
+      this.scrollCellIntoView(targetRow, targetKey);
     }
   }
 
-  private scrollToRowElement(targetIndex: number, direction: ImDirection, key?: string) {
-    const allRows = Array.from<HTMLElement>(
-      this.table().cdkVirtualScrollViewport._contentWrapper.nativeElement.firstChild[
-        'rows'
-      ]
-    );
-    const targetRow: HTMLElement = allRows.find(
-      (row: HTMLElement) => row.getAttribute('index') === targetIndex.toString()
-    );
-    if (targetRow != null) {
-      if (direction === ImDirection.TOP || direction === ImDirection.Bottom) {
-        const cdkScrollEelemnt = this.table().cdkVirtualScrollViewport.elementRef;
-        const cdkScrollEelemntTop =
-          cdkScrollEelemnt.nativeElement.getBoundingClientRect().top;
-        const cdkScrollOffsetTop = cdkScrollEelemntTop;
-        const rowElementTopWidthOffset = targetRow.getBoundingClientRect().top;
-        const rowElementTop = rowElementTopWidthOffset - cdkScrollOffsetTop;
+  /**
+   * Scrolls the viewport just enough to reveal a cell, and only if it isn't fully visible.
+   * Works from row height / column widths (rows are virtual, so they may not be in the DOM)
+   * and accounts for the sticky lead and actions columns covering the edges.
+   */
+  private scrollCellIntoView(rowIndex: number, key: string) {
+    const element: HTMLElement =
+      this.table().cdkVirtualScrollViewport.elementRef.nativeElement;
+    const rowHeight = this.height();
 
-        const rowBottom = rowElementTopWidthOffset - cdkScrollEelemntTop + this.height;
-        const tableHeight = cdkScrollEelemnt.nativeElement.clientHeight;
-        const currentScroll = cdkScrollEelemnt.nativeElement.scrollTop;
-        if (direction === ImDirection.TOP && rowElementTop < 0) {
-          cdkScrollEelemnt.nativeElement.scrollTop = currentScroll + rowElementTop;
-        } else if (direction === ImDirection.Bottom && rowBottom > tableHeight) {
-          const scrollAmount = rowBottom - tableHeight;
-          cdkScrollEelemnt.nativeElement.scrollTop = currentScroll + scrollAmount;
-        }
-      } else {
-        const cdkScrollEelemnt = this.table().cdkVirtualScrollViewport.elementRef;
-        const nextColumnIndex = this.columns().findIndex(column => column.key === key);
+    /* vertical */
+    const rowTop = rowIndex * rowHeight;
+    const rowBottom = rowTop + rowHeight;
+    if (rowTop < element.scrollTop) {
+      element.scrollTop = rowTop;
+    } else if (rowBottom > element.scrollTop + element.clientHeight) {
+      element.scrollTop = rowBottom - element.clientHeight;
+    }
 
-        const width = this.columns()
-          .filter(
-            (column, index) => column.visible && !column.hidden && index < nextColumnIndex
-          )
-          .reduce((acc, curr) => acc + curr.width, 0);
+    /* horizontal – measured in the reading direction (start → end) */
+    const leadWidth = this.hasLeadColumn() ? this.LEAD_WIDTH : 0;
+    const visibleColumns = this.visibleColumns();
+    const columnIndex = visibleColumns.findIndex(column => column.key === key);
+    if (columnIndex < 0) {
+      return;
+    }
 
-        cdkScrollEelemnt.nativeElement.scrollLeft = width;
-      }
-    } else {
-      this.scrollToIndex(targetIndex);
+    const columnStart =
+      leadWidth +
+      visibleColumns
+        .slice(0, columnIndex)
+        .reduce((total, column) => total + column.width, 0);
+    const columnEnd = columnStart + visibleColumns[columnIndex].width;
+
+    // RTL scroll containers use negative scrollLeft values
+    const rtl = this.isRtl();
+    const scrolled = rtl ? -element.scrollLeft : element.scrollLeft;
+    const visibleStart = scrolled + leadWidth;
+    const visibleEnd = scrolled + element.clientWidth - this.actionsWidth();
+
+    let nextScroll = scrolled;
+    if (columnStart < visibleStart) {
+      nextScroll = columnStart - leadWidth;
+    } else if (columnEnd > visibleEnd) {
+      nextScroll = columnEnd - (element.clientWidth - this.actionsWidth());
+    }
+
+    if (nextScroll !== scrolled) {
+      nextScroll = Math.max(0, nextScroll);
+      element.scrollLeft = rtl ? -nextScroll : nextScroll;
     }
   }
 
   updateFocusedCell(rowIndex: number, key: string) {
-    this.focusedCellSubject$.next({ rowIndex, key });
+    this.focusedCell.set({ rowIndex, key });
   }
 
   scrollToIndex(index: number): void {
     this.table().cdkVirtualScrollViewport.scrollToIndex(+index);
   }
 
-  ngOnInit() {
-    this.normalizeConfig();
-    this.calculateColumnsWidth();
-    this.mapOfSort = {};
-    this.dataSource$()
-      .pipe(takeUntil(this.destroyed$))
-      .subscribe(rows => {
-        this.originalRows = [...rows];
-        this.currentRows = [...rows];
-        this.reset();
-      });
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes.columns && !changes.columns.isFirstChange()) {
-      this.form = null;
-      if (this.modal) {
-        this.closeModal();
-      }
-      if (this.drawerVisible) {
-        this.closeDrawer();
-      }
-      this.normalizeConfig();
-      this.calculateColumnsWidth();
-      this.mapOfSort = {};
-      this.notIncludedColumns = [];
-    }
-  }
-
-  ngOnDestroy() {
-    this.destroyed$.next();
-    this.destroyed$.complete();
-  }
+  /* ------------------------------------------------------------------ */
+  /* Columns                                                             */
+  /* ------------------------------------------------------------------ */
 
   resizeStart() {
-    this.resizing = true;
+    this.resizing.set(true);
   }
+
   resizeEnd() {
-    setTimeout(() => (this.resizing = false), 100);
-    this.calculateColumnsWidth();
-  }
-  public calculateColumnsWidth() {
-    this.columnsWidth = this.columns()
-      .filter(column => column.visible && !column.hidden && !column.childrenConfig)
-      .reduce(
-        (accumulator, currentValue) => accumulator + currentValue.width,
-        this.childrenKey ? 210 : 175
-      );
+    setTimeout(() => this.resizing.set(false), 100);
   }
 
-  public resetRows() {
-    this.currentRows = [...this.originalRows];
-    this.resetEditCache();
-    this.filterRows();
-    this.updateCounters();
-    this.createMessage('success', translations.discardedAllChanges);
-  }
-
-  public resetRow() {
-    const foundIndex = this.currentRows.findIndex(
-      row => row[this.uniqueKey] === this.form.getRawValue()[this.uniqueKey]
+  onResize({ width }: NzResizeEvent, column: ImColumn): void {
+    cancelAnimationFrame(this.resizeFrame);
+    this.resizeFrame = requestAnimationFrame(() =>
+      this.updateColumn(column.key, { width })
     );
-    const originalRow = this.originalRows.find(
-      row => row[this.uniqueKey] === this.form.getRawValue()[this.uniqueKey]
+  }
+
+  toggleColumnVisibility(column: ImColumn, visible: boolean) {
+    this.updateColumn(column.key, { visible });
+  }
+
+  /** Immutable column update, so every signal / OnPush consumer notices the change. */
+  private updateColumn(key: string, changes: Partial<ImColumn>) {
+    this.columns.update(columns =>
+      columns.map(column => (column.key === key ? { ...column, ...changes } : column))
     );
-
-    if (foundIndex > -1 && originalRow) {
-      this.currentRows[foundIndex] = { ...originalRow };
-
-      this.editCache[originalRow[this.uniqueKey]] = {
-        row: { ...originalRow },
-        edit: false,
-        changed: false,
-      };
-
-      this.updateCounters();
-      this.closeModal();
-      this.createMessage('success', translations.discardedRow);
-      this.filterRows();
-    }
   }
 
   public drop(event: CdkDragDrop<string[]>): void {
     this.columns.update(columns => [
-      ...this.dragEndEvent(
-        event,
-        columns,
-        columns.filter(column => column.visible && !column.hidden)
-      ),
+      ...this.dragEndEvent(event, [...columns], this.visibleColumns()),
     ]);
   }
 
-  onResize({ width }: NzResizeEvent, column: ImColumn): void {
-    let id = 0;
-    cancelAnimationFrame(id);
-    id = requestAnimationFrame(() => {
-      column.width = width;
-    });
+  toggleFilters() {
+    this.allowSearch.update(open => !open);
   }
 
-  public saveRows() {
-    this.successSubject$
-      .pipe(
-        filter(success => success.action === ImAction.SaveAll),
-        takeUntil(this.destroyed$),
-        take(1)
-      )
-      .subscribe(success => {
-        if (success.data !== false) {
-          this.originalRows = [...success.data];
-          this.currentRows = [...success.data];
-          this.reset();
-        } else {
-          this.showError();
-        }
+  isNumeric(column: ImColumn): boolean {
+    return isNumericColumn(column);
+  }
+
+  isCentered(column: ImColumn): boolean {
+    return isCenteredColumn(column);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Sorting & filtering                                                 */
+  /* ------------------------------------------------------------------ */
+
+  sortOrderOf(column: ImColumn): NzTableSortOrder {
+    const sort = this.sortState();
+    if (sort?.columnKey !== column.key) {
+      return null;
+    }
+    return sort.ascending ? 'ascend' : 'descend';
+  }
+
+  public sort(column: ImColumn, order: NzTableSortOrder) {
+    if (order) {
+      this.sortState.set({
+        columnKey: column.key,
+        sortKey: column.sortKey ?? column.key,
+        ascending: order === 'ascend',
       });
-
-    this.save.emit({
-      saved: this.getUnsavedRows(),
-      deletedIds: this.getDeletedRowsId(),
-      new: this.getNewRows(),
-      currentState: this.currentRows,
-      action: ImAction.SaveAll,
-      track: this.successSubject$,
-    });
+    } else if (this.sortState()?.columnKey === column.key) {
+      this.sortState.set(null);
+    }
   }
 
-  private getUnsavedRows() {
-    return Object.keys(this.editCache)
-      .filter(
-        uniqueKey =>
-          this.editCache[uniqueKey].changed &&
-          !this.editCache[uniqueKey].deleted &&
-          !this.editCache[uniqueKey].new
+  setFilterValues(columnKey: string, values: unknown[]) {
+    this.columns.update(columns =>
+      columns.map(column =>
+        column.key === columnKey
+          ? { ...column, filter: { ...column.filter, values } }
+          : column
       )
-      .map(uniqueKey => this.editCache[uniqueKey].row);
-  }
-
-  private getDeletedRowsId() {
-    return Object.keys(this.editCache).filter(
-      uniqueKey => this.editCache[uniqueKey].deleted
     );
   }
 
-  private getNewRows() {
-    return Object.keys(this.editCache)
-      .filter(id => this.editCache[id].new && !this.editCache[id].deleted)
-      .map(id => this.editCache[id].row);
+  public clearFilters() {
+    this.clearColumnFilters();
+    this.sortState.set(null);
   }
 
+  /** "No matching rows" action: clears the search and every column filter (keeps the sort). */
+  public clearSearchAndFilters() {
+    this.searchTerm.set('');
+    this.activeSearch.set('');
+    this.clearColumnFilters();
+  }
+
+  private clearColumnFilters() {
+    this.columns.update(columns =>
+      columns.map(column => ({ ...column, filter: { ...column.filter, values: [] } }))
+    );
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Data & pending changes                                              */
+  /* ------------------------------------------------------------------ */
+
   private reset() {
-    this.resetEditCache();
-    this.mapOfCheckedId = {};
+    this.editCache.set({});
+    this.mapOfCheckedId.set({});
 
     if (this.clearSearchOnChanges()) {
-      this.filterForm.get('search').setValue('');
+      this.searchTerm.set('');
+      this.activeSearch.set('');
     }
 
-    this.filterRows();
-
-    if (this.sortKey) {
-      this.sort(this.sortKey, this.sortAsc ? 'ascend' : 'descend');
-    }
-
-    this.updateCounters();
     this.setUniqueValues();
   }
 
   private setUniqueValues() {
-    this.columns().forEach(column => {
-      if (column.filter && column.filter.type === ImFilterType.Select) {
-        column.filter.selectValues = this.getUniqueSelectFilterValues(column);
-      }
-    });
+    const hasSelectFilter = this.columns().some(
+      column => column.filter?.type === ImFilterType.Select
+    );
+    if (!hasSelectFilter) {
+      return;
+    }
+    this.columns.update(columns =>
+      columns.map(column =>
+        column.filter?.type === ImFilterType.Select
+          ? {
+              ...column,
+              filter: {
+                ...column.filter,
+                selectValues: this.getUniqueSelectFilterValues(column),
+              },
+            }
+          : column
+      )
+    );
   }
 
   private getUniqueSelectFilterValues(column: ImColumn): unknown[] {
+    const rows = this.currentRows();
     if (column.columnType === ImColumnType.Array) {
       const uniques = [];
-      this.currentRows.forEach(row => {
+      rows.forEach(row => {
         row[column.key].forEach((item: unknown) => {
           const foundItem = uniques.find(unique =>
             unique && typeof unique === 'object'
@@ -545,37 +789,104 @@ export class ImGridComponent<T extends { isNew?: boolean }>
       return uniques;
     }
 
-    return this.currentRows
+    return rows
       .map(row => row[column.key])
       .filter((value, index, self) => value != null && self.indexOf(value) === index);
   }
 
+  public resetRows() {
+    this.currentRows.set([...this.originalRows()]);
+    this.editCache.set({});
+    this.createMessage('success', this.texts().discardedAllChanges);
+  }
+
+  public resetRow() {
+    const key = this.uniqueKey();
+    const id = this.form.getRawValue()[key];
+    const originalRow = this.originalRows().find(row => row[key] === id);
+    const exists = this.currentRows().some(row => row[key] === id);
+
+    if (exists && originalRow) {
+      this.currentRows.update(rows =>
+        rows.map(row => (row[key] === id ? { ...originalRow } : row))
+      );
+      this.editCache.update(cache => ({
+        ...cache,
+        [id]: { row: { ...originalRow }, edit: false, changed: false },
+      }));
+
+      this.closeModal();
+      this.createMessage('success', this.texts().discardedRow);
+    }
+  }
+
+  public saveRows() {
+    this.successSubject$
+      .pipe(
+        filter(success => success.action === ImAction.SaveAll),
+        takeUntilDestroyed(this.destroyRef),
+        take(1)
+      )
+      .subscribe(success => {
+        if (success.data !== false) {
+          this.originalRows.set([...success.data]);
+          this.currentRows.set([...success.data]);
+          this.reset();
+        } else {
+          this.showError();
+        }
+      });
+
+    this.save.emit({
+      saved: this.unsavedRows(),
+      deletedIds: this.deletedRowIds(),
+      new: this.newRows(),
+      currentState: this.currentRows(),
+      action: ImAction.SaveAll,
+      track: this.successSubject$,
+    });
+  }
+
+  public hasUnsavedChanges = () => {
+    if (
+      !this.form ||
+      (this.unsavedRowsLength() + this.deletedRowsLength() + this.newRowsLength() === 0 &&
+        !this.form.dirty)
+    ) {
+      return false;
+    }
+    return true;
+  };
+
+  /* ------------------------------------------------------------------ */
+  /* Selection                                                           */
+  /* ------------------------------------------------------------------ */
+
   public checkAll(value: boolean): void {
-    this.rows.forEach(item => (this.mapOfCheckedId[item[this.uniqueKey]] = value));
-    this.refreshStatus();
+    const key = this.uniqueKey();
+    this.mapOfCheckedId.update(checked => {
+      const next = { ...checked };
+      this.rows().forEach(row => (next[row[key]] = value));
+      return next;
+    });
   }
 
-  public refreshStatus(): void {
-    this.isAllDisplayDataChecked =
-      this.rows.length !== 0 &&
-      this.rows.every(item => this.mapOfCheckedId[item[this.uniqueKey]]);
-    this.isIndeterminate =
-      this.rows.some(item => this.mapOfCheckedId[item[this.uniqueKey]]) &&
-      !this.isAllDisplayDataChecked;
-
-    this.numberOfChecked = this.rows.filter(
-      item => this.mapOfCheckedId[item[this.uniqueKey]]
-    ).length;
-    this.selectedIds.emit(this.mapOfCheckedId);
+  public setChecked(row: T, value: boolean): void {
+    this.mapOfCheckedId.update(checked => ({ ...checked, [row[this.uniqueKey()]]: value }));
   }
 
-  public saveRow(event: MouseEvent, row: T) {
+  /* ------------------------------------------------------------------ */
+  /* Create / edit / delete                                              */
+  /* ------------------------------------------------------------------ */
+
+  public saveRow(event: Event, row: T) {
     event.preventDefault();
     this.validateAllFormFields(this.form);
     if (!this.form.valid) {
       return;
     }
 
+    const key = this.uniqueKey();
     if (this.editMode() === EditMode.Direct) {
       this.successSubject$
         .pipe(
@@ -583,7 +894,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
             success =>
               success.action === ImAction.Update || success.action === ImAction.ADD
           ),
-          takeUntil(this.destroyed$),
+          takeUntilDestroyed(this.destroyRef),
           take(1)
         )
         .subscribe(success => {
@@ -594,7 +905,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
           }
         });
 
-      row.isNew && row[this.uniqueKey] == null
+      row.isNew && row[key] == null
         ? this.created.emit({
             row: row,
             track: this.successSubject$,
@@ -606,25 +917,18 @@ export class ImGridComponent<T extends { isNew?: boolean }>
             action: ImAction.Update,
           });
     } else {
-      row.isNew && row[this.uniqueKey] == null ? this.addRow(row) : this.saveEdit(row);
+      row.isNew && row[key] == null ? this.addRow(row) : this.saveEdit(row);
       this.closeModal();
     }
   }
 
   private showError() {
-    this.createMessage('error', translations.errorOccurred);
+    this.createMessage('error', this.texts().errorOccurred);
   }
 
   public resetForm(event: MouseEvent): void {
     event.preventDefault();
     this.resetAllFormFields(this.form);
-  }
-
-  private updateCounters() {
-    this.updateUnsavedRowsLength();
-    this.updateDeletedRowsLength();
-    this.updateNewRowsLength();
-    this.refreshStatus();
   }
 
   private initForm(row?: T) {
@@ -642,7 +946,7 @@ export class ImGridComponent<T extends { isNew?: boolean }>
       if (column.columnType === ImColumnType.Date) {
         const formControl = form.get(column.key);
         formControl.valueChanges
-          .pipe(takeUntil(this.destroyed$))
+          .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe((value: Date) => {
             if (value && value instanceof Date && !isNaN(value.valueOf())) {
               formControl.setValue(value.toISOString(), { emitEvent: false });
@@ -658,8 +962,9 @@ export class ImGridComponent<T extends { isNew?: boolean }>
     this.form = form;
   }
 
-  private normalizeConfig() {
-    this.columns().forEach(column => {
+  /** Fills in defaults on the column configs (idempotent) and returns them. */
+  private normalizeConfig(columns: ImColumn[]): ImColumn[] {
+    (columns ?? []).forEach(column => {
       if (column.isUnique === true) {
         column.editable = false;
         column.creatable = false;
@@ -790,10 +1095,8 @@ export class ImGridComponent<T extends { isNew?: boolean }>
       if (column.childrenConfig !== undefined) {
         column.visible = false;
         column.hidden = true;
-        this.childColumns = column.childrenConfig.columns;
-        this.childrenKey = column.key;
         column.fieldType = ImFieldType.None;
-        this.childColumns.forEach(childColumn => {
+        column.childrenConfig.columns.forEach(childColumn => {
           if (childColumn.title === undefined) {
             childColumn.title = childColumn.key;
           }
@@ -807,233 +1110,13 @@ export class ImGridComponent<T extends { isNew?: boolean }>
       }
     });
 
-    const uniqueColumn = this.columns().find(column => column.isUnique);
-    const childrenColumn = this.columns().find(column => column.childrenConfig);
-    if (uniqueColumn) {
-      this.uniqueKey = uniqueColumn.key;
-    } else {
+    if (columns && !columns.some(column => column.isUnique)) {
       console.error(
         'Please consider adding a unique column or set isUnique property to true to an existing column'
       );
       console.error('Table will not work properly if unique column is missing.');
     }
-    if (!childrenColumn) {
-      this.childrenKey = null;
-      this.childrenTitle = null;
-      this.childColumns = null;
-    }
-  }
-
-  public sort(sortKey: string, event: string) {
-    const isSortAscending = event === 'ascend';
-    if (event) {
-      this.sortKey = sortKey;
-      this.sortAsc = isSortAscending;
-      this.rows = [
-        ...this.rows.sort((rowA, rowB) => {
-          const firstValue = rowA[sortKey];
-          const secondValue = rowB[sortKey];
-
-          if (firstValue === secondValue) {
-            return 0;
-          }
-          if (firstValue === null || firstValue === '' || firstValue === undefined) {
-            return isSortAscending ? -1 : 1;
-          } else if (
-            secondValue === null ||
-            secondValue === '' ||
-            secondValue === undefined
-          ) {
-            return isSortAscending ? 1 : -1;
-          } else if (typeof firstValue === 'string' && typeof secondValue === 'string') {
-            return isSortAscending
-              ? firstValue.localeCompare(secondValue)
-              : secondValue.localeCompare(firstValue);
-          } else if (typeof firstValue === 'number' || typeof firstValue === 'boolean') {
-            if (firstValue < secondValue) {
-              return isSortAscending ? -1 : 1;
-            }
-            if (firstValue > secondValue) {
-              return isSortAscending ? 1 : -1;
-            }
-          }
-          return 0;
-        }),
-      ];
-    } else {
-      this.sortKey = null;
-      this.sortAsc = false;
-      this.filterRows();
-    }
-  }
-
-  public showValueInModal(row: T, column: ImColumn): void {
-    const content: string = this.formatService.format(row[column.key], column, true);
-    const viewMode = String(content)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-
-    this.modal = this.modalService.create({
-      nzTitle: '-',
-      nzWidth: 1000,
-      nzStyle: { 'max-width': '100%' },
-      nzContent: `<pre>${viewMode}</pre>`,
-      nzFooter: null,
-      nzBodyStyle: { overflow: 'auto' },
-    });
-  }
-
-  public openCreateOrEditModal(row?: T): void {
-    if (!row && this.customCreate()) {
-      // TODO: The 'emit' function requires a mandatory void argument
-      this.customCreatedRow.emit();
-      return;
-    }
-
-    this.initForm(row);
-    this.modal = this.modalService.create({
-      nzTitle: !row
-        ? translations.createNew[this.settingsService.language]
-        : translations.edit[this.settingsService.language],
-      nzWidth: 1000,
-      nzStyle: { 'max-width': '100%' },
-      nzContent: this.createEditModal(),
-      nzFooter: this.modalFooter(),
-    });
-  }
-
-  public closeModal(): void {
-    this.modal.destroy();
-  }
-
-  public deleteRows(onlyFirst1000?: boolean) {
-    const deletedRowIds = Object.keys(this.mapOfCheckedId).filter(
-      (key, index) => this.mapOfCheckedId[key] && (onlyFirst1000 ? index < 1000 : true)
-    );
-
-    this.currentRows = this.currentRows.filter(
-      row => deletedRowIds.indexOf(row[this.uniqueKey].toString()) === -1
-    );
-
-    deletedRowIds.forEach(deletedRowId => {
-      delete this.mapOfCheckedId[deletedRowId];
-
-      this.editCache[deletedRowId] = {
-        edit: false,
-        changed: true,
-        deleted: true,
-      };
-    });
-
-    this.updateCounters();
-    this.createMessage(
-      'success',
-      this.settingsService.dynamicTranslate(dynamicTranslations.deletedSuccessfully, {
-        '{count}': deletedRowIds.length,
-      })
-    );
-    this.filterRows();
-  }
-
-  public deleteRow(value: T): void {
-    if (this.editMode() === EditMode.Direct) {
-      this.successSubject$
-        .pipe(
-          takeUntil(this.destroyed$),
-          filter(success => success.action === ImAction.Delete),
-          take(1)
-        )
-        .subscribe(success => {
-          if (success.data === false) {
-            this.showError();
-          }
-        });
-      this.deleted.emit({
-        row: value,
-        track: this.successSubject$,
-        action: ImAction.Delete,
-      });
-    } else {
-      this.saveDelete(value);
-    }
-  }
-
-  private addRow(newObject: T): void {
-    if (newObject[this.uniqueKey] == null) {
-      newObject[this.uniqueKey] = randomUuid();
-    }
-
-    this.currentRows = [...this.currentRows, newObject];
-    this.editCache[newObject[this.uniqueKey]] = {
-      edit: false,
-      row: { ...newObject },
-      new: true,
-    };
-
-    this.updateCounters();
-    this.filterRows();
-    this.createMessage('success', translations.addedNewRow);
-  }
-
-  private saveDelete(deletedRow: T): void {
-    this.currentRows = this.currentRows.filter(
-      row => row[this.uniqueKey] !== deletedRow[this.uniqueKey]
-    );
-    this.editCache[deletedRow[this.uniqueKey]] = {
-      edit: false,
-      changed: true,
-      deleted: true,
-    };
-
-    this.updateCounters();
-    this.filterRows();
-    this.createMessage(
-      'success',
-      this.settingsService.dynamicTranslate(dynamicTranslations.deletedSuccessfully, {
-        '{count}': 1,
-      })
-    );
-  }
-
-  private saveEdit(editedRow: T): void {
-    const foundCurrentRowIndex = this.currentRows.findIndex(
-      row => row[this.uniqueKey] === editedRow[this.uniqueKey]
-    );
-
-    this.currentRows[foundCurrentRowIndex] = editedRow;
-
-    this.editCache[editedRow[this.uniqueKey]] = {
-      row: { ...editedRow },
-      edit: false,
-      changed: true,
-    };
-
-    this.updateUnsavedRowsLength();
-    this.createMessage('success', translations.savedRow);
-    this.filterRows();
-  }
-
-  private updateUnsavedRowsLength() {
-    this.unsavedRowsLength = this.getUnsavedRows().length;
-  }
-
-  private updateDeletedRowsLength() {
-    this.deletedRowsLength = this.getDeletedRowsId().length;
-  }
-
-  private updateNewRowsLength() {
-    this.newRowsLength = this.getNewRows().length;
-  }
-
-  private resetEditCache(): void {
-    this.editCache = {};
-    this.currentRows.forEach(row => {
-      this.editCache[row[this.uniqueKey]] = {
-        edit: false,
-      };
-    });
+    return columns;
   }
 
   private validateAllFormFields = (
@@ -1073,10 +1156,6 @@ export class ImGridComponent<T extends { isNew?: boolean }>
     }
   };
 
-  public trackByUnique = (_: number, row: T): number | string => {
-    return row[this.uniqueKey];
-  };
-
   private orderColumnsUsingKeys(
     array: ImColumn[],
     previousKey: string,
@@ -1114,131 +1193,221 @@ export class ImGridComponent<T extends { isNew?: boolean }>
     );
   }
 
-  public updateRowHeight(size: Size) {
-    this.size.set(size);
+  public showValueInModal(row: T, column: ImColumn): void {
+    const text = String(this.formatService.format(row[column.key], column, true) ?? '');
+    this.valueDialog.set({
+      title: this.i18n.translate(column.title),
+      text,
+      html: column.columnType === ImColumnType.Xml ? highlightXml(text) : null,
+    });
+    this.valueCopied.set(false);
 
-    switch (size) {
-      case 'small':
-        this.height = 37;
-        break;
-      case 'middle':
-        this.height = 46;
-        break;
-      default:
-        this.height = 54;
-        break;
+    this.modal = this.modalService.create({
+      nzTitle: this.valueTitle(),
+      nzContent: this.valueContent(),
+      nzFooter: this.valueFooter(),
+      nzWidth: 760,
+      nzClassName: 'im-grid-modal im-grid-value-modal',
+      nzStyle: { 'max-width': 'calc(100vw - 32px)' },
+    });
+  }
+
+  copyDialogValue(): void {
+    const value = this.valueDialog();
+    if (value && this.clipboard.copy(value.text)) {
+      this.valueCopied.set(true);
+      clearTimeout(this.valueCopiedTimeout);
+      this.valueCopiedTimeout = setTimeout(() => this.valueCopied.set(false), 1500);
     }
   }
 
-  filterRows(excludedColumns?: ImColumn[]) {
-    if (excludedColumns) {
-      this.notIncludedColumns = excludedColumns;
+  public openCreateOrEditModal(row?: T): void {
+    if (!row && this.customCreate()) {
+      // TODO: The 'emit' function requires a mandatory void argument
+      this.customCreatedRow.emit();
+      return;
     }
-    this.filter(this.filterForm.get('search').value);
-    this.refreshStatus();
-    this.cd.markForCheck();
+
+    this.initForm(row);
+    // a few fields read better in a narrow, single-column dialog
+    const editableFields = formFieldsOf(this.columns()).filter(
+      column => this.form.get(column.key)?.enabled
+    ).length;
+    this.modal = this.modalService.create({
+      nzTitle: this.modalTitle(),
+      nzWidth: editableFields <= 5 ? 560 : 880,
+      nzClassName: 'im-grid-modal',
+      nzStyle: { 'max-width': 'calc(100vw - 32px)' },
+      nzContent: this.createEditModal(),
+      nzFooter: this.modalFooter(),
+    });
   }
 
-  public filter(globalValue: string) {
-    const filterColumns = this.getColumnsWithFilter(this.columns());
-
-    if (globalValue || filterColumns.length > 0) {
-      let filteredData = [...this.currentRows];
-
-      for (const column of filterColumns) {
-        filteredData = filteredData.filter(row => rowShouldBeFiltered(row, column));
-      }
-      if (globalValue) {
-        filteredData = filteredData.filter(row => {
-          return this.columns().find(column => {
-            const isExcluded = this.notIncludedColumns.find(
-              notIncludedColumn => notIncludedColumn.key === column.key
-            );
-            if (isExcluded || row[column.key] == null) {
-              return false;
-            }
-            return row[column.key]
-              .toString()
-              .toLowerCase()
-              .includes(globalValue.toString().toLowerCase());
-          });
-        });
-      }
-
-      this.rows = filteredData;
-    } else {
-      this.rows = [...this.currentRows];
-    }
+  public closeModal(): void {
+    this.modal.destroy();
   }
 
-  public exportAsExcel() {
-    // this.excelService.exportAsExcelFile(
-    //   this.rows,
-    //   'file',
-    //   this.columns.filter(
-    //     column => column.visible && !column.hidden && !column.childrenConfig
-    //   )
-    // );
-  }
-
-  private createMessage(type: string, message: Translation): void {
-    if (this.enableNotifications()) {
-      this.messageService.create(type, message[this.settingsService.language]);
-    }
-  }
-
-  public hasUnsavedChanges = () => {
-    if (
-      !this.form ||
-      (this.unsavedRowsLength + this.deletedRowsLength + this.newRowsLength === 0 &&
-        !this.form.dirty)
-    ) {
-      return false;
-    }
-    return true;
-  };
-
-  public clearFilters() {
-    this.columns().forEach(
-      column =>
-        (column.filter = {
-          ...column.filter,
-          values: [],
-        })
+  public deleteRows(onlyFirst1000?: boolean) {
+    const checked = this.mapOfCheckedId();
+    const deletedRowIds = Object.keys(checked).filter(
+      (key, index) => checked[key] && (onlyFirst1000 ? index < 1000 : true)
     );
-    this.mapOfSort = {};
-    this.filterRows();
-  }
+    const key = this.uniqueKey();
 
-  private getColumnsWithFilter(columns: ImColumn[]): ImColumn[] {
-    columns.forEach(column => {
-      const values = column.filter.values;
-      if (
-        values.length > 0 &&
-        values.every((value: Date | string | number) => value == null || value === '')
-      ) {
-        column.filter.values = [];
-      }
+    this.currentRows.update(rows =>
+      rows.filter(row => deletedRowIds.indexOf(row[key].toString()) === -1)
+    );
+    this.mapOfCheckedId.update(map => {
+      const next = { ...map };
+      deletedRowIds.forEach(id => delete next[id]);
+      return next;
+    });
+    this.editCache.update(cache => {
+      const next = { ...cache };
+      deletedRowIds.forEach(id => (next[id] = { edit: false, changed: true, deleted: true }));
+      return next;
     });
 
-    return columns.filter(column => column.filter && column.filter.values.length > 0);
+    this.createMessage(
+      'success',
+      this.i18n.format(this.texts().deletedSuccessfully, { count: deletedRowIds.length })
+    );
   }
 
+  public deleteRow(value: T): void {
+    if (this.editMode() === EditMode.Direct) {
+      this.successSubject$
+        .pipe(
+          takeUntilDestroyed(this.destroyRef),
+          filter(success => success.action === ImAction.Delete),
+          take(1)
+        )
+        .subscribe(success => {
+          if (success.data === false) {
+            this.showError();
+          }
+        });
+      this.deleted.emit({
+        row: value,
+        track: this.successSubject$,
+        action: ImAction.Delete,
+      });
+    } else {
+      this.saveDelete(value);
+    }
+  }
+
+  private addRow(newObject: T): void {
+    const key = this.uniqueKey();
+    if (newObject[key] == null) {
+      newObject[key] = randomUuid();
+    }
+
+    this.currentRows.update(rows => [...rows, newObject]);
+    this.editCache.update(cache => ({
+      ...cache,
+      [newObject[key]]: { edit: false, row: { ...newObject }, new: true },
+    }));
+    this.createMessage('success', this.texts().addedNewRow);
+  }
+
+  private saveDelete(deletedRow: T): void {
+    const key = this.uniqueKey();
+    this.currentRows.update(rows => rows.filter(row => row[key] !== deletedRow[key]));
+    this.editCache.update(cache => ({
+      ...cache,
+      [deletedRow[key]]: { edit: false, changed: true, deleted: true },
+    }));
+
+    this.createMessage(
+      'success',
+      this.i18n.format(this.texts().deletedSuccessfully, { count: 1 })
+    );
+  }
+
+  private saveEdit(editedRow: T): void {
+    const key = this.uniqueKey();
+    this.currentRows.update(rows =>
+      rows.map(row => (row[key] === editedRow[key] ? editedRow : row))
+    );
+    this.editCache.update(cache => ({
+      ...cache,
+      [editedRow[key]]: { row: { ...editedRow }, edit: false, changed: true },
+    }));
+    this.createMessage('success', this.texts().savedRow);
+  }
+
+  public trackByUnique = (_: number, row: T): number | string => {
+    return row[this.uniqueKey()];
+  };
+
+  private renderSummary(
+    result: ImSummaryResult,
+    column: ImColumn
+  ): { label: string; text: string } {
+    if (result == null || result === '') {
+      return { label: '', text: '' };
+    }
+    if (typeof result === 'object' && !(result instanceof Date)) {
+      if ('value' in result) {
+        const { label, value } = result as ImSummaryValue;
+        return { label: this.i18n.translate(label), text: this.formatSummaryValue(value, column) };
+      }
+      // per-language text, e.g. { en: 'Total', ar: 'المجموع' }
+      return { label: '', text: this.i18n.translate(result as ImText) };
+    }
+    return { label: '', text: this.formatSummaryValue(result, column) };
+  }
+
+  /** Formats like the column's cells; plain numbers get locale-aware grouping. */
+  private formatSummaryValue(value: unknown, column: ImColumn): string {
+    if (value == null || value === '') {
+      return '';
+    }
+    if (typeof value === 'number') {
+      if (
+        column.columnType === ImColumnType.Decimal ||
+        column.columnType === ImColumnType.Currency
+      ) {
+        return String(this.formatService.format(value, column) ?? '');
+      }
+      return formatNumber(value, this.i18n.locale(), '1.0-2');
+    }
+    if (value instanceof Date) {
+      value = value.toISOString();
+    }
+    return String(this.formatService.format(value, column) ?? '');
+  }
+
+  public updateRowHeight(size: Size) {
+    this.size.set(size);
+  }
+
+  private createMessage(type: string, message: string): void {
+    if (this.enableNotifications()) {
+      this.messageService.create(type, message);
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Child rows drawer                                                   */
+  /* ------------------------------------------------------------------ */
+
   openDrawer(row: T): void {
-    const foundColumn = this.columns().find(column => column.key === this.childrenKey);
+    const childrenKey = this.childrenKey();
+    const foundColumn = this.columns().find(column => column.key === childrenKey);
     if (foundColumn) {
-      this.childrenTitle = foundColumn.drawerTitle
-        ? foundColumn.drawerTitle(row)
-        : foundColumn.title;
+      this.childrenTitle.set(
+        foundColumn.drawerTitle ? foundColumn.drawerTitle(row) : foundColumn.title
+      );
 
       foundColumn.childrenConfig.componentConfig.inputs = {
-        dataSource$: of(row[this.childrenKey]),
-        columns: this.childColumns,
+        dataSource$: of(row[childrenKey]),
+        columns: this.childColumns(),
         enableNotifications: this.enableNotifications(),
         allowCreate: this.childAllowCreate(),
         allowEdit: this.childAllowEdit(),
         allowDelete: this.childAllowDelete(),
-        childAllowExcel: this.childAllowExcel(),
       };
       const event = new EventEmitter<ChangesEvent>();
       foundColumn.childrenConfig.componentConfig.outputs = {
@@ -1248,19 +1417,19 @@ export class ImGridComponent<T extends { isNew?: boolean }>
       event.pipe(take(1)).subscribe((changes: ChangesEvent) => {
         const updatedRow = {
           ...row,
-          [this.childrenKey]: changes.currentState,
+          [childrenKey]: changes.currentState,
         };
 
         if (this.editMode() === EditMode.Direct) {
           this.successSubject$
             .pipe(
-              takeUntil(this.destroyed$),
+              takeUntilDestroyed(this.destroyRef),
               filter(success => success.action === ImAction.Update),
               take(1)
             )
             .subscribe(success => {
               changes.track.next({
-                data: success.data[this.childrenKey],
+                data: success.data[childrenKey],
                 action: ImAction.SaveAll,
               });
 
@@ -1284,18 +1453,21 @@ export class ImGridComponent<T extends { isNew?: boolean }>
         }
       });
 
-      this.componentConfig = foundColumn.childrenConfig.componentConfig;
-      this.drawerVisible = true;
+      this.componentConfig.set(foundColumn.childrenConfig.componentConfig);
+      this.drawerVisible.set(true);
     } else {
-      this.childrenKey = null;
-      this.childrenTitle = null;
-      this.drawerVisible = false;
+      this.childrenTitle.set(null);
+      this.drawerVisible.set(false);
     }
   }
 
   closeDrawer(): void {
-    this.drawerVisible = false;
+    this.drawerVisible.set(false);
   }
+
+  /* ------------------------------------------------------------------ */
+  /* Cell interaction                                                    */
+  /* ------------------------------------------------------------------ */
 
   handleClick(column: ImColumn, row: T, index: number) {
     this.clickInside();
@@ -1307,27 +1479,70 @@ export class ImGridComponent<T extends { isNew?: boolean }>
     }
   }
 
-  @HostListener('document:click') clickout() {
+  clickout() {
     if (!this.clickedInsideOfBody) {
-      this.stillClickedInsideBodySubject$.next(false);
+      this.bodyFocused = false;
     }
     this.clickedInsideOfBody = false;
   }
 
-  @HostListener('document:keydown.ArrowUp', ['$event'])
-  @HostListener('document:keydown.ArrowRight', ['$event'])
-  @HostListener('document:keydown.ArrowDown', ['$event'])
-  @HostListener('document:keydown.ArrowLeft', ['$event'])
+  /** Opens the full value of a cell in a dialog (double-click / Enter). */
+  openCellValue(column: ImColumn, row: T) {
+    if (column.zoom && row[column.key] != null && row[column.key] !== '') {
+      this.showValueInModal(row, column);
+    }
+  }
+
+  private getFocusedCell(): { column: ImColumn; row: T } | null {
+    const { rowIndex, key } = this.focusedCell();
+    const column = this.columns().find(col => col.key === key);
+    const row = this.rows()[rowIndex];
+    return column && row ? { column, row } : null;
+  }
+
+  /** Ctrl/⌘ + C copies the focused cell's value; Enter opens it. */
+  handleCellShortcuts(event: KeyboardEvent) {
+    if (!this.bodyFocused || event.altKey || event.shiftKey) {
+      return;
+    }
+    const cell = this.getFocusedCell();
+    if (!cell) {
+      return;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'c') {
+      // leave native copy alone when the user selected text
+      if (window.getSelection()?.toString()) {
+        return;
+      }
+      const value = cell.row[cell.column.key];
+      if (cell.column.copy && value != null && value !== '') {
+        event.preventDefault();
+        this.clipboard.copy(this.formatService.format(value, cell.column, true));
+        this.createMessage('success', this.texts().copied);
+      }
+    } else if (event.key === 'Enter' && !event.ctrlKey && !event.metaKey) {
+      event.preventDefault();
+      this.openCellValue(cell.column, cell.row);
+    }
+  }
+
   handleEvent(event: Event) {
-    if (this.stillClickedInsideBodySubject$.value) {
+    if (this.bodyFocused) {
       event.preventDefault();
       this.arrowKeys.next(event);
     }
   }
 
   public clickInside() {
-    this.stillClickedInsideBodySubject$.next(true);
+    this.bodyFocused = true;
     this.clickedInsideOfBody = true;
+  }
+
+  openRowMenu(event: MouseEvent, menu: NzDropdownMenuComponent, row: T): void {
+    event.stopPropagation();
+    this.activeRow = row;
+    this.nzContextMenuService.create(event, menu);
   }
 
   contextMenu(event: MouseEvent, menu: NzDropdownMenuComponent, row: T): void {

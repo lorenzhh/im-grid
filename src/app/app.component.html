@@ -1,4 +1,4 @@
-<nz-layout class="app-layout">
+<nz-layout class="app-layout" [dir]="directionService.dir()">
   <nz-sider
     class="menu-sidebar"
     [(nzCollapsed)]="isCollapsed"
@@ -73,45 +73,149 @@
     </ul>
   </nz-sider>
   <nz-layout>
-    <nz-header>
-      <div class="app-header">
-        <span
-          class="header-trigger"
+    <nz-header class="app-header">
+      <div class="app-header-start">
+        <button
+          class="hdr-icon-btn"
+          [attr.aria-label]="isCollapsed ? 'Expand menu' : 'Collapse menu'"
           (click)="isCollapsed = !isCollapsed"
+          type="button"
         >
-          <i
-            class="trigger"
-            [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"
-            nz-icon
-          ></i>
-        </span>
-        <div style="display: flex; align-items: center">
-          <div style="display: flex; align-items: center">
-            <nz-slider
-              [(ngModel)]="value"
-              [nzMax]="360"
-              [nzMin]="0"
-              [style.width.px]="180"
-              (ngModelChange)="changeTheme($event)"
-            />
-          </div>
-          <nz-divider nzType="vertical" />
-          <div>
-            <a (click)="changeLocale(Locale.us)">en-US</a>
-            <nz-divider nzType="vertical" />
-            <a (click)="changeLocale(Locale.gb)">en-GB</a>
-            <nz-divider nzType="vertical" />
-            <a (click)="changeLocale(Locale.de)">de-DE</a>
-          </div>
-          <nz-divider nzType="vertical" />
-          <div>
-            <a (click)="changeLanguage('en')">English</a>
-            <nz-divider nzType="vertical" />
-            <a (click)="changeLanguage('de')">Deutsch</a>
-          </div>
+          <span [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'" nz-icon></span>
+        </button>
+        @if (page(); as page) {
+          <nav class="app-breadcrumb" aria-label="Breadcrumb">
+            <span class="app-breadcrumb-group">{{ page.group }}</span>
+            <span class="app-breadcrumb-sep" aria-hidden="true">/</span>
+            <span class="app-breadcrumb-current" aria-current="page">{{ page.title }}</span>
+          </nav>
+        }
+      </div>
+
+      <div class="app-header-end">
+        <button
+          class="hdr-btn"
+          [nzDropdownMenu]="languageMenu"
+          [nzPlacement]="directionService.dir() === 'rtl' ? 'bottomLeft' : 'bottomRight'"
+          aria-label="Language"
+          nz-dropdown
+          nzTrigger="click"
+          type="button"
+        >
+          <span nz-icon nzType="global"></span>
+          <span>{{ currentLanguage().label }}</span>
+          <span class="hdr-caret" nz-icon nzType="down"></span>
+        </button>
+
+        <button
+          class="hdr-btn"
+          [nzDropdownMenu]="localeMenu"
+          [nzPlacement]="directionService.dir() === 'rtl' ? 'bottomLeft' : 'bottomRight'"
+          aria-label="Date and number format"
+          nz-dropdown
+          nzTrigger="click"
+          type="button"
+        >
+          <span nz-icon nzType="calendar"></span>
+          <span>{{ appLanguage.locale() }}</span>
+          <span class="hdr-caret" nz-icon nzType="down"></span>
+        </button>
+
+        <span class="hdr-divider"></span>
+
+        <div class="hdr-segmented" aria-label="Text direction" role="group">
+          <button
+            [attr.aria-pressed]="directionService.dir() === 'ltr'"
+            [class.is-active]="directionService.dir() === 'ltr'"
+            (click)="directionService.set('ltr')"
+            type="button"
+          >
+            LTR
+          </button>
+          <button
+            [attr.aria-pressed]="directionService.dir() === 'rtl'"
+            [class.is-active]="directionService.dir() === 'rtl'"
+            (click)="directionService.set('rtl')"
+            type="button"
+          >
+            RTL
+          </button>
         </div>
+
+        <button
+          class="hdr-icon-btn"
+          [nzPopoverContent]="accentTemplate"
+          [nzPopoverPlacement]="directionService.dir() === 'rtl' ? 'bottomLeft' : 'bottomRight'"
+          aria-label="Accent colour"
+          nz-popover
+          nzPopoverTitle="Accent colour"
+          nzPopoverTrigger="click"
+          type="button"
+        >
+          <span nz-icon nzType="bg-colors"></span>
+        </button>
+
+        <button
+          class="hdr-icon-btn"
+          [attr.aria-label]="themeService.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+          [title]="themeService.theme() === 'dark' ? 'Light theme' : 'Dark theme'"
+          (click)="themeService.toggle()"
+          type="button"
+        >
+          <span [nzType]="themeService.theme() === 'dark' ? 'sun' : 'moon'" nz-icon></span>
+        </button>
       </div>
     </nz-header>
+
+    <nz-dropdown-menu #languageMenu="nzDropdownMenu">
+      <ul class="hdr-menu" nz-menu>
+        <li class="hdr-menu-title">Language</li>
+        @for (option of languages; track option.value) {
+          <li
+            [class.is-active]="appLanguage.language() === option.value"
+            (click)="changeLanguage(option.value)"
+            nz-menu-item
+          >
+            <span class="hdr-menu-label">
+              <span class="hdr-menu-name">{{ option.label }}</span>
+              <small class="hdr-menu-hint">{{ option.hint }}</small>
+            </span>
+            <span class="hdr-menu-check" nz-icon nzType="check"></span>
+          </li>
+        }
+      </ul>
+    </nz-dropdown-menu>
+
+    <nz-dropdown-menu #localeMenu="nzDropdownMenu">
+      <ul class="hdr-menu" nz-menu>
+        <li class="hdr-menu-title">Date &amp; number format</li>
+        @for (option of locales; track option.value) {
+          <li
+            [class.is-active]="appLanguage.locale() === option.value"
+            (click)="changeLocale(option.value)"
+            nz-menu-item
+          >
+            <span class="hdr-menu-label">
+              <span class="hdr-menu-name">{{ option.value }}</span>
+              <small class="hdr-menu-hint is-mono">{{ option.sample }}</small>
+            </span>
+            <span class="hdr-menu-check" nz-icon nzType="check"></span>
+          </li>
+        }
+      </ul>
+    </nz-dropdown-menu>
+
+    <ng-template #accentTemplate>
+      <div class="hdr-accent">
+        <nz-slider
+          [ngModel]="hue()"
+          [nzMax]="360"
+          [nzMin]="0"
+          (ngModelChange)="changeTheme($event)"
+        />
+        <button class="hdr-accent-reset" (click)="changeTheme(0)" type="button">Reset</button>
+      </div>
+    </ng-template>
     <nz-content>
       <div class="inner-content">
         <router-outlet />

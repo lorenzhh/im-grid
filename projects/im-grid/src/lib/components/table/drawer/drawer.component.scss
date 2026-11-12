@@ -1,28 +1,59 @@
 .drawer-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100%;
   padding: 0;
 
   .body-content {
-    padding: 24px;
-    height: 100%;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    padding: 16px 20px 20px;
   }
 }
 
 .resize-wrap {
-  height: 100%;
   display: flex;
-  align-items: center;
   justify-content: center;
+  width: 100%;
+  height: 100%;
 
-  .icon {
-    background: #fff;
-    border: 1px solid #ddd;
-    text-align: center;
-    font-size: 12px;
-    color: #1890ff;
-    position: fixed;
-    height: 20px;
-    line-height: 20px;
+  &::after {
+    content: '';
+    width: 2px;
+    height: 100%;
+    background: transparent;
+    transition: background-color 120ms ease;
+  }
+}
+
+nz-resize-handle:hover .resize-wrap::after,
+.nz-resizable-resizing .resize-wrap::after {
+  background: var(--im-grid-accent, var(--ant-primary-color, #1677ff));
+}
+
+/* drawer chrome (rendered in an overlay; scoped by its wrap class) */
+::ng-deep .im-grid-drawer {
+  .ant-drawer-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+  }
+
+  .ant-drawer-title {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .ant-drawer-body {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .ant-drawer-content-wrapper {
+    max-width: 100vw;
   }
 }

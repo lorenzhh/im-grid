@@ -1,3 +1,148 @@
-nz-form-item {
-  margin-bottom: 5px;
+:host {
+  display: block;
+  --im-form-border: color-mix(in srgb, currentColor 12%, transparent);
+  --im-form-muted: color-mix(in srgb, currentColor 58%, transparent);
+  --im-form-radius: 8px;
+}
+
+.im-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Read-only summary                                                   */
+/* ------------------------------------------------------------------ */
+.im-form-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 28px;
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: color-mix(in srgb, currentColor 4%, transparent);
+}
+
+.im-form-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.im-form-meta-item dt {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--im-form-muted);
+}
+
+.im-form-meta-item dd {
+  max-width: 260px;
+  margin: 0;
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ */
+/* Fields                                                              */
+/* ------------------------------------------------------------------ */
+.im-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0 20px;
+}
+
+.im-form-grid nz-form-item {
+  margin-bottom: 16px;
+}
+
+.im-form-grid nz-form-item.is-wide {
+  grid-column: 1 / -1;
+}
+
+.im-form-grid ::ng-deep .ant-form-item-label {
+  padding-bottom: 6px;
+}
+
+.im-form-grid ::ng-deep .ant-form-item-label > label {
+  height: auto;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--im-form-muted);
+}
+
+.im-form-grid nz-select,
+.im-form-grid nz-date-picker,
+.im-form-grid nz-input-number,
+.im-form-grid nz-input-wrapper {
+  width: 100%;
+}
+
+.im-form-grid ::ng-deep .ant-input,
+.im-form-grid ::ng-deep .ant-input-affix-wrapper,
+.im-form-grid ::ng-deep .ant-input-number,
+.im-form-grid ::ng-deep .ant-picker,
+.im-form-grid ::ng-deep .ant-select:not(.ant-select-customize-input) .ant-select-selector {
+  border-radius: var(--im-form-radius);
+}
+
+.im-form-grid ::ng-deep .ant-input-affix-wrapper .ant-input {
+  border-radius: 0;
+}
+
+.im-form-grid ::ng-deep .ant-input-prefix {
+  margin-inline-end: 8px;
+  color: var(--im-form-muted);
+}
+
+.im-form-grid textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+/* ------------------------------------------------------------------ */
+/* Switches                                                            */
+/* ------------------------------------------------------------------ */
+.im-form-toggles {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--im-form-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.im-form-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.im-form-toggle + .im-form-toggle {
+  border-top: 1px solid var(--im-form-border);
+}
+
+.im-form-toggle:hover {
+  background: color-mix(in srgb, currentColor 3%, transparent);
+}
+
+.im-form-toggle-label {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.im-form-required {
+  margin-inline-start: 4px;
+  color: var(--im-grid-danger, #ff4d4f);
 }

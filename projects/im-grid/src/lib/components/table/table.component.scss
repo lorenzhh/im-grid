@@ -1,222 +1,1091 @@
+/*
+ * im-grid design tokens.
+ *
+ * Everything derives from the inherited text colour (currentColor) and the
+ * ng-zorro table background, so the grid works in light and dark themes
+ * without configuration. Override any token on `im-grid` to theme it:
+ *
+ *   im-grid { --im-grid-accent: #7c3aed; --im-grid-radius: 6px; }
+ */
 :host {
+  --im-grid-accent: var(--ant-primary-color, #1677ff);
+  --im-grid-danger: var(--ant-error-color, #ff4d4f);
+  --im-grid-success: var(--ant-success-color, #52c41a);
+  --im-grid-warning: var(--ant-warning-color, #faad14);
+
+  --im-grid-radius: 12px;
+  --im-grid-font-size: 13px;
+  --im-grid-header-font-size: 11px;
+  --im-grid-header-height: 40px;
+  --im-grid-header-transform: uppercase;
+  --im-grid-header-letter-spacing: 0.06em;
+  --im-grid-cell-padding-x: 16px;
+
+  --im-grid-border: color-mix(in srgb, currentColor 9%, transparent);
+  --im-grid-divider: color-mix(in srgb, currentColor 6%, transparent);
+  --im-grid-muted: color-mix(in srgb, currentColor 55%, transparent);
+  --im-grid-row-hover: color-mix(in srgb, currentColor 3.5%, transparent);
+  --im-grid-row-selected: color-mix(in srgb, var(--im-grid-accent) 9%, transparent);
+  --im-grid-row-selected-hover: color-mix(in srgb, var(--im-grid-accent) 13%, transparent);
+  --im-grid-focus: var(--im-grid-accent);
+  --im-grid-search-hit: color-mix(in srgb, var(--im-grid-warning) 20%, transparent);
+
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
 }
 
-.table-cell {
-  position: relative;
+/* spacing via margin, not `gap`: the host also contains invisible children
+   (im-drawer, nz-dropdown-menu) that would each get a gap slot */
+.im-grid-toolbar {
+  flex: none;
+  margin-bottom: 12px;
+}
 
-  &.searchHighlight {
-    background: rgba(24, 144, 255, 0.3);
+/* ------------------------------------------------------------------------ */
+/* Icon button (row actions, header toggles)                                 */
+/* ------------------------------------------------------------------------ */
+.im-icon-btn {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--im-grid-muted);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease,
+    opacity 120ms ease;
+
+  &:hover:not(:disabled) {
+    color: inherit;
+    background: color-mix(in srgb, currentColor 9%, transparent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--im-grid-focus);
+    outline-offset: -2px;
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  &.is-active {
+    color: var(--im-grid-accent);
+    background: color-mix(in srgb, var(--im-grid-accent) 14%, transparent);
+  }
+
+  &.is-danger:hover:not(:disabled) {
+    color: var(--im-grid-danger);
+    background: color-mix(in srgb, var(--im-grid-danger) 12%, transparent);
   }
 }
 
-pre {
-  white-space: pre-wrap;
+.im-dot {
+  position: absolute;
+  top: 5px;
+  inset-inline-end: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--im-grid-accent);
 }
 
-nz-table {
-  height: 100% !important;
+/* ------------------------------------------------------------------------ */
+/* Card                                                                      */
+/* ------------------------------------------------------------------------ */
+nz-table.im-grid-table {
+  flex: 1;
+  min-height: 0;
+  border: 1px solid var(--im-grid-border);
+  border-radius: var(--im-grid-radius);
+  overflow: hidden;
+}
 
-  ::ng-deep {
-    .ant-table table {
-      table-layout: auto !important;
+:host ::ng-deep nz-table.im-grid-table {
+  /* ---- layout: let the virtual viewport fill the available height ---- */
+  nz-table-inner-scroll,
+  .ant-table-scroll,
+  .ant-table-content,
+  .ant-table,
+  .ant-spin-nested-loading,
+  .ant-spin-container {
+    height: 100% !important;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ant-table table {
+    table-layout: auto !important;
+  }
+
+  .ant-table-header {
+    flex: none;
+    min-height: fit-content;
+  }
+
+  cdk-virtual-scroll-viewport {
+    height: auto !important;
+    overflow-y: scroll;
+    flex: 1;
+  }
+
+  .ant-spin-nested-loading > div > .ant-spin {
+    max-height: unset;
+    z-index: 2000;
+  }
+
+  .ant-table {
+    --im-row-tint: transparent;
+    border-radius: 0;
+    font-size: var(--im-grid-font-size);
+
+    &.ant-table-small {
+      --im-grid-header-height: 34px;
+      --im-grid-cell-padding-x: 12px;
     }
 
-    tr {
-      &.even {
-        background-color: black;
+    /* Propagate the opaque table background down to every cell so sticky
+       columns stay opaque and tints can be layered on top of it. Covers every
+       structural wrapper ng-zorro / cdk put between .ant-table and the cells,
+       but nothing inside a cell. */
+    .ant-table-container,
+    .ant-table-container
+      :is(div, nz-table-inner-scroll, cdk-virtual-scroll-viewport, table, thead, tbody, tr):not(
+        td *,
+        th *
+      ) {
+      background-color: inherit;
+    }
+
+    th.ant-table-cell-fix-left,
+    th.ant-table-cell-fix-right,
+    td.ant-table-cell-fix-left,
+    td.ant-table-cell-fix-right {
+      background-color: inherit;
+    }
+
+    .ant-table-body {
+      scrollbar-color: color-mix(in srgb, currentColor 20%, transparent) transparent;
+    }
+
+    /* -------------------------------- footer -------------------------------- */
+    .ant-table-footer {
+      display: flex;
+      align-items: center;
+      flex: none;
+      min-height: 40px;
+      padding: 6px var(--im-grid-cell-padding-x);
+      border: 0;
+      border-top: 1px solid var(--im-grid-border);
+      border-radius: 0;
+      background: transparent;
+    }
+
+    /* -------------------------------- header -------------------------------- */
+    /* ng-zorro hard-codes text-align: left on cells; follow the direction instead */
+    .ant-table table,
+    .ant-table-thead > tr > th,
+    .ant-table-tbody > tr > td {
+      text-align: start;
+    }
+
+    .ant-table-thead > tr > th {
+      --im-header-tint: transparent;
+      height: var(--im-grid-header-height);
+      padding: 0 var(--im-grid-cell-padding-x);
+      font-size: var(--im-grid-header-font-size);
+      font-weight: 600;
+      line-height: 1.3;
+      letter-spacing: var(--im-grid-header-letter-spacing);
+      text-transform: var(--im-grid-header-transform);
+      white-space: nowrap;
+      color: inherit;
+      background-color: inherit;
+      background-image: linear-gradient(var(--im-header-tint), var(--im-header-tint));
+      border-bottom: 1px solid var(--im-grid-border);
+      border-radius: 0 !important;
+      transition: none;
+      user-select: none;
+
+      /* no column separators – the resize hairline appears on hover */
+      &::before {
+        display: none !important;
       }
-      &.odd {
-        background-color: #181818;
+
+      &.ant-table-column-has-sorters:hover,
+      &.ant-table-column-sort,
+      &.ant-table-cell-fix-left:hover,
+      &.ant-table-cell-fix-right:hover {
+        background-color: inherit;
       }
+
+      &.ant-table-column-has-sorters:hover {
+        --im-header-tint: color-mix(in srgb, currentColor 3.5%, transparent);
+      }
+    }
+
+    .ant-table-thead .ant-table-column-sorters {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .ant-table-thead .ant-table-column-title {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .ant-table-thead .title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--im-grid-muted);
+      cursor: grab;
+      transition: color 120ms ease;
+    }
+
+    .ant-table-thead th:hover .title,
+    .ant-table-thead th.is-sorted .title {
+      color: inherit;
+    }
+
+    /* sorter only visible on hover or when active */
+    .ant-table-column-sorter {
+      margin-inline-start: 0;
+      color: var(--im-grid-muted);
+      opacity: 0;
+      transition: opacity 120ms ease;
+    }
+
+    .ant-table-thead th:hover .ant-table-column-sorter,
+    .ant-table-thead th.is-sorted .ant-table-column-sorter {
+      opacity: 1;
+    }
+
+    .ant-table-column-sorter-up,
+    .ant-table-column-sorter-down {
+      font-size: 10px;
+    }
+
+    .ant-table-column-sorter-up.active,
+    .ant-table-column-sorter-down.active {
+      color: var(--im-grid-accent);
+    }
+
+    /* numeric columns: right aligned, sorter on the left */
+    /* numeric columns: always on the physical right (digits are LTR) with the sorter
+       on the left, in both LTR and RTL – so this one is intentionally not logical */
+    .ant-table-thead th.is-numeric .ant-table-column-sorters {
+      direction: ltr;
+      flex-direction: row-reverse;
+      justify-content: flex-start; /* with row-reverse: packs title + arrow against the right edge */
+    }
+
+    /* keep the arrow right beside the title instead of at the column's far edge */
+    .ant-table-thead th.is-numeric .ant-table-column-title {
+      flex: 0 1 auto;
+    }
+
+    .ant-table-thead th.is-numeric .title {
+      text-align: right;
+    }
+
+    .ant-table-thead th.is-centered .title {
+      text-align: center;
+    }
+
+    /* resize hairline */
+    nz-resize-handle {
+      z-index: 2;
+    }
+
+    .im-resize-handle {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      padding: 10px 0;
+
+      &::after {
+        content: '';
+        width: 2px;
+        height: 100%;
+        border-radius: 1px;
+        background: transparent;
+        transition: background-color 120ms ease;
+      }
+    }
+
+    .ant-table-thead th:hover .im-resize-handle::after {
+      background: var(--im-grid-border);
+    }
+
+    nz-resize-handle:hover .im-resize-handle::after,
+    .nz-resizable-resizing .im-resize-handle::after {
+      background: var(--im-grid-accent) !important;
+    }
+
+    /* ------------------------------ filter row ------------------------------ */
+    .ant-table-thead > tr.im-filter-row > th {
+      height: auto;
+      padding: 6px 6px;
+      font-weight: 400;
+      letter-spacing: normal;
+      text-transform: none;
+    }
+
+    .im-filter-row {
+      .ant-input,
+      .ant-input-affix-wrapper,
+      .ant-select:not(.ant-select-customize-input) .ant-select-selector,
+      .ant-select-outlined:not(.ant-select-customize-input) .ant-select-selector,
+      .ant-picker,
+      .ant-input-group .ant-input {
+        border-color: transparent;
+        border-radius: 6px;
+        background-color: color-mix(in srgb, currentColor 6%, transparent);
+        box-shadow: none;
+        font-size: 12px;
+      }
+
+      .ant-input:hover,
+      .ant-select:hover .ant-select-selector,
+      .ant-picker:hover {
+        background-color: color-mix(in srgb, currentColor 9%, transparent);
+      }
+
+      .ant-input:focus,
+      .ant-input-focused,
+      .ant-select-focused .ant-select-selector,
+      .ant-picker-focused {
+        border-color: var(--im-grid-accent) !important;
+        background-color: transparent;
+      }
+    }
+
+    .im-goto-input {
+      width: 100%;
+      text-align: center;
+      -moz-appearance: textfield;
+
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+    }
+
+    /* --------------------------------- body --------------------------------- */
+    .ant-table-tbody > tr > td {
+      padding: 0 var(--im-grid-cell-padding-x);
+      line-height: 1.4;
+      border-bottom: 1px solid var(--im-grid-divider);
+      background-color: inherit;
+      background-image: linear-gradient(var(--im-row-tint), var(--im-row-tint));
+      transition: none;
+      overflow: hidden;
+
+      /* let ng-zorro's sticky-column shadow (::after, drawn outside the cell)
+         show, same as in the header */
+      &.ant-table-cell-fix-left,
+      &.ant-table-cell-fix-right {
+        overflow: visible;
+      }
+    }
+
+    .ant-table-tbody > tr {
       &:hover {
-        background-color: #3c3c3c;
+        --im-row-tint: var(--im-grid-row-hover);
       }
-      .ant-table-selection-column,
-      .children-column,
-      .clear {
+
+      &.is-selected {
+        --im-row-tint: var(--im-grid-row-selected);
+
+        &:hover {
+          --im-row-tint: var(--im-grid-row-selected-hover);
+        }
+      }
+
+      /* pending-change markers (cache edit mode), on the inline-start edge */
+      &.is-new > td:first-child::before,
+      &.is-changed > td:first-child::before {
+        content: '';
+        position: absolute;
+        inset-block: 0;
+        inset-inline-start: 0;
+        width: 2px;
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      &.is-new > td:first-child::before {
+        background: var(--im-grid-success);
+      }
+
+      &.is-changed > td:first-child::before {
+        background: var(--im-grid-warning);
+      }
+    }
+
+    .ant-table-tbody > tr > td.table-cell {
+      position: relative;
+      cursor: default;
+
+      &.searchHighlight {
+        background-image:
+          linear-gradient(var(--im-grid-search-hit), var(--im-grid-search-hit)),
+          linear-gradient(var(--im-row-tint), var(--im-row-tint));
+      }
+
+      /* focused cell: a crisp ring and the faintest tint, so the value stays calm */
+      &.focused {
+        box-shadow: inset 0 0 0 1.5px var(--im-grid-focus);
+        background-image:
+          linear-gradient(
+            color-mix(in srgb, var(--im-grid-focus) 4%, transparent),
+            color-mix(in srgb, var(--im-grid-focus) 4%, transparent)
+          ),
+          linear-gradient(var(--im-row-tint), var(--im-row-tint));
+      }
+    }
+
+    /* ------------------------------ summary row ----------------------------- */
+    .ant-table-summary,
+    .ant-table-summary tfoot {
+      background-color: inherit;
+    }
+
+    .ant-table-summary {
+      flex: none;
+      box-shadow: none;
+      border-top: 1px solid var(--im-grid-border);
+      /* same tint as the summary cells, so the scrollbar gutter on the end side matches */
+      background-image: linear-gradient(
+        color-mix(in srgb, currentColor 3%, transparent),
+        color-mix(in srgb, currentColor 3%, transparent)
+      );
+    }
+
+    /* Header and summary reserve a scrollbar gutter (overflow-y: scroll) so their columns
+       line up with the scrolling body. Keep the gutter, but don't paint a scrollbar in it. */
+    .ant-table-header,
+    .ant-table-summary {
+      scrollbar-color: transparent transparent;
+
+      &::-webkit-scrollbar,
+      &::-webkit-scrollbar-thumb,
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      &::-webkit-scrollbar-button {
+        display: none;
+      }
+    }
+
+    .im-summary-row > td {
+      height: 40px;
+      padding: 0 var(--im-grid-cell-padding-x);
+      font-size: var(--im-grid-font-size);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: start;
+      border-bottom: 0;
+      background-color: inherit;
+      background-image: linear-gradient(
+        color-mix(in srgb, currentColor 3%, transparent),
+        color-mix(in srgb, currentColor 3%, transparent)
+      );
+
+      &.is-numeric {
+        direction: ltr;
+        text-align: right;
+      }
+
+      &.is-centered {
         text-align: center;
       }
-      th {
-        border-right: 0 !important;
-      }
-      td {
-        background: inherit !important;
-        transition: unset;
 
-        &.ant-table-cell-fix-left,
-        &.ant-table-cell-fix-right {
-          background: inherit;
-        }
+      &.ant-table-cell-fix-left,
+      &.ant-table-cell-fix-right {
+        overflow: visible;
       }
     }
 
-    .ant-table-thead th.ant-table-column-has-sorters {
-      transition: unset;
+    .im-summary-label {
+      margin-inline-end: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--im-grid-muted);
     }
 
-    .ant-table-header-column,
-    .ant-table-column-sorters {
-      display: flex !important;
-      align-items: center;
-      justify-content: space-between;
+    .im-summary-row > td.is-numeric .im-summary-label {
+      margin-inline-end: 0;
+      margin-right: 6px;
+    }
 
-      span:not(.ant-table-column-sorter) {
-        width: calc(100% - 11px);
-        position: unset !important;
-        .title {
-          white-space: nowrap;
-          width: 100%;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-      }
+    .im-summary-sigma {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--im-grid-muted);
     }
 
     .ant-table-placeholder td {
       border: none;
     }
 
-    .ant-spin-nested-loading > div > .ant-spin {
-      max-height: unset;
-      z-index: 2000;
-    }
-
-    .ant-table-title,
-    .ant-table-footer {
-      display: flex;
-      justify-content: space-between;
-      padding: 3px !important;
-      align-items: center;
-      overflow-x: auto;
-      overflow-y: hidden;
-
-      nz-input-group {
-        width: 180px;
-        min-width: 180px;
-      }
-
-      .table-filter-footer {
-        max-width: calc(100% - 73px);
-        display: flex;
-        align-items: center;
-      }
-
-      nz-select {
-        min-width: 200px;
-      }
-    }
-
-    cdk-virtual-scroll-viewport {
-      height: auto !important;
-      overflow-y: scroll;
-      flex: 1;
-    }
-
-    th {
-      font-weight: bold;
-    }
-
-    th.table-cell-row-index,
-    td.table-cell-row-index {
-      padding: 10px;
-      text-align: center !important;
-    }
-
+    /* ----------------------------- fixed columns ---------------------------- */
     .ant-table-cell-fix-left,
     .ant-table-cell-fix-right {
       z-index: 2 !important;
-      transition: unset;
+      transition: none;
     }
 
-    .ant-table-header {
-      min-height: fit-content;
+    /* lead column: row number that turns into a checkbox */
+    th.im-col-lead,
+    td.im-col-lead {
+      padding: 0 6px;
+      text-align: center;
     }
 
-    nz-table-inner-scroll,
-    .ant-table-scroll,
-    .ant-table-content,
-    .ant-table,
-    .ant-spin-nested-loading,
-    .ant-spin-container {
-      height: 100% !important;
+    .im-lead {
+      display: grid;
+      place-items: center;
+      height: 100%;
+
+      > * {
+        grid-area: 1 / 1;
+      }
+    }
+
+    .im-lead-index {
+      font-size: 12px;
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: normal;
+      color: var(--im-grid-muted);
+    }
+
+    .im-lead-check {
+      margin: 0;
+
+      .ant-checkbox {
+        top: 0;
+      }
+    }
+
+    .im-lead.has-index .im-lead-check {
+      visibility: hidden;
+    }
+
+    .ant-table-thead th.im-col-lead:hover .im-lead.has-index,
+    .ant-table-tbody > tr:hover .im-lead.has-index,
+    .ant-table-tbody > tr.is-selected .im-lead.has-index,
+    .im-lead.has-index.show-check {
+      .im-lead-check {
+        visibility: visible;
+      }
+
+      .im-lead-index {
+        visibility: hidden;
+      }
+    }
+
+    /* actions column */
+    th.im-col-actions,
+    td.im-col-actions {
+      padding: 0 8px;
+      text-align: end;
+    }
+
+    .im-row-actions {
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 2px;
+    }
+
+    @media (hover: none) {
+      .im-lead.has-index .im-lead-check {
+        visibility: visible;
+      }
+
+      .im-lead.has-index .im-lead-index {
+        visibility: hidden;
+      }
     }
   }
 }
 
-.modal-footer-buttons {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* ------------------------------------------------------------------------ */
+/* Sticky-column shadows                                                     */
+/*                                                                           */
+/* Same strip ng-zorro draws beside pinned cells. ng-zorro only shows it     */
+/* when scrollLeft > 0, which never holds in RTL, so where the browser       */
+/* supports scroll-state container queries the pinned cells report whether   */
+/* they are actually stuck to an edge and the strip follows that. Works in   */
+/* both directions, no JS. Other browsers keep ng-zorro's own (LTR) shadow.  */
+/* ------------------------------------------------------------------------ */
+:host {
+  --im-grid-shadow: light-dark(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.45));
 }
 
-.cdk-drag-preview {
+@supports (container-type: scroll-state) {
+  :host ::ng-deep nz-table.im-grid-table {
+    .ant-table-cell-fix-left,
+    .ant-table-cell-fix-right {
+      container-type: scroll-state;
+    }
+
+    .ant-table-cell-fix-left-first::after,
+    .ant-table-cell-fix-left-last::after,
+    .ant-table-cell-fix-right-first::after,
+    .ant-table-cell-fix-right-last::after {
+      box-shadow: none !important;
+    }
+  }
+
+  @container scroll-state(stuck: left) {
+    :host ::ng-deep nz-table.im-grid-table {
+      .ant-table-cell-fix-left-first::after,
+      .ant-table-cell-fix-left-last::after {
+        box-shadow: inset 10px 0 8px -8px var(--im-grid-shadow) !important;
+      }
+    }
+  }
+
+  @container scroll-state(stuck: right) {
+    :host ::ng-deep nz-table.im-grid-table {
+      .ant-table-cell-fix-right-first::after,
+      .ant-table-cell-fix-right-last::after {
+        box-shadow: inset -10px 0 8px -8px var(--im-grid-shadow) !important;
+      }
+    }
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/* Loading: a thin progress bar while refreshing, skeleton rows when empty   */
+/* ------------------------------------------------------------------------ */
+nz-table.im-grid-table {
+  position: relative;
+}
+
+nz-table.im-grid-table.is-loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  width: 35%;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--im-grid-accent);
+  animation: im-progress 1.1s ease-in-out infinite;
+}
+
+:host ::ng-deep nz-table.im-grid-table.is-loading .ant-table-tbody > tr:not(.ant-table-placeholder) {
+  opacity: 0.55;
+  transition: opacity 150ms ease;
+}
+
+@keyframes im-progress {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(290%);
+  }
+}
+
+.im-skeleton {
+  width: 100%;
+}
+
+.im-skeleton-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  background-color: inherit;
-  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  gap: 24px;
+  padding: 0 var(--im-grid-cell-padding-x);
+  border-bottom: 1px solid var(--im-grid-divider);
+}
 
-  nz-resize-handle,
-  .ant-table-column-sorter {
-    display: none;
+.im-skeleton-bar {
+  flex: 0 1 auto;
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, currentColor 7%, transparent) 25%,
+    color-mix(in srgb, currentColor 13%, transparent) 50%,
+    color-mix(in srgb, currentColor 7%, transparent) 75%
+  );
+  background-size: 400% 100%;
+  animation: im-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes im-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  nz-table.im-grid-table.is-loading::after,
+  .im-skeleton-bar {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/* Empty states                                                              */
+/* ------------------------------------------------------------------------ */
+:host ::ng-deep nz-table.im-grid-table .ant-table-tbody > tr.ant-table-placeholder {
+  --im-row-tint: transparent !important;
+
+  > td {
+    padding: 0;
+    border-bottom: 0;
+  }
+
+  .ant-empty-normal {
+    margin: 0;
+  }
+}
+
+.im-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 56px 24px;
+  text-align: center;
+}
+
+.im-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  font-size: 22px;
+  color: var(--im-grid-muted);
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.im-empty-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: inherit;
+}
+
+.im-empty-text {
+  max-width: 340px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--im-grid-muted);
+}
+
+.im-empty-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  margin-top: 12px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: inherit;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  cursor: pointer;
+
+  &:hover {
+    background: color-mix(in srgb, currentColor 13%, transparent);
+  }
+
+  &.is-primary {
+    color: #fff;
+    background: var(--im-grid-accent);
+
+    &:hover {
+      background: color-mix(in srgb, var(--im-grid-accent) 88%, white);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--im-grid-accent);
+    outline-offset: 2px;
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/* Filtered column marker                                                    */
+/* ------------------------------------------------------------------------ */
+:host ::ng-deep nz-table.im-grid-table .ant-table-thead th.is-filtered .title {
+  color: inherit;
+
+  &::after {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-inline-start: 6px;
+    border-radius: 50%;
+    vertical-align: middle;
+    background: var(--im-grid-accent);
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/* Context / "more" menu (overlay; template elements keep our scope)         */
+/* ------------------------------------------------------------------------ */
+.im-context-menu {
+  min-width: 180px;
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.im-context-menu li[nz-menu-item] {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Cell-value dialog                                                         */
+/* ------------------------------------------------------------------------ */
+.im-value {
+  max-height: calc(100vh - 260px);
+  margin: 0;
+  padding: 16px;
+  overflow: auto;
+  border-radius: 10px;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: color-mix(in srgb, currentColor 4%, transparent);
+
+  &:not(.is-code) {
+    font-family: inherit;
+    font-size: 14px;
+  }
+}
+
+.im-value ::ng-deep {
+  .im-xml-tag {
+    color: #3b82f6;
+  }
+
+  .im-xml-attr {
+    color: #a855f7;
+  }
+
+  .im-xml-value {
+    color: #16a34a;
+  }
+}
+
+.im-modal-title-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Column chooser popover (overlay, still scoped to this component)          */
+/* ------------------------------------------------------------------------ */
+.im-column-chooser {
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  max-height: 320px;
+  margin-inline-end: -8px;
+  padding-inline-end: 8px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+
+  label[nz-checkbox] {
+    margin: 0;
+    padding: 4px 0;
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/* Column drag preview (rendered in body, keeps our encapsulation attr)      */
+/* ------------------------------------------------------------------------ */
+.im-grid-drag-preview {
+  display: flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  background: color-mix(in srgb, var(--im-grid-accent, #1677ff) 92%, black);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.3),
+    0 2px 6px rgba(0, 0, 0, 0.2);
+  cursor: grabbing;
+  list-style: none;
+  /* a detached <th> defaults to centered text – keep the header alignment */
+  text-align: start;
+
+  /* same physical-right rule as numeric headers */
+  &.is-numeric {
+    justify-content: flex-end;
+    text-align: right;
+  }
+
+  ::ng-deep {
+    nz-resize-handle,
+    .ant-table-column-sorter {
+      display: none;
+    }
+
+    .ant-table-column-sorters,
+    .ant-table-column-title {
+      display: block;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: inherit;
+      text-align: inherit;
+    }
   }
 }
 
 .cdk-drag-placeholder {
-  opacity: 0;
+  opacity: 0.3;
 }
 
 .cdk-drag-animating {
-  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 .cdk-drop-list-dragging th:not(.cdk-drag-placeholder) {
-  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
 }
 
-.inherit {
-  background: inherit !important;
-}
+/* ------------------------------------------------------------------------ */
+/* Edit dialog (rendered in an overlay; scoped by its own class)             */
+/* ------------------------------------------------------------------------ */
+::ng-deep .im-grid-modal {
+  .ant-modal-content {
+    padding: 0;
+    border-radius: 14px;
+    overflow: hidden;
+  }
 
-.filter-cell {
-  position: relative;
-  line-height: 0px;
-  padding: 0px 2px !important;
-  &.sticky {
-    z-index: 2;
+  .ant-modal-header {
+    margin: 0;
+    padding: 16px 24px;
+    border-bottom: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+  }
+
+  .ant-modal-close {
+    top: 14px;
+    inset-inline-end: 16px;
+  }
+
+  .ant-modal-body {
+    max-height: calc(100vh - 220px);
+    padding: 20px 24px 8px;
+    overflow-y: auto;
+  }
+
+  .ant-modal-footer {
+    margin: 0;
+    padding: 12px 24px;
+    border-top: 1px solid color-mix(in srgb, currentColor 10%, transparent);
   }
 }
 
-.focused {
-  box-shadow: inset 0px 0px 0px 1px #1890ff;
-}
-
-.clear-icon {
-  font-size: large;
-}
-
-.right-handle-wrap {
-  height: 100%;
+.im-modal-title {
   display: flex;
   align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.im-modal-title-icon {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 15px;
+  color: var(--im-grid-accent, #1677ff);
+  background: color-mix(in srgb, var(--im-grid-accent, #1677ff) 12%, transparent);
 }
 
-.right-handle {
-  background: #fff;
-  color: #1890ff;
-  border: 1px solid #ddd;
-  text-align: center;
-  font-size: 12px;
-  height: 20px;
-  line-height: 20px;
+/* ------------------------------------------------------------------------ */
+/* Edit modal footer                                                         */
+/* ------------------------------------------------------------------------ */
+.im-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
-nz-resize-handle {
-  z-index: 1;
+.im-modal-footer-end {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.im-modal-footer button[nz-button] {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  border-radius: 8px;
+}
+
+pre {
+  white-space: pre-wrap;
 }

@@ -1,217 +1,228 @@
-<ng-template #toolbarTemplate>
-  <im-toolbar [allowCreate]="allowCreate()"
-    [allowExcel]="allowExcel()"
-    [deletedRowsLength]="deletedRowsLength"
+@if (showToolbar()) {
+  <im-toolbar
+    class="im-grid-toolbar"
+    [allowCreate]="allowCreate()"
+    [columns]="columns()"
+    [deletedRowsLength]="deletedRowsLength()"
     [directMode]="editMode() === EditMode.Direct"
+    [(searchTerm)]="searchTerm"
+    [filtersOpen]="allowSearch()"
+    [hasActiveFilters]="hasActiveFilters()"
     [label]="label()"
-    [newRowsLength]="newRowsLength"
-    [numberOfChecked]="numberOfChecked"
+    [loading]="loading()"
+    [newRowsLength]="newRowsLength()"
+    [notIncludedColumns]="notIncludedColumns()"
+    [numberOfChecked]="numberOfChecked()"
+    [rowsLength]="rows().length"
+    [totalLength]="currentRows().length"
+    [showFilterToggle]="disableSearch() === false"
     [size]="size()"
-    [unsavedRowsLength]="unsavedRowsLength"
+    [unsavedRowsLength]="unsavedRowsLength()"
     (addRow)="openCreateOrEditModal()"
     (changeSize)="updateRowHeight($event)"
     (deleteRows)="deleteRows($event)"
-    (exportAsExcel)="exportAsExcel()"
+    (filterRows)="notIncludedColumns.set($event)"
     (resetRows)="resetRows()"
     (saveRows)="saveRows()"
-   />
-</ng-template>
+    (toggleFilters)="toggleFilters()"
+  />
+}
+
 <nz-table
-  [nzData]="rows"
-  [nzFooter]="footerTemplate"
+  class="im-grid-table"
+  [class.has-selection]="numberOfChecked() > 0"
+  [nzData]="rows()"
+  [nzFooter]="showToolbar() ? null : footerTemplate"
   [nzFrontPagination]="false"
-  [nzLoading]="loading()"
-  [nzScroll]="{ x: columnsWidth + 'px', y: '100%' }"
+  [class.is-loading]="loading()"
+  [nzNoResult]="emptyState"
+  [nzScroll]="{ x: columnsWidth() + 'px', y: '100%' }"
   [nzShowPagination]="false"
   [nzSize]="size()"
-  [nzTitle]="showToolbar() ? toolbarTemplate : null"
   [nzVirtualForTrackBy]="trackByUnique"
-  [nzVirtualItemSize]="height"
+  [nzVirtualItemSize]="height()"
   #virtualTable
-  nzBordered
   nzVirtualScroll
   >
   <thead>
     <tr
-      class="inherit"
+      class="im-header-row"
       (cdkDropListDropped)="drop($event)"
       cdkDropList
       cdkDropListOrientation="horizontal"
       >
-      @if (childrenKey) {
+      @if (hasLeadColumn()) {
         <th
-          class="children-column"
-          [style.maxWidth.px]="35"
-          [style.minWidth.px]="35"
-          [style.width.px]="35"
-          nzWidth="35px"
-          nzLeft="0px"
-        ></th>
+          class="im-col-lead"
+          [style.maxWidth.px]="LEAD_WIDTH"
+          [style.minWidth.px]="LEAD_WIDTH"
+          [style.width.px]="LEAD_WIDTH"
+          [nzWidth]="LEAD_WIDTH + 'px'"
+          [nzLeft]="isRtl() ? false : '0px'"
+          [nzRight]="isRtl() ? '0px' : false"
+          >
+          <div
+            class="im-lead"
+            [class.has-index]="showRowIndex()"
+            [class.show-check]="numberOfChecked() > 0"
+            >
+            @if (showRowIndex()) {
+              <span class="im-lead-index">#</span>
+            }
+            @if (selection() === SelectionMode.Checkbox) {
+              <label
+                class="im-lead-check"
+                [nzChecked]="isAllDisplayDataChecked()"
+                [nzIndeterminate]="isIndeterminate()"
+                (nzCheckedChange)="checkAll($event)"
+                nz-checkbox
+              ></label>
+            }
+          </div>
+        </th>
       }
-      @if (selection() === SelectionMode.Checkbox) {
+      @for (column of visibleColumns(); track column.key) {
         <th
-          [(nzChecked)]="isAllDisplayDataChecked"
-          [nzIndeterminate]="isIndeterminate"
-          [nzLeft]="childrenKey ? '35px' : '0px'"
-          [style.maxWidth.px]="35"
-          [style.minWidth.px]="35"
-          [style.width.px]="35"
-          (nzCheckedChange)="checkAll($event)"
-          nzWidth="35px"
-          nzShowCheckbox
-        ></th>
-      }
-      @if (showRowIndex()) {
-        <th
-          class="table-cell-row-index"
-          [innerHtml]="numberOfChecked ? numberOfChecked : '#'"
-          [nzLeft]="childrenKey && selection() ? '70px' : !childrenKey && !selection() ? '0px' : '35px'"
-          [style.maxWidth.px]="70"
-          [style.minWidth.px]="70"
-          [style.width.px]="70"
-          nzWidth="70px"
-        ></th>
-      }
-      @for (column of columns() | filter : { visible: true, hidden: false }; track column.key) {
-        <th
-          [(nzSortOrder)]="mapOfSort[column.key]"
-          [style.pointer-events]="resizing ? 'none' : 'unset'"
+          class="im-col"
+          [class.is-numeric]="isNumeric(column)"
+          [class.is-centered]="isCentered(column)"
+          [nzSortOrder]="sortOrderOf(column)"
+          [class.is-sorted]="!!sortOrderOf(column)"
+          [class.is-filtered]="filteredKeys().has(column.key)"
+          [style.pointer-events]="resizing() ? 'none' : 'unset'"
           [nzMaxWidth]="column.maxWidth"
           [nzMinWidth]="column.minWidth"
           [nzWidth]="column.width + 'px'"
           [style.maxWidth.px]="column.width"
           [style.minWidth.px]="column.width"
           [style.width.px]="column.width"
-          [title]="column.title | translate"
+          [title]="column.title | imText"
           (nzResize)="onResize($event, column)"
           (nzResizeEnd)="resizeEnd()"
           (nzResizeStart)="resizeStart()"
-          (nzSortOrderChange)="!resizing && sort(column.sortKey ?? column.key, $event)"
+          (nzSortOrderChange)="!resizing() && sort(column, $event)"
           nz-resizable
           nzShowSort
           cdkDrag
+          cdkDragLockAxis="x"
+          cdkDragPreviewClass="im-grid-drag-preview"
           >
-          <div
-            class="title"
-            cdkDragHandle
-            >
-            {{ column.title | translate }}
-          </div>
+          <div class="title" cdkDragHandle>{{ column.title | imText }}</div>
           @if (column.resizable) {
-            <nz-resize-handle
-              nzDirection="right"
-              >
-              <div class="right-handle-wrap">
-                <i
-                  class="right-handle"
-                  nz-icon
-                  nzType="more"
-                ></i>
-              </div>
+            <nz-resize-handle [nzDirection]="isRtl() ? 'left' : 'right'">
+              <div class="im-resize-handle"></div>
             </nz-resize-handle>
           }
         </th>
       }
       <th
-        [style.maxWidth.px]="70"
-        [style.minWidth.px]="70"
-        [style.padding.px]="5"
-        [style.width.px]="70"
-        nzWidth="70px"
-        nzRight
+        class="im-col-actions"
+        [style.maxWidth.px]="actionsWidth()"
+        [style.minWidth.px]="actionsWidth()"
+        [style.width.px]="actionsWidth()"
+        [nzWidth]="actionsWidth() + 'px'"
+        [nzRight]="isRtl() ? false : '0px'"
+        [nzLeft]="isRtl() ? '0px' : false"
         >
-        @if (disableSearch() === false) {
-          <nz-switch [(ngModel)]="allowSearch"
-            [nzCheckedChildren]="checkedTemplate"
-            [nzUnCheckedChildren]="checkedTemplate"
-           />
-          <ng-template #checkedTemplate>
-            <i
-              nz-icon
-              nzType="search"
-            ></i>
-          </ng-template>
-        }
+        <div class="im-row-actions">
+          @if (!showToolbar() && disableSearch() === false) {
+            <button
+              [attr.aria-label]="texts().toggleFilters"
+              class="im-icon-btn im-filter-toggle"
+              [attr.aria-pressed]="allowSearch()"
+              [class.is-active]="allowSearch()"
+              [nzTooltipTitle]="texts().toggleFilters"
+              (click)="toggleFilters()"
+              nz-tooltip
+              type="button"
+              >
+              <span nz-icon nzType="filter"></span>
+              @if (hasActiveFilters()) {
+                <span class="im-dot"></span>
+              }
+            </button>
+          }
+          <button
+            class="im-icon-btn"
+            [attr.aria-label]="texts().visibleColumns"
+            [class.is-active]="hiddenColumnsCount() > 0"
+            [nzPopoverContent]="columnChooser"
+            [nzPopoverTitle]="texts().visibleColumns"
+            [nzTooltipTitle]="texts().visibleColumns"
+            nz-popover
+            nz-tooltip
+            [nzPopoverPlacement]="isRtl() ? 'bottomLeft' : 'bottomRight'"
+            nzPopoverTrigger="click"
+            type="button"
+            >
+            <span nz-icon nzType="setting"></span>
+          </button>
+        </div>
       </th>
     </tr>
     <tr
-      class="inherit"
-      [hidden]="!allowSearch"
-      [style.height.px]="30"
+      class="im-filter-row"
+      [hidden]="!allowSearch()"
       >
-      @if (childrenKey) {
+      @if (hasLeadColumn()) {
         <th
-          class="filter-cell"
-          [style.maxWidth.px]="35"
-          [style.minWidth.px]="35"
-          [style.width.px]="35"
-          nzWidth="35px"
-          nzLeft="0px"
-        ></th>
-      }
-      @if (selection()) {
-        <th
-          class="filter-cell"
-          [nzLeft]="childrenKey ? '35px' : '0px'"
-          [style.maxWidth.px]="35"
-          [style.minWidth.px]="35"
-          [style.width.px]="35"
-          nzWidth="35px"
-        ></th>
-      }
-      @if (showRowIndex()) {
-        <th
-          class="filter-cell"
-          [nzLeft]="childrenKey && selection() ? '70px' : !childrenKey && !selection() ? '0px' : '35px'"
-          [style.maxWidth.px]="70"
-          [style.minWidth.px]="70"
-          [style.paddingLeft.px]="3"
-          [style.paddingRight.px]="3"
-          [style.width.px]="70"
-          nzWidth="70px"
+          class="im-col-lead"
+          [style.maxWidth.px]="LEAD_WIDTH"
+          [style.minWidth.px]="LEAD_WIDTH"
+          [style.width.px]="LEAD_WIDTH"
+          [nzWidth]="LEAD_WIDTH + 'px'"
+          [nzLeft]="isRtl() ? false : '0px'"
+          [nzRight]="isRtl() ? '0px' : false"
           >
-          <input
-            [(ngModel)]="scrollIndex"
-            [max]="rows.length"
-            [nzSize]="'small'"
-            (ngModelChange)="scrollToIndex($event - 1)"
-            type="number"
-            nz-input
-            min="1"
-            placeholder="#"
+          @if (showRowIndex()) {
+            <input
+              class="im-goto-input"
+              [max]="rows().length"
+              [ngModel]="scrollIndex()"
+              [title]="texts().goToRow"
+              (ngModelChange)="scrollIndex.set($event); scrollToIndex($event - 1)"
+              min="1"
+              nz-input
+              nzSize="small"
+              placeholder="#"
+              type="number"
             />
+          }
         </th>
       }
-      @for (column of columns() | filter : { visible: true, hidden: false }; track column.key) {
+      @for (column of visibleColumns(); track column.key) {
         <th
-          class="filter-cell"
           [nzWidth]="column.width + 'px'"
           [style.maxWidth.px]="column.width"
           [style.minWidth.px]="column.width"
           [style.width.px]="column.width"
           >
-          <im-filter-cell [column]="column"
-            (filterRows)="filterRows()"
-           />
+          <im-filter-cell
+            [column]="column"
+            (valuesChange)="setFilterValues(column.key, $event)"
+          />
         </th>
       }
       <th
-        class="filter-cell clear"
-        [style.maxWidth.px]="70"
-        [style.minWidth.px]="70"
-        [style.paddingLeft.px]="2"
-        [style.width.px]="70"
-        [title]="translations.clearFilters | translate"
-        nzWidth="70px"
-        nzRight
+        class="im-col-actions"
+        [style.maxWidth.px]="actionsWidth()"
+        [style.minWidth.px]="actionsWidth()"
+        [style.width.px]="actionsWidth()"
+        [nzWidth]="actionsWidth() + 'px'"
+        [nzRight]="isRtl() ? false : '0px'"
+        [nzLeft]="isRtl() ? '0px' : false"
         >
-        <a (click)="clearFilters()">
-          <i
-            class="clear-icon"
-            nz-icon
-            nzType="stop"
-          ></i>
-        </a>
+        <button
+          [attr.aria-label]="texts().clearFilters"
+          class="im-icon-btn"
+          [disabled]="!hasActiveFilters()"
+          [nzTooltipTitle]="texts().clearFilters"
+          (click)="clearFilters()"
+          nz-tooltip
+          type="button"
+          >
+          <span nz-icon nzType="clear"></span>
+        </button>
       </th>
     </tr>
   </thead>
@@ -223,209 +234,367 @@
       >
       <tr
         [attr.index]="index"
-        [class.even]="index % 2 === 0"
-        [class.odd]="index % 2 === 1"
-        [style.height.px]="height"
+        [class.is-selected]="mapOfCheckedId()[row[uniqueKey()]]"
+        [class.is-new]="editCache()[row[uniqueKey()]]?.new"
+        [class.is-changed]="editCache()[row[uniqueKey()]]?.changed && !editCache()[row[uniqueKey()]]?.new"
+        [style.height.px]="height()"
         (contextmenu)="contextMenu($event, menu, row)"
         >
-        @if (childrenKey) {
+        @if (hasLeadColumn()) {
           <td
-            class="children-column"
-            [style.maxWidth.px]="35"
-            [style.minWidth.px]="35"
-            [style.padding.px]="0"
-            [style.width.px]="35"
-            nzLeft="0px"
-            >
-            <a (click)="openDrawer(row)">
-              <i
-                nz-icon
-                nzType="right"
-              ></i>
-            </a>
-          </td>
-        }
-        @if (selection() === SelectionMode.Checkbox) {
-          <td
-            [(nzChecked)]="mapOfCheckedId[row[uniqueKey]]"
-            [nzDisabled]="row.disabled"
-            [nzLeft]="childrenKey ? '35px' : '0px'"
-            [style.maxWidth.px]="35"
-            [style.minWidth.px]="35"
-            [style.width.px]="35"
-            (nzCheckedChange)="refreshStatus()"
-            nzShowCheckbox
-          ></td>
-        }
-        @if (showRowIndex()) {
-          <td
-            class="table-cell-row-index"
-            [nzLeft]="childrenKey && selection() ? '70px' : !childrenKey && !selection() ? '0px' : '35px'"
-            [style.maxWidth.px]="70"
-            [style.minWidth.px]="70"
-            [style.width.px]="70"
-            >
-            <b>{{ index + 1 }}</b>
-          </td>
-        }
-        @for (column of columns() | filter : { visible: true, hidden: false }; track column.key) {
-          <td
-            class="table-cell"
-            [class.focused]="column.key === (focusedCell$ | async).key && index === (focusedCell$ | async).rowIndex"
-          [class.searchHighlight]="
-            (this.filterForm.get('search').valueChanges | async) &&
-            row[column.key]?.toString().includes(this.filterForm.get('search').value)
-          "
-            [style]="column.ngStyle"
-            [style.maxWidth.px]="column.width"
-            [style.minWidth.px]="column.width"
-            [style.width.px]="column.width"
-            [title]="row[column.key] | format : column : (settingsService.settings$ | async)"
-            (click)="handleClick(column, row, index)"
-            >
-            <im-cell [column]="column"
-              [focused]="column.key === (focusedCell$ | async).key && index === (focusedCell$ | async).rowIndex"
-              [rawValue]="row[column.key]"
-              [value]="row[column.key] | format : column : (settingsService.settings$ | async)"
-              (zoomed)="showValueInModal(row, column)"
-             />
-          </td>
-        }
-        @if (allowDelete() || allowEdit()) {
-          <td
-            [style.maxWidth.px]="70"
-            [style.minWidth.px]="70"
-            [style.padding.px]="5"
-            [style.width.px]="70"
-            nzRight
+            class="im-col-lead"
+            [style.maxWidth.px]="LEAD_WIDTH"
+            [style.minWidth.px]="LEAD_WIDTH"
+            [style.width.px]="LEAD_WIDTH"
+            [nzLeft]="isRtl() ? false : '0px'"
+          [nzRight]="isRtl() ? '0px' : false"
             >
             <div
-              class="action-icons"
-              [style.marginLeft.px]="3"
+              class="im-lead"
+              [class.has-index]="showRowIndex()"
+              [class.show-check]="numberOfChecked() > 0"
               >
-              @if (allowEdit()) {
-                <a
-                  (click)="customEdit() ? customUpdatedRow.emit(row) : openCreateOrEditModal(row)"
-                  >
-                  <i
-                    [nzTheme]="editTheme() ?? 'fill'"
-                    [nzType]="editIcon() ?? 'edit'"
-                    nz-icon
-                  ></i>
-                </a>
+              @if (showRowIndex()) {
+                <span class="im-lead-index">{{ index + 1 }}</span>
               }
-              @if (allowDelete() && allowEdit()) {
-                <nz-divider nzType="vertical"
-                 />
-              }
-              @if (allowDelete() && customDelete() === false) {
-                <a
-                  [nzOkText]="translations.delete | translate"
-                  [nzPopconfirmTitle]="translations.areYouSure | translate"
-                  (nzOnConfirm)="deleteRow(row)"
-                  nz-popconfirm
-                  >
-                  <i
-                    nz-icon
-                    nzType="delete"
-                  ></i>
-                </a>
-              }
-              @if (allowDelete() && customDelete() === true) {
-                <a
-                  (click)="customDeletedRow.emit(row)"
-                  >
-                  <i
-                    [nzTheme]="deleteTheme() ?? 'outline'"
-                    [nzType]="deleteIcon() ?? 'delete'"
-                    nz-icon
-                  ></i>
-                </a>
+              @if (selection() === SelectionMode.Checkbox) {
+                <label
+                  class="im-lead-check"
+                  [nzChecked]="!!mapOfCheckedId()[row[uniqueKey()]]"
+                  [nzDisabled]="row.disabled"
+                  (nzCheckedChange)="setChecked(row, $event)"
+                  nz-checkbox
+                ></label>
               }
             </div>
           </td>
         }
+        @for (column of visibleColumns(); track column.key) {
+          <td
+            class="table-cell"
+            [class.focused]="column.key === focusedCell().key && index === focusedCell().rowIndex"
+            [class.searchHighlight]="activeSearch() && row[column.key]?.toString().includes(activeSearch())"
+            [style]="column.ngStyle"
+            [style.maxWidth.px]="column.width"
+            [style.minWidth.px]="column.width"
+            [style.width.px]="column.width"
+            [title]="row[column.key] | format : column : i18n.formatKey()"
+            (click)="handleClick(column, row, index)"
+            (dblclick)="openCellValue(column, row)"
+            >
+            <im-cell
+              [column]="column"
+              [rawValue]="row[column.key]"
+              [value]="row[column.key] | format : column : i18n.formatKey()"
+            />
+          </td>
+        }
+        <td
+          class="im-col-actions"
+          [style.maxWidth.px]="actionsWidth()"
+          [style.minWidth.px]="actionsWidth()"
+          [style.width.px]="actionsWidth()"
+          [nzRight]="isRtl() ? false : '0px'"
+          [nzLeft]="isRtl() ? '0px' : false"
+          >
+          <div class="im-row-actions">
+            @if (allowEdit()) {
+              <button
+                [attr.aria-label]="texts().edit"
+                class="im-icon-btn"
+                [title]="texts().edit"
+                (click)="customEdit() ? customUpdatedRow.emit(row) : openCreateOrEditModal(row)"
+                type="button"
+                >
+                <span
+                  [nzTheme]="editTheme() ?? 'outline'"
+                  [nzType]="editIcon() ?? 'edit'"
+                  nz-icon
+                ></span>
+              </button>
+            }
+            @if (allowDelete() && customDelete() === false) {
+              <button
+                [attr.aria-label]="texts().delete"
+                class="im-icon-btn is-danger"
+                [nzCancelText]="texts().cancel"
+                [nzOkText]="texts().delete"
+                [nzPopconfirmTitle]="texts().areYouSure"
+                [title]="texts().delete"
+                (nzOnConfirm)="deleteRow(row)"
+                nz-popconfirm
+                nzOkDanger
+                [nzPopconfirmPlacement]="isRtl() ? 'right' : 'left'"
+                type="button"
+                >
+                <span nz-icon nzType="delete"></span>
+              </button>
+            }
+            @if (allowDelete() && customDelete() === true) {
+              <button
+                [attr.aria-label]="texts().delete"
+                class="im-icon-btn is-danger"
+                [title]="texts().delete"
+                (click)="customDeletedRow.emit(row)"
+                type="button"
+                >
+                <span
+                  [nzTheme]="deleteTheme() ?? 'outline'"
+                  [nzType]="deleteIcon() ?? 'delete'"
+                  nz-icon
+                ></span>
+              </button>
+            }
+            @if (buttons()?.length) {
+              <button
+                [attr.aria-label]="texts().moreActions"
+                class="im-icon-btn"
+                [title]="texts().moreActions"
+                (click)="openRowMenu($event, menu, row)"
+                type="button"
+                >
+                <span nz-icon nzType="ellipsis"></span>
+              </button>
+            }
+            @if (childrenKey()) {
+              <button
+                [attr.aria-label]="texts().details"
+                class="im-icon-btn is-persistent"
+                [title]="texts().details"
+                (click)="openDrawer(row)"
+                type="button"
+                >
+                <span nz-icon nzType="right"></span>
+              </button>
+            }
+          </div>
+        </td>
       </tr>
     </ng-template>
   </tbody>
+  @if (hasSummary() && rows().length) {
+    <tfoot nzSummary nzFixed="bottom">
+      <tr class="im-summary-row">
+        @if (hasLeadColumn()) {
+          <td
+            class="im-col-lead"
+            [nzLeft]="isRtl() ? false : '0px'"
+            [nzRight]="isRtl() ? '0px' : false"
+            [style.maxWidth.px]="LEAD_WIDTH"
+            [style.minWidth.px]="LEAD_WIDTH"
+            [style.width.px]="LEAD_WIDTH"
+            >
+            <span class="im-summary-sigma" aria-hidden="true">Σ</span>
+          </td>
+        }
+        @for (cell of summaryCells(); track cell.key; let i = $index) {
+          <td
+            class="im-summary-cell"
+            [class.is-numeric]="isNumeric(visibleColumns()[i])"
+            [class.is-centered]="isCentered(visibleColumns()[i])"
+            [style.maxWidth.px]="visibleColumns()[i].width"
+            [style.minWidth.px]="visibleColumns()[i].width"
+            [style.width.px]="visibleColumns()[i].width"
+            [title]="cell.label ? cell.label + ': ' + cell.text : cell.text"
+            >
+            @if (cell.label) {
+              <span class="im-summary-label">{{ cell.label }}</span>
+            }
+            <span class="im-summary-value">{{ cell.text }}</span>
+          </td>
+        }
+        <td
+          class="im-col-actions"
+          [nzRight]="isRtl() ? false : '0px'"
+          [nzLeft]="isRtl() ? '0px' : false"
+          [style.maxWidth.px]="actionsWidth()"
+          [style.minWidth.px]="actionsWidth()"
+          [style.width.px]="actionsWidth()"
+        ></td>
+      </tr>
+    </tfoot>
+  }
 </nz-table>
+
+<ng-template #columnChooser>
+  <div class="im-column-chooser">
+    @for (column of chooserColumns(); track column.key) {
+      <label
+        [nzChecked]="column.visible"
+        [nzDisabled]="column.visible && visibleColumnsCount() === 1"
+        (nzCheckedChange)="toggleColumnVisibility(column, $event)"
+        nz-checkbox
+        >
+        {{ column.title | imText }}
+      </label>
+    }
+  </div>
+</ng-template>
+
+<ng-template #emptyState>
+  @if (loading()) {
+    <div class="im-skeleton" [attr.aria-label]="texts().loading" aria-busy="true" role="status">
+      @for (row of skeletonRows; track $index) {
+        <div class="im-skeleton-row" [style.height.px]="height()">
+          @for (width of skeletonCells; track $index) {
+            <span class="im-skeleton-bar" [style.flex-basis.%]="width"></span>
+          }
+        </div>
+      }
+    </div>
+  } @else if (isFilteredEmpty()) {
+    <div class="im-empty" role="status">
+      <span class="im-empty-icon"><span nz-icon nzType="search"></span></span>
+      <h4 class="im-empty-title">{{ texts().noResultsTitle }}</h4>
+      <p class="im-empty-text">{{ texts().noResultsDescription }}</p>
+      <button class="im-empty-action" (click)="clearSearchAndFilters()" type="button">
+        <span nz-icon nzType="clear"></span>
+        {{ texts().clearSearchAndFilters }}
+      </button>
+    </div>
+  } @else {
+    <div class="im-empty" role="status">
+      <span class="im-empty-icon"><span nz-icon nzType="inbox"></span></span>
+      <h4 class="im-empty-title">{{ texts().emptyTitle }}</h4>
+      <p class="im-empty-text">{{ texts().emptyDescription }}</p>
+      @if (allowCreate()) {
+        <button
+          class="im-empty-action is-primary"
+          (click)="openCreateOrEditModal()"
+          type="button"
+          >
+          <span nz-icon nzType="plus"></span>
+          {{ texts().new }}
+        </button>
+      }
+    </div>
+  }
+</ng-template>
+
+<ng-template #valueTitle>
+  <div class="im-modal-title">
+    <span class="im-modal-title-icon"><span nz-icon nzType="expand-alt"></span></span>
+    <span class="im-modal-title-text">{{ valueDialog()?.title }}</span>
+  </div>
+</ng-template>
+
+<ng-template #valueContent>
+  @if (valueDialog(); as value) {
+    @if (value.html) {
+      <pre class="im-value is-code" [innerHTML]="value.html"></pre>
+    } @else {
+      <pre class="im-value">{{ value.text }}</pre>
+    }
+  }
+</ng-template>
+
+<ng-template #valueFooter>
+  <div class="im-modal-footer">
+    <span></span>
+    <div class="im-modal-footer-end">
+      <button (click)="closeModal()" nz-button>{{ texts().close }}</button>
+      <button (click)="copyDialogValue()" nz-button nzType="primary">
+        <span nz-icon [nzType]="valueCopied() ? 'check' : 'copy'"></span>
+        {{ valueCopied() ? texts().copied : texts().copy }}
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #modalTitle>
+  <div class="im-modal-title">
+    <span class="im-modal-title-icon">
+      <span nz-icon [nzType]="form?.get('isNew') ? 'plus' : 'edit'"></span>
+    </span>
+    <span>{{ form?.get('isNew') ? texts().createNew : texts().edit }}</span>
+  </div>
+</ng-template>
+
 <ng-template #modalFooter>
   @if (form) {
-    <div
-      class="modal-footer-buttons"
-      >
+    <div class="im-modal-footer">
       <div>
         @if (!form.get('isNew') && editMode() !== EditMode.Direct) {
           <button
             (click)="resetRow()"
             nz-button
+            nzDanger
+            nzType="text"
             >
-            {{ translations.discardChanges | translate }}
+            <span nz-icon nzType="undo"></span>
+            {{ texts().discardChanges }}
           </button>
         }
       </div>
-      <div>
+      <div class="im-modal-footer-end">
+        <button
+          (click)="resetForm($event)"
+          nz-button
+          nzType="text"
+          >
+          {{ texts().reset }}
+        </button>
+        <button
+          (click)="closeModal()"
+          nz-button
+          >
+          {{ texts().cancel }}
+        </button>
         <button
           [disabled]="!form.dirty"
           (click)="saveRow($event, form.getRawValue())"
           nz-button
           nzType="primary"
           >
-          {{ translations.submit | translate }}
-        </button>
-        <nz-divider nzType="vertical" />
-        <button
-          (click)="resetForm($event)"
-          nz-button
-          >
-          {{ translations.reset | translate }}
-        </button>
-        <nz-divider nzType="vertical" />
-        <button
-          (click)="closeModal()"
-          nz-button
-          >
-          {{ translations.cancel | translate }}
+          {{ texts().submit }}
         </button>
       </div>
     </div>
   }
 </ng-template>
+
 <ng-template #createEditModal>
   @if (form) {
-    <im-edit-form [columns]="columns()"
+    <im-edit-form
+      [columns]="columns()"
       [form]="form"
-      [locale]="settingsService.locale"
-     />
+      (submitted)="saveRow($event, form.getRawValue())"
+    />
   }
 </ng-template>
+
 <ng-template #footerTemplate>
-  <im-footer [columns]="columns()"
-    [filterForm]="filterForm"
-    [notIncludedColumns]="notIncludedColumns"
-    [rowsLength]="rows.length"
-    (filterRows)="filterRows($event)"
-   />
+  <im-footer
+    [columns]="columns()"
+    [(searchTerm)]="searchTerm"
+    [notIncludedColumns]="notIncludedColumns()"
+    [rowsLength]="rows().length"
+    [selectedLength]="numberOfChecked()"
+    [showSearch]="!showToolbar()"
+    [totalLength]="currentRows().length"
+    (filterRows)="notIncludedColumns.set($event)"
+  />
 </ng-template>
-@if (childrenKey) {
-  <im-drawer [componentConfig]="componentConfig"
-    [title]="childrenTitle | translate"
-    [visible]="drawerVisible"
+
+@if (childrenKey()) {
+  <im-drawer
+    [componentConfig]="componentConfig()"
+    [title]="childrenTitle() | imText"
+    [visible]="drawerVisible()"
     (closed)="closeDrawer()"
-   />
+  />
 }
+
 <nz-dropdown-menu #menu="nzDropdownMenu">
-  <ul nz-menu>
+  <ul class="im-context-menu" nz-menu>
     @for (button of buttons(); track button) {
       <li
+        [nzDanger]="!!button.danger"
         (click)="button.func(activeRow)"
         nz-menu-item
         >
-        <i
-          [nzType]="button.icon"
-          nz-icon
-        ></i>
-        {{ button.title | translate }}
+        <span [nzType]="button.icon" nz-icon></span>
+        {{ button.title | imText }}
       </li>
     }
   </ul>

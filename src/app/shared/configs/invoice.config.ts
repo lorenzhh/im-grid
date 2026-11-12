@@ -1,10 +1,11 @@
-import { ChildTableComponent, ImColumn, ImColumnType } from 'im-grid';
+import { ChildTableComponent, ImColumn, ImColumnType, ImSummary } from 'im-grid';
 
 export const columns: ImColumn[] = [
   {
     key: 'id',
     title: 'Id',
     isUnique: true,
+    summary: ImSummary.count,
   },
   {
     key: 'bookingYear',
@@ -15,6 +16,7 @@ export const columns: ImColumn[] = [
     key: 'invoiceDate',
     title: 'Invoice Date',
     columnType: ImColumnType.Date,
+    summary: ImSummary.max,
     showSeconds: false,
     nzShowTime: {
       nzFormat: 'HH:mm',
@@ -43,6 +45,11 @@ export const columns: ImColumn[] = [
   {
     key: 'vesselName',
     title: 'Vessel Name',
+    // custom summary: any value / text you like, here the number of distinct vessels
+    summary: ({ values }) => ({
+      label: { en: 'Vessels', de: 'Schiffe', ar: 'السفن' },
+      value: new Set(values.filter(Boolean)).size,
+    }),
   },
   {
     key: 'ownerId',
@@ -61,11 +68,13 @@ export const columns: ImColumn[] = [
     key: 'tcoHire',
     title: 'Tco Hire',
     columnType: ImColumnType.Decimal,
+    summary: ImSummary.sum,
   },
   {
     key: 'freight',
     title: 'Freight',
     columnType: ImColumnType.Decimal,
+    summary: ImSummary.sum,
   },
   {
     key: 'startdate',
@@ -135,6 +144,7 @@ export const columns: ImColumn[] = [
     key: 'quantity',
     title: 'Quantity',
     columnType: ImColumnType.Decimal,
+    summary: ImSummary.average,
   },
   {
     key: 'unit',

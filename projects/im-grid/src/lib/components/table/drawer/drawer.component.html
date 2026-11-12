@@ -1,6 +1,7 @@
 <nz-drawer
-  [nzBodyStyle]="{ height: 'calc(100% - 55px)', padding: '0px' }"
-  [nzPlacement]="'right'"
+  [nzBodyStyle]="{ padding: '0px' }"
+  nzWrapClassName="im-grid-drawer"
+  [nzPlacement]="isRtl() ? 'left' : 'right'"
   [nzTitle]="title()"
   [nzVisible]="visible()"
   [nzWidth]="width"
@@ -14,14 +15,8 @@
     nzBounds="window"
     *nzDrawerContent
   >
-    <nz-resize-handle nzDirection="left">
-      <div class="resize-wrap">
-        <i
-          class="icon"
-          nz-icon
-          nzType="more"
-        ></i>
-      </div>
+    <nz-resize-handle [nzDirection]="isRtl() ? 'right' : 'left'">
+      <div class="resize-wrap"></div>
     </nz-resize-handle>
     <div class="body-content">
       <div #content></div>

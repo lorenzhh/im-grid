@@ -21,22 +21,10 @@
   box-shadow: 2px 0 6px rgba(0, 21, 41, 0.35);
 }
 
-.header-trigger {
-  font-size: 20px;
-  cursor: pointer;
-  transition:
-    all 0.3s,
-    padding 0s;
-}
-
-.trigger:hover {
-  color: #1890ff;
-}
-
 .sidebar-logo {
   position: relative;
   height: 64px;
-  padding-left: 24px;
+  padding-inline-start: 24px;
   overflow: hidden;
   line-height: 64px;
   transition: all 0.3s;
@@ -51,7 +39,8 @@
 
 .sidebar-logo h1 {
   display: inline-block;
-  margin: 0 0 0 20px;
+  margin: 0;
+  margin-inline-start: 20px;
   color: #fff;
   font-weight: 600;
   font-size: 14px;
@@ -62,22 +51,6 @@
     Helvetica,
     sans-serif;
   vertical-align: middle;
-}
-
-nz-header {
-  padding: 0;
-  width: 100%;
-  z-index: 2;
-}
-
-.app-header {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 64px;
-  padding: 20px;
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
 }
 
 nz-content {
@@ -105,5 +78,254 @@ li.active a {
 
 li.active {
   background-color: #004280 !important;
-  border-right: 6px #0084ff solid !important;
+  border-inline-end: 6px #0084ff solid !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Header                                                              */
+/* ------------------------------------------------------------------ */
+nz-header.app-header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  height: 56px;
+  padding: 0 16px;
+  line-height: normal;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+}
+
+/* ng-zorro's light theme gives the header a dark navy background by default */
+:host-context([data-theme="light"]) nz-header.app-header {
+  color: rgba(0, 0, 0, 0.88);
+  background: #fff;
+}
+
+.app-header-start,
+.app-header-end {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.app-header-end {
+  gap: 6px;
+}
+
+/* breadcrumb */
+.app-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin-inline-start: 4px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.app-breadcrumb-group,
+.app-breadcrumb-sep {
+  color: color-mix(in srgb, currentColor 55%, transparent);
+}
+
+.app-breadcrumb-current {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+}
+
+/* buttons */
+.hdr-icon-btn,
+.hdr-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.hdr-icon-btn {
+  width: 32px;
+  padding: 0;
+  font-size: 16px;
+}
+
+.hdr-btn {
+  padding: 0 10px;
+}
+
+.hdr-icon-btn:hover,
+.hdr-btn:hover,
+.hdr-btn.ant-dropdown-open,
+.hdr-icon-btn.ant-popover-open {
+  background: color-mix(in srgb, currentColor 9%, transparent);
+}
+
+.hdr-icon-btn:focus-visible,
+.hdr-btn:focus-visible,
+.hdr-segmented button:focus-visible {
+  outline: 2px solid #1677ff;
+  outline-offset: 2px;
+}
+
+.hdr-caret {
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+.hdr-divider {
+  width: 1px;
+  height: 20px;
+  margin: 0 4px;
+  background: color-mix(in srgb, currentColor 14%, transparent);
+}
+
+/* LTR | RTL */
+.hdr-segmented {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 8px;
+  background: color-mix(in srgb, currentColor 7%, transparent);
+}
+
+.hdr-segmented button {
+  height: 28px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, currentColor 60%, transparent);
+  background: transparent;
+  cursor: pointer;
+}
+
+.hdr-segmented button.is-active {
+  color: inherit;
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+/* menus (overlay, still scoped to this component) */
+.hdr-menu {
+  min-width: 240px;
+  padding: 6px;
+  border-radius: 10px;
+}
+
+.hdr-menu-title {
+  padding: 6px 10px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  list-style: none;
+  opacity: 0.55;
+  cursor: default;
+}
+
+.hdr-menu li[nz-menu-item] {
+  display: flex;
+  align-items: center;
+  margin: 1px 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  line-height: 1.3;
+}
+
+/* ng-zorro wraps the item content; stretch it so the check sits at the far end */
+.hdr-menu li[nz-menu-item] ::ng-deep .ant-menu-title-content,
+.hdr-menu li[nz-menu-item] ::ng-deep .ant-dropdown-menu-title-content {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.hdr-menu li.is-active {
+  background: color-mix(in srgb, #1677ff 10%, transparent);
+}
+
+.hdr-menu-label {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.hdr-menu-name {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.hdr-menu li.is-active .hdr-menu-name {
+  font-weight: 600;
+}
+
+.hdr-menu-hint {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.hdr-menu-hint.is-mono {
+  font-variant-numeric: tabular-nums;
+}
+
+.hdr-menu-check {
+  flex: none;
+  margin-inline-start: auto;
+  color: #1677ff;
+  visibility: hidden;
+}
+
+.hdr-menu li.is-active .hdr-menu-check {
+  visibility: visible;
+}
+
+/* accent popover */
+.hdr-accent {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 260px;
+}
+
+.hdr-accent nz-slider {
+  flex: 1;
+}
+
+.hdr-accent-reset {
+  height: 28px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 12px;
+  color: inherit;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  cursor: pointer;
+}
+
+@media (max-width: 720px) {
+  .app-breadcrumb-group,
+  .app-breadcrumb-sep,
+  .hdr-btn > span:not([nz-icon]) {
+    display: none;
+  }
 }

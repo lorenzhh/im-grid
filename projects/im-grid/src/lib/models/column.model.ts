@@ -3,7 +3,8 @@ import { AsyncValidatorFn, ValidatorFn } from '@angular/forms';
 import { BooleanInput } from 'ng-zorro-antd/core/types';
 import { SupportTimeOptions } from 'ng-zorro-antd/date-picker';
 import { Subject } from 'rxjs';
-import { Translation } from './settings.model';
+import { ImText } from '../i18n/im-grid-i18n';
+import { ImSummaryFn } from './summary.model';
 
 export enum ImFieldType {
   None = 'None',
@@ -43,13 +44,15 @@ export enum ImFilterType {
 }
 
 export interface ImButton {
-  title: Translation | string;
+  title: ImText;
   icon: string;
+  /** Shows the action in red (e.g. destructive actions). */
+  danger?: boolean;
   func(row: any): void;
 }
 
 export interface ImColumn {
-  title: Translation | string;
+  title: ImText;
   isUnique?: true;
   childrenConfig?: {
     columns: ImColumn[];
@@ -84,7 +87,13 @@ export interface ImColumn {
   showSeconds?: boolean;
   nzShowTime?: BooleanInput | SupportTimeOptions | null | undefined;
   avatarShape?: 'circle' | 'square';
-  drawerTitle?: (row: any) => string | Translation;
+  drawerTitle?: (row: any) => ImText;
+  /**
+   * Value for this column in the summary row pinned to the bottom of the grid.
+   * Use a ready-made one (`ImSummary.sum`, `average`, `count`, `min`, `max`) or your own:
+   * `({ rows, values }) => ...`. The row is shown as soon as one visible column has a summary.
+   */
+  summary?: ImSummaryFn;
 }
 
 export interface ImSelectOption {

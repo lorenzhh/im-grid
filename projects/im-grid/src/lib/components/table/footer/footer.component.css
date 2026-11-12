@@ -1,6 +1,37 @@
 :host {
   display: flex;
-  justify-content: space-between;
-  width: 100%;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  width: 100%;
+  font-size: 12px;
+}
+
+.im-footer-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+strong {
+  font-weight: 600;
+}
+
+.im-muted {
+  color: var(--im-grid-muted, inherit);
+}
+
+.im-footer-selected strong {
+  color: var(--im-grid-accent, #1677ff);
+}
+
+.im-footer-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--im-grid-muted, currentColor);
 }

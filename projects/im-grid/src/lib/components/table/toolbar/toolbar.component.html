@@ -1,132 +1,138 @@
-<div>
+<div class="im-toolbar-start">
   @if (label()) {
-    <div
-      class="label"
-      >
-      {{ label() }}
+    <h3 class="im-toolbar-title">{{ label() | imText }}</h3>
+  }
+  @if (showSearch()) {
+    <im-search
+      [columns]="columns()"
+      [(value)]="searchTerm"
+      [notIncludedColumns]="notIncludedColumns()"
+      (filterRows)="filterRows.emit($event)"
+    />
+  }
+  <span class="im-toolbar-count">
+    <strong>{{ rowsLength() }}</strong>
+    <span class="im-muted">
+      @if (totalLength() != null && totalLength() !== rowsLength()) {
+        {{ texts().of }} {{ totalLength() }}
+      }
+      {{ texts().records }}
+    </span>
+  </span>
+  @if (numberOfChecked() > 0 && !directMode()) {
+    <div class="im-selection">
+      <span class="im-selection-count">
+        {{ numberOfChecked() }} {{ texts().selected }}
+      </span>
+      <span class="im-selection-sep"></span>
+      <button
+        class="im-selection-action"
+        (click)="deleteRows.emit(numberOfChecked() > 1000)"
+        type="button"
+        >
+        <span nz-icon nzType="delete"></span>
+        {{ numberOfChecked() > 1000 ? texts().deleteFirst1000 : texts().delete }}
+      </button>
     </div>
   }
-  @if (numberOfChecked() > 0 && !directMode()) {
-    <button
-      (click)="deleteRows.emit(numberOfChecked() > 1000)"
-      nz-button
-      >
-      <i
-        nz-icon
-        nzType="delete"
-      ></i>
-      @if (numberOfChecked() > 1000) {
-        Delete first 1000
-      } @else {
-        Delete
-      }
-    </button>
-  }
 </div>
-<div class="toolbar-buttons">
-  @if (allowExcel()) {
+
+<div class="im-toolbar-end">
+  @if (!directMode() && pendingCount() > 0) {
+    <div class="im-pending">
+      <span class="im-pending-dot"></span>
+      <span class="im-pending-text">
+        @if (newRowsLength()) {
+          <span>{{ newRowsLength() }} {{ texts().pendingNew }}</span>
+        }
+        @if (unsavedRowsLength()) {
+          <span>{{ unsavedRowsLength() }} {{ texts().pendingEdited }}</span>
+        }
+        @if (deletedRowsLength()) {
+          <span>{{ deletedRowsLength() }} {{ texts().pendingDeleted }}</span>
+        }
+      </span>
+      <button
+        class="im-pending-discard"
+        [title]="texts().discardChanges"
+        (click)="resetRows.emit()"
+        type="button"
+        >
+        {{ texts().discard }}
+      </button>
+      <button
+        class="im-btn im-btn-primary"
+        [disabled]="loading()"
+        (click)="saveRows.emit()"
+        type="button"
+        >
+        {{ texts().saveChanges }}
+      </button>
+    </div>
+  }
+
+  <div class="im-toolbar-icons">
+    @if (showFilterToggle()) {
+      <button
+        [attr.aria-label]="texts().toggleFilters"
+        class="im-tool"
+        [attr.aria-pressed]="filtersOpen()"
+        [class.is-active]="filtersOpen()"
+        [nzTooltipTitle]="texts().toggleFilters"
+        (click)="toggleFilters.emit()"
+        nz-tooltip
+        type="button"
+        >
+        <span nz-icon nzType="filter"></span>
+        @if (hasActiveFilters()) {
+          <span class="im-tool-dot"></span>
+        }
+      </button>
+    }
+
     <button
-      (click)="exportAsExcel.emit()"
-      nz-button
+      [attr.aria-label]="texts().density"
+      class="im-tool"
+      [nzDropdownMenu]="densityMenu"
+      [nzTooltipTitle]="texts().density"
+      nz-dropdown
+      nz-tooltip
+      [nzPlacement]="isRtl() ? 'bottomLeft' : 'bottomRight'"
+      nzTrigger="click"
+      type="button"
       >
-      <i
-        nz-icon
-        nzType="file-excel"
-      ></i>
-      {{ translations.excel | translate }}
+      <span nz-icon nzType="column-height"></span>
     </button>
-  }
-  @if (allowExcel()) {
-    <nz-divider nzType="vertical"
-     />
-  }
-  <nz-radio-group
-    name="size"
-    [(ngModel)]="size"
-    (ngModelChange)="changeSize.emit($event)"
-    >
-    <label
-      [title]="translations.large | translate"
-      nz-radio-button
-      nzValue="default"
-      >
-      <i
-        nz-icon
-        nzType="menu"
-      ></i>
-    </label>
-    <label
-      [title]="translations.medium | translate"
-      nz-radio-button
-      nzValue="middle"
-      >
-      <i
-        [nzRotate]="90"
-        nz-icon
-        nzType="pause"
-      ></i>
-    </label>
-    <label
-      [title]="translations.small | translate"
-      nz-radio-button
-      nzValue="small"
-      >
-      <i
-        nz-icon
-        nzType="line"
-      ></i>
-    </label>
-  </nz-radio-group>
-  @if (!directMode()) {
-    <nz-divider nzType="vertical"
-     />
-  }
-  @if (!directMode()) {
-    <button
-      [disabled]="unsavedRowsLength() + deletedRowsLength() + newRowsLength() === 0"
-      [title]="translations.discardChanges | translate"
-      (click)="resetRows.emit()"
-      nz-button
-      >
-      <i
-        nz-icon
-        nzType="rollback"
-      ></i>
-    </button>
-  }
-  @if (allowCreate()) {
-    <nz-divider nzType="vertical"
-     />
-  }
+
+  </div>
+
   @if (allowCreate()) {
     <button
-      [title]="translations.createNew | translate"
+      class="im-btn"
+      [class.im-btn-primary]="directMode() || pendingCount() === 0"
       (click)="addRow.emit()"
-      nz-button
+      type="button"
       >
-      <i
-        nz-icon
-        nzType="plus-circle"
-      ></i>
-    </button>
-  }
-  @if (!directMode()) {
-    <nz-divider nzType="vertical"
-     />
-  }
-  @if (!directMode()) {
-    <button
-      [class.saveButton]="!loading() && (unsavedRowsLength() + deletedRowsLength() + newRowsLength() !== 0)"
-      [disabled]="loading() || (unsavedRowsLength() + deletedRowsLength() + newRowsLength()) === 0"
-      [title]="'New rows: ' + newRowsLength() + ' - Updated rows: ' + unsavedRowsLength() + ' - Deleted rows: ' + deletedRowsLength()"
-      (click)="saveRows.emit()"
-      nz-button
-      >
-      <i
-        nz-icon
-        nzType="save"
-      ></i>
-      {{ translations.save | translate }}
+      <span nz-icon nzType="plus"></span>
+      {{ texts().new }}
     </button>
   }
 </div>
+
+<nz-dropdown-menu #densityMenu="nzDropdownMenu">
+  <ul class="im-density-menu" nz-menu>
+    <li class="im-density-menu-title">{{ texts().density }}</li>
+    @for (option of densityOptions; track option.value) {
+      <li
+        [class.is-active]="size() === option.value"
+        (click)="setSize(option.value)"
+        nz-menu-item
+        >
+        <span class="im-density-label">{{ texts()[option.label] }}</span>
+        @if (size() === option.value) {
+          <span class="im-density-check" nz-icon nzType="check"></span>
+        }
+      </li>
+    }
+  </ul>
+</nz-dropdown-menu>

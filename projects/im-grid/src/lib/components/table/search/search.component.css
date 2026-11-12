@@ -1,0 +1,116 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.im-search {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  border-radius: 8px;
+  background: color-mix(in srgb, currentColor 6%, transparent);
+  box-shadow: inset 0 0 0 1px transparent;
+  transition:
+    box-shadow 120ms ease,
+    background-color 120ms ease;
+}
+
+.im-search:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.im-search:focus-within {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--im-grid-accent, #1677ff),
+    0 0 0 3px color-mix(in srgb, var(--im-grid-accent, #1677ff) 18%, transparent);
+}
+
+/* strip ng-zorro's own input chrome, the wrapper above provides it */
+.im-search-input,
+:host ::ng-deep .im-search-input.ant-input-affix-wrapper,
+:host ::ng-deep .im-search-input .ant-input-affix-wrapper {
+  width: 240px;
+  height: 32px;
+  padding: 0 10px;
+  border: 0 !important;
+  border-radius: 8px;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+:host ::ng-deep .im-search-input input.ant-input {
+  font-size: 13px;
+  background: transparent !important;
+}
+
+:host ::ng-deep .im-search-input .ant-input-prefix {
+  margin-inline-end: 8px;
+  color: var(--im-grid-muted, inherit);
+}
+
+.im-search-scope {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  margin-inline-end: 4px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 12px;
+  white-space: nowrap;
+  color: var(--im-grid-muted, inherit);
+  background: transparent;
+  cursor: pointer;
+}
+
+.im-search-scope::before {
+  content: '';
+  width: 1px;
+  height: 14px;
+  margin-inline-end: 6px;
+  background: var(--im-grid-border, rgba(128, 128, 128, 0.25));
+}
+
+.im-search-scope:hover {
+  color: inherit;
+}
+
+.im-search-scope.is-scoped {
+  color: var(--im-grid-accent, #1677ff);
+}
+
+.im-search-scope [nz-icon] {
+  font-size: 9px;
+}
+
+/* Column scope popover (overlay, still scoped to this component) */
+.im-scope {
+  display: flex;
+  flex-direction: column;
+  width: 240px;
+}
+
+.im-scope-all {
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+  font-weight: 600;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.im-scope-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 280px;
+  overflow-y: auto;
+  margin-inline-end: -8px;
+  padding-inline-end: 8px;
+  scrollbar-width: thin;
+}
+
+.im-scope-list label[nz-checkbox] {
+  margin: 0;
+  padding: 4px 0;
+}

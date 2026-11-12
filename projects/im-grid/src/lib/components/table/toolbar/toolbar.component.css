@@ -1,44 +1,299 @@
 :host {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
+  gap: 8px 16px;
   width: 100%;
-  align-items: center;
 }
 
-.label {
-  font-weight: 600;
-  font-size: 24px;
-  line-height: 24px;
-  padding: 8px;
-}
-
-.toolbar-buttons {
+.im-toolbar-start,
+.im-toolbar-end {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.im-toolbar-end {
+  gap: 8px;
+}
+
+.im-toolbar-title {
+  margin: 0;
+  margin-inline-end: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+  letter-spacing: -0.015em;
+  color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.im-toolbar-count {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.im-toolbar-count strong {
+  font-weight: 600;
+}
+
+.im-muted {
+  color: var(--im-grid-muted, inherit);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Buttons (plain buttons, so they look the same in every ng-zorro theme)  */
+/* ---------------------------------------------------------------------- */
+.im-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  color: inherit;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    opacity 120ms ease;
+}
+
+.im-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, currentColor 13%, transparent);
+}
+
+.im-btn-primary {
+  color: #fff;
+  background: var(--im-grid-accent, #1677ff);
+}
+
+.im-btn-primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--im-grid-accent, #1677ff) 88%, white);
+}
+
+.im-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.im-btn:focus-visible,
+.im-tool:focus-visible,
+.im-selection-action:focus-visible,
+.im-pending-discard:focus-visible {
+  outline: 2px solid var(--im-grid-accent, #1677ff);
+  outline-offset: 2px;
+}
+
+/* icon tools */
+.im-toolbar-icons {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.im-tool {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  font-size: 15px;
+  color: var(--im-grid-muted, inherit);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease;
+}
+
+.im-tool:hover {
+  color: inherit;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.im-tool.is-active {
+  color: var(--im-grid-accent, #1677ff);
+  background: color-mix(in srgb, var(--im-grid-accent, #1677ff) 14%, transparent);
+}
+
+.im-tool-dot {
+  position: absolute;
+  top: 6px;
+  inset-inline-end: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--im-grid-accent, #1677ff);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Selection chip                                                          */
+/* ---------------------------------------------------------------------- */
+.im-selection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding-block: 0;
+  padding-inline: 12px 4px;
+  border-radius: 8px;
+  font-size: 13px;
+  background: color-mix(in srgb, var(--im-grid-accent, #1677ff) 12%, transparent);
+  animation: im-pop 140ms ease-out;
+}
+
+.im-selection-count {
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--im-grid-accent, #1677ff);
+}
+
+.im-selection-sep {
+  width: 1px;
+  height: 14px;
+  background: color-mix(in srgb, var(--im-grid-accent, #1677ff) 35%, transparent);
+}
+
+.im-selection-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 13px;
+  white-space: nowrap;
+  color: var(--im-grid-danger, #ff4d4f);
+  background: transparent;
+  cursor: pointer;
+}
+
+.im-selection-action:hover {
+  background: color-mix(in srgb, var(--im-grid-danger, #ff4d4f) 14%, transparent);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Pending changes bar                                                     */
+/* ---------------------------------------------------------------------- */
+.im-pending {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 32px;
+  padding-block: 0;
+  padding-inline: 12px 0;
+  font-size: 13px;
+  white-space: nowrap;
+  animation: im-pop 140ms ease-out;
+}
+
+.im-pending-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--im-grid-warning, #faad14);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--im-grid-warning, #faad14) 25%, transparent);
+}
+
+.im-pending-text {
+  display: inline-flex;
+  gap: 6px;
+  color: var(--im-grid-muted, inherit);
+}
+
+.im-pending-text > span + span::before {
+  content: '·';
+  margin-inline-end: 6px;
+}
+
+.im-pending-discard {
+  height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--im-grid-muted, inherit);
+  background: transparent;
+  cursor: pointer;
+}
+
+.im-pending-discard:hover {
+  color: inherit;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+@keyframes im-pop {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Density menu (overlay, still scoped to this component)                  */
+/* ---------------------------------------------------------------------- */
+.im-density-menu {
+  min-width: 180px;
+  padding: 4px;
+}
+
+.im-density-menu-title {
+  padding: 6px 12px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  list-style: none;
+  cursor: default;
+}
+
+.im-density-menu li[nz-menu-item] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 6px;
+}
+
+.im-density-menu li.is-active {
+  font-weight: 600;
+}
+
+/* ng-zorro wraps item content in its own span; stretch it so the check sits at the far right */
+.im-density-menu li[nz-menu-item] ::ng-deep .ant-menu-title-content,
+.im-density-menu li[nz-menu-item] ::ng-deep .ant-dropdown-menu-title-content {
+  display: flex;
+  flex: 1;
   align-items: center;
 }
 
-nz-radio-group {
-  display: flex
-}
-
-.saveButton {
-  -webkit-animation: glowing 1500ms infinite;
-  -moz-animation: glowing 1500ms infinite;
-  -o-animation: glowing 1500ms infinite;
-  animation: glowing 1500ms infinite;
-}
-
-@keyframes glowing {
-  0% {
-    box-shadow: 0 0 3px #595959;
-  }
-
-  50% {
-    box-shadow: 0 0 40px #808080;
-  }
-
-  100% {
-    box-shadow: 0 0 3px #595959;
-  }
+.im-density-check {
+  margin-inline-start: auto;
+  padding-inline-start: 24px;
+  color: var(--im-grid-accent, #1677ff);
 }

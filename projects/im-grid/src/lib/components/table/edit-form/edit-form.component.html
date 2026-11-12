@@ -1,15 +1,35 @@
 <form
+  class="im-edit-form"
   [formGroup]="form()"
+  (keydown.control.enter)="submitted.emit($event)"
+  (keydown.meta.enter)="submitted.emit($event)"
   nz-form
+  nzLayout="vertical"
   >
-  @for (column of columns(); track column.key) {
-    @if (column.fieldType !== ImFieldType.None) {
-      @if (!column.hiddenForm) {
-        <nz-form-item>
-          <nz-form-label [nzSpan]="7">{{ column.title | translate }}</nz-form-label>
+  <!-- read-only values: shown as a summary, not as disabled inputs -->
+  @if (readonlyFields().length) {
+    <dl class="im-form-meta">
+      @for (column of readonlyFields(); track column.key) {
+        <div class="im-form-meta-item">
+          <dt>{{ column.title | imText }}</dt>
+          <dd [title]="form().get(column.key).value | format : column : i18n.formatKey()">
+            {{ form().get(column.key).value | format : column : i18n.formatKey() }}
+          </dd>
+        </div>
+      }
+    </dl>
+  }
+
+  <!-- editable fields -->
+  @if (inputFields().length) {
+    <div class="im-form-grid">
+      @for (column of inputFields(); track column.key) {
+        <nz-form-item [class.is-wide]="column.fieldType === ImFieldType.Textarea">
+          <nz-form-label [nzRequired]="isRequired(column.key)">
+            {{ column.title | imText }}
+          </nz-form-label>
           <nz-form-control
-            [nzErrorTip]="form().get(column.key).errors ? (form().get(column.key).errors | firstProperty | translate) : ''"
-            [nzSpan]="12"
+            [nzErrorTip]="form().get(column.key).errors ? (form().get(column.key).errors | firstProperty | imText) : ''"
             >
             @switch (column.fieldType) {
               @case (ImFieldType.Select) {
@@ -17,80 +37,82 @@
                   [compareWith]="column.compareFn ? column.compareFn : defaultCompareWith"
                   [formControlName]="column.key"
                   [nzMode]="column.multiSelect ? 'multiple' : 'default'"
-                  [nzPlaceHolder]="(column.title | translate) + '...'"
                   nzAllowClear
+                  nzShowSearch
                   >
-                  @for (option of column.selectValues; track option) {
-                    <nz-option [nzLabel]="
-                  (option | typeof) === 'object'
-                    ? option[column.labelProperty]
-                    : (option | typeof) !== 'null'
-                    ? (option | format : column)
-                    : ''
-                "
+                  @for (option of column.selectValues; track $index) {
+                    <nz-option
+                      [nzLabel]="
+                        (option | typeof) === 'object'
+                          ? option[column.labelProperty]
+                          : (option | typeof) !== 'null'
+                            ? (option | format : column : i18n.formatKey())
+                            : ''
+                      "
                       [nzValue]="column.columnType === ImColumnType.Array && !column.multiSelect ? [option] : option"
-                     />
+                    />
                   }
                 </nz-select>
               }
               @case (ImFieldType.Number) {
-                <nz-input-number [formControlName]="column.key"
-                  [nzPlaceHolder]="(column.title | translate) + '...'"
-                  [nzStep]="1"
-                  [style.width.%]="100"
-                 />
-              }
-              @case (ImFieldType.Checkbox) {
-                <label
+                <nz-input-number
+                  class="im-form-number"
                   [formControlName]="column.key"
-                  nz-checkbox
-                ></label>
+                  [nzStep]="1"
+                />
               }
               @case (ImFieldType.Rating) {
-                <nz-rate [formControlName]="column.key"
-                  nzAllowHalf
-                 />
+                <nz-rate [formControlName]="column.key" nzAllowHalf />
               }
               @case (ImFieldType.Website) {
                 <nz-input-wrapper>
-                  <nz-icon nzInputSuffix nzType="global" />
+                  <nz-icon nzInputPrefix nzType="global" />
                   <input
                     [formControlName]="column.key"
-                    [placeholder]="(column.title | translate) + '...'"
-                    type="text"
                     nz-input
+                    placeholder="https://"
+                    type="url"
                   />
                 </nz-input-wrapper>
-                }
-                @case (ImFieldType.Date) {
-                  <nz-date-picker [formControlName]="column.key"
-                    [nzFormat]="column.showSeconds ? TimeFormats[locale()] : TimeFormats[locale()].replace(':ss', '')"
-                    [nzPlaceHolder]="(column.title | translate) + '...'"
-                    [nzShowTime]="column.nzShowTime"
-                    [style.width.%]="100"
-                   />
-                }
-                @case (ImFieldType.Textarea) {
-                  <textarea
-                    [formControlName]="column.key"
-                    [placeholder]="(column.title | translate) + '...'"
-                    width="700"
-                    height="500"
-                    nz-input
-                    rows="5"
-                  ></textarea>
-                }
-                @default {
-                  <input
-                    [formControlName]="column.key"
-                    [placeholder]="(column.title | translate) + '...'"
-                    nz-input
-                    />
-                }
               }
-            </nz-form-control>
-          </nz-form-item>
-        }
+              @case (ImFieldType.Date) {
+                <nz-date-picker
+                  [formControlName]="column.key"
+                  [nzFormat]="column.showSeconds ? i18n.dateTimeFormat() : i18n.dateTimeFormat().replace(':ss', '')"
+                  [nzShowTime]="column.nzShowTime"
+                />
+              }
+              @case (ImFieldType.Textarea) {
+                <textarea
+                  [formControlName]="column.key"
+                  nz-input
+                  rows="5"
+                ></textarea>
+              }
+              @default {
+                <input [formControlName]="column.key" nz-input autocomplete="off" />
+              }
+            }
+          </nz-form-control>
+        </nz-form-item>
       }
-    }
-  </form>
+    </div>
+  }
+
+  <!-- booleans: a settings-style list of switches -->
+  @if (toggleFields().length) {
+    <div class="im-form-toggles">
+      @for (column of toggleFields(); track column.key) {
+        <label class="im-form-toggle">
+          <span class="im-form-toggle-label">
+            {{ column.title | imText }}
+            @if (isRequired(column.key)) {
+              <span class="im-form-required" aria-hidden="true">*</span>
+            }
+          </span>
+          <nz-switch [formControlName]="column.key" nzSize="small" />
+        </label>
+      }
+    </div>
+  }
+</form>

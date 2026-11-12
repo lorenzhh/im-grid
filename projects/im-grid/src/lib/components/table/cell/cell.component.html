@@ -1,71 +1,48 @@
-
 @switch (column().columnType) {
   @case (ImColumnType.Rating) {
-    <nz-rate [ngModel]="value()"
+    <nz-rate
+      [ngModel]="value()"
       nzAllowHalf
       nzDisabled
-     />
+    />
   }
   @case (ImColumnType.Color) {
-    <div
-      class="color"
-      [style.backgroundColor]="value()"
-    ></div>
+    @if (value()) {
+      <span class="im-color">
+        <span class="im-color-swatch" [style.backgroundColor]="value()"></span>
+        <span class="im-cell-text im-mono">{{ value() }}</span>
+      </span>
+    }
   }
   @case (ImColumnType.Avatar) {
-    <nz-avatar [nzShape]="column().avatarShape"
-      [nzSize]="'large'"
+    <nz-avatar
+      [nzShape]="column().avatarShape"
       [nzSrc]="rawValue()"
-     />
+      nzSize="small"
+    />
   }
   @case (ImColumnType.Website) {
-    <a
-      [href]="value()"
-      [style.width.%]="100"
-      >
-      <i
-        nz-icon
-        nzType="arrow-right"
-      ></i>
-    </a>
+    @if (value()) {
+      <a
+        class="im-link"
+        [href]="value()"
+        (click)="$event.stopPropagation()"
+        rel="noopener noreferrer"
+        target="_blank"
+        >
+        <span class="im-cell-text">{{ value() }}</span>
+        <span class="im-link-icon" nz-icon nzType="export"></span>
+      </a>
+    }
   }
   @case (ImColumnType.Boolean) {
-    <i
-      class="boolean-icon"
-      [nzType]="rawValue() === 1 || rawValue() === '1' || rawValue() === true || rawValue() === 'true' ? 'check' : 'close'"
-      nz-icon
-    ></i>
+    @if (isTrue()) {
+      <span class="im-bool is-true" nz-icon nzType="check"></span>
+    } @else {
+      <span class="im-bool is-false" nz-icon nzType="minus"></span>
+    }
   }
   @default {
-    {{ value() }}
+    <span class="im-cell-text">{{ value() }}</span>
   }
-}
-@if (focused() && value() != null) {
-  <div
-    class="footer-icons"
-    >
-    <div>
-      @if (column().zoom) {
-        <a
-          (click)="zoomed.emit()"
-          >
-          <i
-            class="zoom-icon"
-            nz-icon
-            nzType="zoom-in"
-          ></i>
-        </a>
-      }
-    </div>
-    <div>
-      @if (column().copy) {
-        <p
-          class="copy-icon"
-          [nzCopyText]="value().toString()"
-          nz-paragraph
-          nzCopyable
-        ></p>
-      }
-    </div>
-  </div>
 }
