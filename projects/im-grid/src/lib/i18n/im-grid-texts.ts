@@ -12,6 +12,7 @@ export interface ImGridTexts {
   clearFilters: string;
   columns: string;
   copied: string;
+  copy: string;
   count: string;
   createNew: string;
   delete: string;
@@ -70,6 +71,7 @@ export const IM_GRID_TEXTS_EN: ImGridTexts = {
   clearFilters: 'Clear Filters',
   columns: 'columns',
   copied: 'Copied',
+  copy: 'Copy',
   count: 'Count',
   createNew: 'Create new item',
   delete: 'Delete',

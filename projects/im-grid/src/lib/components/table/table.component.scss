@@ -1095,6 +1095,7 @@ nz-table.im-grid-table.is-loading::after {
 }
 
 .im-modal-footer button[nz-button] {
+  vertical-align: middle; /* ng-zorro offsets icon-only buttons by -3px */
   display: inline-flex;
   align-items: center;
   gap: 6px;
