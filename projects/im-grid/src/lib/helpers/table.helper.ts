@@ -1,4 +1,14 @@
-import { ImColumn, ImFilterType } from '../models/column.model';
+import { ImColumn, ImColumnType, ImFilterType } from '../models/column.model';
+
+/** Columns whose values are text a user would search for (not images, colours or child rows). */
+/** Columns worth offering in pickers (column chooser, "search in"): no avatars, none without a title. */
+export const isListableColumn = (column: ImColumn, hasTitle: boolean): boolean =>
+  hasTitle && column.columnType !== ImColumnType.Avatar;
+
+export const isSearchableColumn = (column: ImColumn): boolean =>
+  !column.childrenConfig &&
+  column.columnType !== ImColumnType.Avatar &&
+  column.columnType !== ImColumnType.Color;
 
 export const rowShouldBeFiltered = <T>(row: T, column: ImColumn): boolean => {
   if (column.filter.type === ImFilterType.RangeNumber) {

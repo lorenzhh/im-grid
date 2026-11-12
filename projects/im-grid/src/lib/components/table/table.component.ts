@@ -49,7 +49,7 @@ import {
   throttleTime,
 } from 'rxjs/operators';
 import { randomUuid } from '../../helpers/generator';
-import { rowShouldBeFiltered, sortRows } from '../../helpers/table.helper';
+import { isListableColumn, isSearchableColumn, rowShouldBeFiltered, sortRows } from '../../helpers/table.helper';
 import { highlightXml } from '../../helpers/xml.helper';
 import {
   CellCoordinates,
@@ -292,7 +292,12 @@ export class ImGridComponent<T extends { isNew?: boolean }> {
   );
   /** Columns the user may show/hide (programmatically hidden ones are excluded). */
   readonly chooserColumns = computed(() =>
-    (this.columns() ?? []).filter(column => !column.hidden && !column.childrenConfig)
+    (this.columns() ?? []).filter(
+      column =>
+        !column.hidden &&
+        !column.childrenConfig &&
+        isListableColumn(column, !!this.i18n.translate(column.title))
+    )
   );
   readonly visibleColumnsCount = computed(
     () => this.chooserColumns().filter(column => column.visible).length
@@ -354,7 +359,9 @@ export class ImGridComponent<T extends { isNew?: boolean }> {
     if (search) {
       const needle = search.toString().toLowerCase();
       const excluded = new Set(this.notIncludedColumns().map(column => column.key));
-      const searchable = this.columns().filter(column => !excluded.has(column.key));
+      const searchable = this.columns().filter(
+        column => isSearchableColumn(column) && !excluded.has(column.key)
+      );
       result = result.filter(row =>
         searchable.some(
           column =>

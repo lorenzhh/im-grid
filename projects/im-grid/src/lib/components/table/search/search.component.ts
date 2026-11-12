@@ -13,6 +13,7 @@ import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
+import { isListableColumn, isSearchableColumn } from '../../../helpers/table.helper';
 import { ImColumn } from '../../../models/column.model';
 import { ImTextPipe } from '../../../pipes/text.pipe';
 import { ImGridI18n } from '../../../i18n/im-grid-i18n';
@@ -43,10 +44,16 @@ export class ImSearchComponent {
   readonly showScope = input<boolean>(true);
   readonly filterRows = output<ImColumn[]>();
 
-  readonly texts = inject(ImGridI18n).texts;
+  private readonly i18n = inject(ImGridI18n);
+  readonly texts = this.i18n.texts;
 
+  /** Columns offered in the "search in" list (searchable, with a title to show). */
   readonly searchableColumns = computed(() =>
-    (this.columns() ?? []).filter(column => !column.childrenConfig)
+    (this.columns() ?? []).filter(
+      column =>
+        isSearchableColumn(column) &&
+        isListableColumn(column, !!this.i18n.translate(column.title))
+    )
   );
 
   readonly excludedKeys = computed(
