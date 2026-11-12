@@ -52,9 +52,6 @@ export const columns: ImColumn[] = [
     key: 'active',
     title: { en: 'Active', de: 'Aktiv', ar: 'نشط' },
     columnType: ImColumnType.Boolean,
-    // custom: plain text result ("12 / 40"), shown as is
-    summary: ({ values }) =>
-      `${values.filter(value => value === true).length} / ${values.length}`,
   },
   {
     key: 'created',
